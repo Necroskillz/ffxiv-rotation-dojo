@@ -1,0 +1,61 @@
+
+.cooldown {
+  position: absolute;
+  display: flex;
+  cursor: default;
+  align-items: center; /* Vertical center alignment */
+  justify-content: center; /* Horizontal center alignment */
+}
+
+.text {
+  position: absolute;
+  margin-top: -5px;
+  cursor: default;
+  align-items: center; /* Vertical center alignment */
+  justify-content: center; /* Horizontal center alignment */
+  display: flex;
+}
+
+.charges {
+  position: absolute;
+  cursor: default;
+  display: flex;
+  bottom: -4px;
+  right: -1px;
+  font-family: 'Miedinger Light W00 Regular';
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0px 0px 4px red;
+}
+
+.charges_empty {
+  color: red;
+}
+
+.mask_rect {
+  fill: #bbb;
+}
+
+.mask_circle {
+  --initialStroke: 88;
+  --transitionDuration: 0;
+  fill: none;
+  stroke: #333333;
+  stroke-width: 28;
+  stroke-dasharray: var(--initialStroke);
+  stroke-dashoffset: var(--initialStroke);
+  transition: stroke-dashoffset var(--transitionDuration) linear;
+  transform: rotate(-90deg);
+}
+
+.secondary_circle {
+  --initialStroke: 150;
+  --transitionDuration: 0;
+  fill: none;
+  stroke: #FFFCF7;
+  stroke-width: 3;
+  stroke-dasharray: var(--initialStroke);
+  stroke-dashoffset: var(--initialStroke);
+  transition: stroke-dashoffset var(--transitionDuration) linear;
+  transform: rotate(-90deg);
+}

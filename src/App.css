@@ -1,0 +1,13 @@
+body {
+  overflow: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  background-color: #545561;
+  color: #fff;
+}
+
+.App input {
+  color: #000;
+}

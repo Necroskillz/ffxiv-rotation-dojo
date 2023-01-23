@@ -1,0 +1,16 @@
+.step {
+  border: 2px solid #5D6E7D;
+  height: 25px;
+  width: 25px;
+  transform: rotate(45deg);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.step img {
+  transform: rotate(-45deg) scale(1.2);
+}
+
+.active {
+  border-color: #D0DDE7;
+}
