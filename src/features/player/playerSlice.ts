@@ -21,6 +21,9 @@ export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
+    setJob: (state, action: PayloadAction<string>) => {
+      state.job = action.payload;
+    },
     setPartySize: (state, action: PayloadAction<number>) => {
       state.partySize = action.payload;
     },
@@ -33,7 +36,7 @@ export const playerSlice = createSlice({
   },
 });
 
-export const { setPartySize, setSkillSpeed, setPullTimerDuration } = playerSlice.actions;
+export const { setPartySize, setSkillSpeed, setPullTimerDuration, setJob } = playerSlice.actions;
 
 export const selectJob = (state: RootState) => state.player.job;
 export const selectPlayer = (state: RootState) => state.player;

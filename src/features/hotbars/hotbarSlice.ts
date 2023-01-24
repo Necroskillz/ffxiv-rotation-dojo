@@ -10,7 +10,7 @@ export interface HotbarConfig {
 
 export interface HotbarSlotActionState {
   id: number;
-  actionId: number | null;
+  actionId: Record<string, number | null>;
 }
 
 export interface HotbarSlotKeybindState {
@@ -44,7 +44,7 @@ function createDefaultHotbar(id: number): HotbarState {
   };
 
   for (let i = 0; i < 12; i++) {
-    hotbar.slots[i] = { id: i + 1, actionId: null };
+    hotbar.slots[i] = { id: i + 1, actionId: {} };
   }
 
   for (let i = 0; i < 12; i++) {
@@ -102,6 +102,7 @@ export interface AssingActionPayload {
   hotbarId: number;
   slotId: number;
   actionId: number | null;
+  job: string;
 }
 
 export interface AssingKeybindPayload {
@@ -141,7 +142,7 @@ export const hotbarSlice = createSlice({
   reducers: {
     assignAction: (state, action: PayloadAction<AssingActionPayload>) => {
       const slot = getSlot(state.hotbars, action.payload.hotbarId, action.payload.slotId);
-      slot.actionId = action.payload.actionId;
+      slot.actionId[action.payload.job] = action.payload.actionId;
     },
     assignKeybind: (state, action: PayloadAction<AssingKeybindPayload>) => {
       const keybind = getKeybind(state.hotbars, action.payload.hotbarId, action.payload.slotId);

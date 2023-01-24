@@ -11,11 +11,11 @@ import { ActionId } from '../actions/action_enums';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { clsx } from 'clsx';
 import { selectLock } from '../hud/hudSlice';
-import { Tooltip } from 'react-tooltip';
 
 import css from './HotbarSlot.module.css';
 import { ActionTooltip } from '../actions/ActionTooltip';
 import { Cost } from './Cost';
+import { selectJob } from '../player/playerSlice';
 
 type HotbarProps = {
   hotbarId: number;
@@ -42,9 +42,11 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const keybind = useAppSelector((state) => selectKeybind(state, { hotbarId, slotId }));
   const keybindingMode = useAppSelector(selectKeybindingMode);
   const hudLock = useAppSelector(selectLock);
+  const job = useAppSelector(selectJob);
+  const actionId = slot.actionId[job];
 
-  let action = slot.actionId ? getActionById(slot.actionId) : null;
-  let combatAction = slot.actionId ? actions[slot.actionId] : null;
+  let action = actionId ? getActionById(actionId) : null;
+  let combatAction = actionId ? actions[actionId] : null;
 
   if (combatAction) {
     const redirectId = combatAction.redirect(state);
@@ -91,35 +93,35 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     () => ({
       accept: 'action',
       drop: (item: { id: ActionId }) => {
-        dispatch(assignAction({ hotbarId, slotId, actionId: item.id }));
+        dispatch(assignAction({ hotbarId, slotId, job, actionId: item.id }));
 
-        return { id: slot.actionId };
+        return { id: actionId };
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     }),
-    [action]
+    [action, job]
   );
 
   const [, drag, preview] = useDrag(
     () => ({
       type: 'action',
-      item: { id: slot.actionId },
+      item: { id: actionId },
       canDrag: () => !!action && hudLock,
       end: (item, monitor) => {
         if (!monitor.didDrop()) {
-          dispatch(assignAction({ hotbarId, slotId, actionId: null }));
+          dispatch(assignAction({ hotbarId, slotId, job, actionId: null }));
         } else {
           const result = monitor.getDropResult<{ id: number }>();
           if (result && result.id !== action?.id) {
-            dispatch(assignAction({ hotbarId, slotId, actionId: result.id }));
+            dispatch(assignAction({ hotbarId, slotId, job, actionId: result.id }));
           }
         }
       },
     }),
-    [action, hudLock]
+    [action, hudLock, job]
   );
 
   useEffect(() => {

@@ -2,8 +2,15 @@ import { FC } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { reset, setPullTimer } from '../combat/combatSlice';
 import { selectKeybindingMode, setKeybindingMode } from '../hotbars/hotbarSlice';
-import { selectPullTimerDuration } from '../player/playerSlice';
+import { selectJob, selectPullTimerDuration, setJob } from '../player/playerSlice';
 import { lock, selectElement, selectLock, setVisility } from './hudSlice';
+import { Option } from '../../types';
+import Select from 'react-select';
+
+const jobOptions: Option<string>[] = [
+  { value: 'DNC', label: 'DNC' },
+  { value: 'RPR', label: 'RPR' },
+];
 
 export const ControlBar: FC = () => {
   const dispatch = useAppDispatch();
@@ -12,6 +19,7 @@ export const ControlBar: FC = () => {
   const hudLock = useAppSelector(selectLock);
   const pullTimerDuration = useAppSelector(selectPullTimerDuration);
   const keybindingMode = useAppSelector(selectKeybindingMode);
+  const job = useAppSelector(selectJob);
 
   const toggleKeybindingMode = () => {
     dispatch(setKeybindingMode(!keybindingMode));
@@ -37,8 +45,23 @@ export const ControlBar: FC = () => {
     dispatch(setPullTimer(pullTimerDuration));
   }
 
+  function updateJob(value: Option<string> | null) {
+    if (!value) {
+      return;
+    }
+
+    dispatch(setJob(value.value));
+  }
+
   return (
-    <div className="grid grid-flow-col auto-cols-max gap-2">
+    <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
+      <Select
+        options={jobOptions}
+        defaultValue={jobOptions.find((o) => o.value === job)}
+        styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
+        onChange={updateJob}
+        menuPlacement='top'
+      ></Select>
       <button className="border px-1 rounded" onClick={toggleActions}>
         Actions
       </button>
