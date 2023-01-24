@@ -7,7 +7,7 @@ export const Buffs = () => {
   const buffs = useAppSelector(selectBuffs);
 
   return (
-    <HudItem name="Buffs" defaultPosition={{ x: 20, y: 450 }}>
+    <HudItem name="Buffs" defaultPosition={{ x: 20, y: 250 }}>
       <div className="h-20 grid auto-cols-max grid-flow-col gap-x-1">
         {buffs.map((b) => (
           <Status key={b.id} buff={b} />

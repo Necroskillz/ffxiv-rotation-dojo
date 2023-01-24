@@ -23,7 +23,7 @@ export const Hotbar: FC<HotbarProps> = ({ hotbar }) => {
   }
 
   return (
-    <HudItem name={'Hotbar' + hotbar.id} defaultPosition={{ x: 20, y: 500 + hotbar.id * 50 }}>
+    <HudItem name={'Hotbar' + hotbar.id} defaultPosition={{ x: 20, y: 300 + hotbar.id * 50 }}>
       <div className="grid grid-flow-col auto-cols-min items-start gap-2">
         <div className="grid auto-rows-max grid-flow-row gap-1.5">
           {rows.map((c, i) => (
