@@ -44,7 +44,7 @@ const PullTimer = () => {
   });
 
   return (
-    <HudItem name="PullTimer" defaultPosition={{ x: 400, y: 250 }}>
+    <HudItem name="PullTimer" defaultPosition={{ x: 400, y: 200 }}>
       {hudLock ? (
         <div className={clsx('grid items-end grid-flow-col gap-4 text-pull-timer', style.text)}>
           <span className="text-9xl">{seconds}</span>

@@ -1,7 +1,7 @@
 import { configureStore, ThunkAction, Action, combineReducers } from '@reduxjs/toolkit';
 import { createMigrate, FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import hotbarReducer, { HotbarsState, HotbarState } from '../features/hotbars/hotbarSlice';
+import hotbarReducer from '../features/hotbars/hotbarSlice';
 import combatReducer from '../features/combat/combatSlice';
 import playerReducer from '../features/player/playerSlice';
 import hudReducer from '../features/hud/hudSlice';
