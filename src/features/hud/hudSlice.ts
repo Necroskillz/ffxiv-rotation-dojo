@@ -49,6 +49,7 @@ const initialState: HudState = {
     Buffs: createDefaultElementPlacement({ isVisible: true }),
     Debuffs: createDefaultElementPlacement({ isVisible: true }),
     CastBar: createDefaultElementPlacement({ isVisible: true }),
+    PullTimer: createDefaultElementPlacement({ isVisible: true }),
   },
 };
 
