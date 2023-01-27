@@ -22,6 +22,8 @@ export const Status: FC<BuffProps> = ({ buff }) => {
           });
 
           setIcon(stackIcon);
+        } else {
+          setIcon(status.icon);
         }
       } else {
         setRemainingTime(null);

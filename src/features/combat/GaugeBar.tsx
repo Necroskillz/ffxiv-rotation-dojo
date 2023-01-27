@@ -7,9 +7,10 @@ type GaugeBarProps = {
   current: number;
   max: number;
   texture: string;
+  animate?: boolean;
 };
 
-export const GaugeBar: FC<GaugeBarProps> = ({ current, max, texture }) => {
+export const GaugeBar: FC<GaugeBarProps> = ({ current, max, texture, animate }) => {
   return (
     <ProgressBar
       completed={current}
@@ -17,6 +18,8 @@ export const GaugeBar: FC<GaugeBarProps> = ({ current, max, texture }) => {
       isLabelVisible={false}
       className={style.bar}
       bgColor={texture}
+      animateOnRender={false}
+      transitionDuration={animate === false ? '0s' : '300ms'}
     />
   );
 };

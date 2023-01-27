@@ -4,7 +4,8 @@ import { RootState } from '../../app/store';
 export interface PlayerState {
   partySize: number;
   level: number;
-  speed: number;
+  skillSpeed: number;
+  spellSpeed: number;
   job: string;
   pullTimerDuration: number;
 }
@@ -12,7 +13,8 @@ export interface PlayerState {
 const initialState: PlayerState = {
   partySize: 8,
   level: 90,
-  speed: 539,
+  skillSpeed: 400,
+  spellSpeed: 400,
   job: 'DNC',
   pullTimerDuration: 17,
 };
@@ -28,7 +30,10 @@ export const playerSlice = createSlice({
       state.partySize = action.payload;
     },
     setSkillSpeed: (state, action: PayloadAction<number>) => {
-      state.speed = action.payload;
+      state.skillSpeed = action.payload;
+    },
+    setSpellSpeed: (state, action: PayloadAction<number>) => {
+      state.spellSpeed = action.payload;
     },
     setPullTimerDuration: (state, action: PayloadAction<number>) => {
       state.pullTimerDuration = action.payload;
@@ -36,12 +41,13 @@ export const playerSlice = createSlice({
   },
 });
 
-export const { setPartySize, setSkillSpeed, setPullTimerDuration, setJob } = playerSlice.actions;
+export const { setPartySize, setSkillSpeed, setSpellSpeed, setPullTimerDuration, setJob } = playerSlice.actions;
 
 export const selectJob = (state: RootState) => state.player.job;
 export const selectPlayer = (state: RootState) => state.player;
 export const selectLevel = (state: RootState) => state.player.level;
-export const selectSpeed = (state: RootState) => state.player.speed;
+export const selectSkillSpeed = (state: RootState) => state.player.skillSpeed;
+export const selectSpellSpeed = (state: RootState) => state.player.spellSpeed;
 export const selectPartySize = (state: RootState) => state.player.partySize;
 export const selectPullTimerDuration = (state: RootState) => state.player.pullTimerDuration;
 

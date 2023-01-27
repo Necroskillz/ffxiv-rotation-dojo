@@ -27,10 +27,10 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
   const { current: id } = useRef('circleMask' + (Math.random().toString(36) + '00000000000000000').slice(2, 7));
 
   useEffect(() => {
-    function set(cd: CooldownState | null, action: (cd: React.SetStateAction<Cooldown | null>) => void) {
+    function set(cd: CooldownState | null, action: (cd: React.SetStateAction<Cooldown | null>) => void, applyCharges: boolean) {
       if (cd) {
         let progress = cd.timestamp + cd.duration - Date.now();
-        if (maxCharges > 1) {
+        if (applyCharges && maxCharges > 1) {
           setCharges(maxCharges - Math.ceil(progress / cd.duration));
           progress = progress % cd.duration;
         }
@@ -42,15 +42,15 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
     }
 
     function setPrimary(cd: CooldownState | null) {
-      set(cd, setPrimaryCooldown);
+      set(cd, setPrimaryCooldown, false);
     }
 
     function setSecondary(cd: CooldownState | null) {
-      set(cd, setSecondaryCooldown);
+      set(cd, setSecondaryCooldown, true);
     }
 
     function setText(cd: CooldownState | null) {
-      set(cd, setTextCooldown);
+      set(cd, setTextCooldown, true);
     }
 
     let timerId: NodeJS.Timer | null = null;
@@ -73,6 +73,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
       setPrimary(null);
       setSecondary(null);
       setText(null);
+      setCharges(maxCharges);
     }
 
     return () => {
@@ -129,7 +130,14 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
           {Math.ceil(textCooldown.progress / 1000)}
         </span>
       )}
-      {maxCharges > 0 && <span className={clsx(style.charges, { [style.charges_empty]: charges === 0 })}>{charges}</span>}
+      {maxCharges > 0 && (
+        <span
+          className={clsx(style.charges, { [style.charges_empty]: charges === 0 })}
+          style={{ fontSize: 14 * size, bottom: -4 * size, right: -1 * size }}
+        >
+          {charges}
+        </span>
+      )}
     </div>
   );
 };

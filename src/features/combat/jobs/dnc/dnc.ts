@@ -5,7 +5,7 @@ import { AppThunk, ReducerAction, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { selectPartySize, setPartySize } from '../../../player/playerSlice';
-import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatAction, CombatActionExecuteContext, createCombatAction } from '../../combat-action';
 import {
   addBuff,
   addCooldown,
@@ -214,23 +214,25 @@ const cascade: CombatAction = createCombatAction({
   },
   isUsable: (state) => !isDancing(state),
   redirect: (state) => (isDancing(state) ? ActionId.Emboite : ActionId.Cascade),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const fountain: CombatAction = createCombatAction({
   id: ActionId.Fountain,
-  execute: (dispatch, getState) => {
-    if (canGetEspritFromWeaponskills(getState())) {
-      dispatch(addEsprit(5));
-    }
-    if (rng(50)) {
-      dispatch(buff(StatusId.SilkenFlow, 30));
+  execute: (dispatch, getState, context) => {
+    if (context.comboed) {
+      if (canGetEspritFromWeaponskills(getState())) {
+        dispatch(addEsprit(5));
+      }
+      if (rng(50)) {
+        dispatch(buff(StatusId.SilkenFlow, 30));
+      }
     }
   },
   isUsable: (state) => !isDancing(state),
   isGlowing: (state) => hasCombo(state, ActionId.Fountain),
   redirect: (state) => (isDancing(state) ? ActionId.Entrechat : ActionId.Fountain),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const reverseCascade: CombatAction = createCombatAction({
@@ -250,7 +252,7 @@ const reverseCascade: CombatAction = createCombatAction({
   isUsable: (state) => (hasBuff(state, StatusId.SilkenSymmetry) || hasBuff(state, StatusId.FlourishingSymmetry)) && !isDancing(state),
   isGlowing: (state) => hasBuff(state, StatusId.SilkenSymmetry) || hasBuff(state, StatusId.FlourishingSymmetry),
   redirect: (state) => (isDancing(state) ? ActionId.Jete : ActionId.ReverseCascade),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const fountainfall: CombatAction = createCombatAction({
@@ -270,7 +272,7 @@ const fountainfall: CombatAction = createCombatAction({
   isUsable: (state) => (hasBuff(state, StatusId.SilkenFlow) || hasBuff(state, StatusId.FlourishingFlow)) && !isDancing(state),
   isGlowing: (state) => hasBuff(state, StatusId.SilkenFlow) || hasBuff(state, StatusId.FlourishingFlow),
   redirect: (state) => (isDancing(state) ? ActionId.Pirouette : ActionId.Fountainfall),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const standardStep: CombatAction = createCombatAction({
@@ -464,7 +466,7 @@ const starfallDance: CombatAction = createCombatAction({
   },
   isUsable: (state) => !isDancing(state) && hasBuff(state, StatusId.FlourishingStarfall),
   isGlowing: (state) => hasBuff(state, StatusId.FlourishingStarfall),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const saberdance: CombatAction = createCombatAction({
@@ -472,7 +474,7 @@ const saberdance: CombatAction = createCombatAction({
   execute: () => {},
   isUsable: (state) => !isDancing(state) && esprit(state) >= 50,
   isGlowing: (state) => esprit(state) >= 50,
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const closedPosition: CombatAction = createCombatAction({
@@ -570,7 +572,7 @@ const windmill: CombatAction = createCombatAction({
   isUsable: (state) => !isDancing(state),
   isGlowing: () => false,
   redirect: (state) => (isDancing(state) ? ActionId.Emboite : ActionId.Windmill),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const bladeshower: CombatAction = createCombatAction({
@@ -586,7 +588,7 @@ const bladeshower: CombatAction = createCombatAction({
   isUsable: (state) => !isDancing(state),
   isGlowing: (state) => hasCombo(state, ActionId.Bladeshower),
   redirect: (state) => (isDancing(state) ? ActionId.Entrechat : ActionId.Bladeshower),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const risingWindmill: CombatAction = createCombatAction({
@@ -606,7 +608,7 @@ const risingWindmill: CombatAction = createCombatAction({
   isUsable: (state) => (hasBuff(state, StatusId.SilkenSymmetry) || hasBuff(state, StatusId.FlourishingSymmetry)) && !isDancing(state),
   isGlowing: (state) => hasBuff(state, StatusId.SilkenSymmetry) || hasBuff(state, StatusId.FlourishingSymmetry),
   redirect: (state) => (isDancing(state) ? ActionId.Jete : ActionId.RisingWindmill),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 const bloodshower: CombatAction = createCombatAction({
@@ -626,7 +628,7 @@ const bloodshower: CombatAction = createCombatAction({
   isUsable: (state) => (hasBuff(state, StatusId.SilkenFlow) || hasBuff(state, StatusId.FlourishingFlow)) && !isDancing(state),
   isGlowing: (state) => hasBuff(state, StatusId.SilkenFlow) || hasBuff(state, StatusId.FlourishingFlow),
   redirect: (state) => (isDancing(state) ? ActionId.Pirouette : ActionId.Bloodshower),
-  recastReducedBySpeed: true,
+  reducedBySkillSpeed: true,
 });
 
 export const dnc: CombatAction[] = [

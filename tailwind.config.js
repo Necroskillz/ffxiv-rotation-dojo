@@ -8,6 +8,7 @@ module.exports = {
         'xiv-gold': '#ad925a',
         'xiv-golden-brown': '#A49F8C',
         'xiv-orange': '#EE7318',
+        'xiv-ui': '#E8E1CE',
         'pull-timer': '#D4A900'
       },
     },

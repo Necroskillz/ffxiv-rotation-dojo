@@ -209,7 +209,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
             }}
           />
         )}
-        {(action && action.cost > 0) && <Cost action={action} />}
+        {(action && action.cost > 0) && <Cost action={action} size={size} />}
       </div>
     </div>
   );

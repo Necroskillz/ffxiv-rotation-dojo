@@ -26,6 +26,13 @@ export interface CooldownState {
   timeoutId: NodeJS.Timeout;
 }
 
+export interface CastState {
+  actionId: ActionId;
+  timestamp: number;
+  castTime: number;
+  timeoutId: NodeJS.Timeout;
+}
+
 export interface QueuedActionState {
   actionId: ActionId;
   timeoutId: NodeJS.Timeout;
@@ -41,6 +48,7 @@ export interface CombatState {
   queuedAction: QueuedActionState | null;
   ogcdLock: NodeJS.Timeout | null;
   pullTimer: number | null;
+  cast: CastState | null
 }
 
 const initialState: CombatState = {
@@ -53,6 +61,11 @@ const initialState: CombatState = {
     step2: 0,
     step3: 0,
     step4: 0,
+    soul: 0,
+    shroud: 0,
+    hell: 0,
+    lemure: 0,
+    void: 0,
   },
   inCombat: false,
   combo: {},
@@ -62,6 +75,7 @@ const initialState: CombatState = {
   queuedAction: null,
   ogcdLock: null,
   pullTimer: null,
+  cast: null,
 };
 
 export interface AddComboActionPayload {
@@ -196,6 +210,9 @@ export const combatSlice = createSlice({
         state.pullTimer = null;
       }
     },
+    setCast: (state, action: PayloadAction<CastState | null>) => {
+      state.cast = action.payload;
+    }
   },
 });
 
@@ -219,18 +236,24 @@ export const {
   executeAction,
   clear,
   setPullTimer,
+  setCast
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
 export const selectInCombat = (state: RootState) => state.combat.inCombat;
 export const selectResources = (state: RootState) => state.combat.resources;
 export const selectEspirt = (state: RootState) => state.combat.resources.esprit;
+export const selectSoul = (state: RootState) => state.combat.resources.soul;
+export const selectShroud = (state: RootState) => state.combat.resources.shroud;
+export const selectLemure = (state: RootState) => state.combat.resources.lemure;
+export const selectVoid = (state: RootState) => state.combat.resources.void;
 export const selectFans = (state: RootState) => state.combat.resources.fans;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
 export const selectCooldowns = (state: RootState) => state.combat.cooldowns;
 export const selectPullTimer = (state: RootState) => state.combat.pullTimer;
+export const selectCast = (state: RootState) => state.combat.cast;
 
 export const selectBuff = createSelector(
   selectBuffs,
@@ -251,6 +274,7 @@ export const reset = (): AppThunk => (dispatch, getState) => {
   dispatch(breakCombo());
   dispatch(removeQueuedAction());
   dispatch(removeOgcdLock());
+  dispatch(setCast(null));
 
   dispatch(clear());
 };
@@ -304,6 +328,52 @@ export const debuff =
     dispatch(status(id, duration, stacks || null, true));
   };
 
+export const extendableDebuff =
+  (id: StatusId, duration: number, maxDuration: number, stacks?: number): AppThunk =>
+  (dispatch, getState) => {
+    let extendedDuration = duration;
+    if (hasDebuff(getState(), id)) {
+      const combat = selectCombat(getState());
+
+      const status = combat.debuffs.find((b) => b.id === id)!;
+      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
+      extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
+    }
+    dispatch(debuff(id, extendedDuration, stacks));
+  };
+
+export const removeBuffStack =
+  (id: StatusId): AppThunk =>
+  (dispatch, getState) => {
+    const stacks = buffStacks(getState(), id);
+    if (stacks === 1) {
+      dispatch(removeBuff(id));
+    } else {
+      const combat = selectCombat(getState());
+
+      const status = combat.buffs.find((b) => b.id === id)!;
+      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
+
+      dispatch(buff(id, remainingDuration, stacks - 1));
+    }
+  };
+
+export const addBuffStack =
+  (id: StatusId, duration: number): AppThunk =>
+  (dispatch, getState) => {
+    const stacks = buffStacks(getState(), id);
+    if (stacks === 0) {
+      dispatch(buff(id, duration, 1));
+    } else {
+      const combat = selectCombat(getState());
+
+      const status = combat.buffs.find((b) => b.id === id)!;
+      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
+
+      dispatch(buff(id, remainingDuration, stacks + 1));
+    }
+  };
+
 export const cooldown =
   (cooldownGroup: number, duration: number): AppThunk =>
   (dispatch) => {
@@ -352,6 +422,7 @@ function isExecutable(state: RootState, combatAction: CombatAction) {
   const [cd, gcd, ecd] = combatAction.getCooldown(state);
   const ogcdLock = combat.ogcdLock;
   const maxCharges = combatAction.maxCharges(state);
+  const cast = combat.cast;
   let hasRemainingCharge = false;
 
   if (maxCharges > 1 && cd) {
@@ -360,7 +431,7 @@ function isExecutable(state: RootState, combatAction: CombatAction) {
     hasRemainingCharge = currentCharges > 0;
   }
 
-  return combatAction.isUsable(state) && (!cd || hasRemainingCharge) && !gcd && !ecd && !ogcdLock;
+  return combatAction.isUsable(state) && (!cd || hasRemainingCharge) && !gcd && !ecd && !ogcdLock && !cast;
 }
 
 export const queue =
@@ -430,6 +501,14 @@ export const addEsprit = addResourceFactory('esprit', 100);
 export const removeEsprit = removeResourceFactory('esprit');
 export const addFans = addResourceFactory('fans', 4);
 export const removeFans = removeResourceFactory('fans');
+export const addSoul = addResourceFactory('soul', 100);
+export const removeSoul = removeResourceFactory('soul');
+export const addShroud = addResourceFactory('shroud', 100);
+export const removeShroud = removeResourceFactory('shroud');
+export const addLemure = addResourceFactory('lemure', 5);
+export const removeLemure = removeResourceFactory('lemure');
+export const addVoid = addResourceFactory('void', 5);
+export const removeVoid = removeResourceFactory('void');
 
 export function hasCombo(state: RootState, id: number) {
   const action = getActionById(id);
@@ -442,6 +521,12 @@ export function hasBuff(state: RootState, id: number) {
   const combat = selectCombat(state);
 
   return combat.buffs.some((b) => b.id === id);
+}
+
+export function hasDebuff(state: RootState, id: number) {
+  const combat = selectCombat(state);
+
+  return combat.debuffs.some((b) => b.id === id);
 }
 
 export function buffStacks(state: RootState, id: number) {

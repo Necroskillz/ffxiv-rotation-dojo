@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
 import { Option } from '../../types';
-import { selectPlayer, setPartySize, setPullTimerDuration, setSkillSpeed } from '../player/playerSlice';
+import { selectPlayer, setPartySize, setPullTimerDuration, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { recastTime } from '../combat/combat-action';
 
@@ -19,9 +19,11 @@ export function Settings() {
   const hudElement = useAppSelector((state) => selectElement(state, 'Settings'));
   const player = useAppSelector(selectPlayer);
   const dispatch = useAppDispatch();
-  const [speed, setSpeed] = useState(player.speed);
+  const [skillSpeed, setLocalSkillSpeed] = useState(player.skillSpeed);
+  const [spellSpeed, setLocalSpellSpeed] = useState(player.spellSpeed);
   const [pullTimerDuration, setPullTimer] = useState(player.pullTimerDuration);
-  const gcd = useMemo(() => recastTime(2500, 90, speed) / 1000, [speed]);
+  const gcd = useMemo(() => recastTime(2500, 90, skillSpeed) / 1000, [skillSpeed]);
+  const cast = useMemo(() => recastTime(2500, 90, spellSpeed) / 1000, [spellSpeed]);
 
   function close() {
     dispatch(setVisility({ element: 'Settings', isVisible: false }));
@@ -31,10 +33,16 @@ export function Settings() {
     dispatch(setPartySize(value?.value || 8));
   }
 
-  function updateSpeed(event: ChangeEvent<HTMLInputElement>) {
+  function updateSkillSpeed(event: ChangeEvent<HTMLInputElement>) {
     const value = parseInt(event.target.value || '400');
     dispatch(setSkillSpeed(value));
-    setSpeed(value);
+    setLocalSkillSpeed(value);
+  }
+
+  function updateSpellSpeed(event: ChangeEvent<HTMLInputElement>) {
+    const value = parseInt(event.target.value || '400');
+    dispatch(setSpellSpeed(value));
+    setLocalSpellSpeed(value);
   }
 
   function updatePullTimerDuration(event: ChangeEvent<HTMLInputElement>) {
@@ -67,9 +75,14 @@ export function Settings() {
             ></Select>
           </div>
           <div className="grid grid-cols-[120px_100px_1fr] gap-1 w-fit items-center">
-            <label>Skill/spell speed</label>
-            <input className="w-[100px]" type="number" value={speed} onChange={updateSpeed} />
+            <label>Skill speed</label>
+            <input className="w-[100px]" type="number" value={skillSpeed} onChange={updateSkillSpeed} />
             <span>(GCD {gcd})</span>
+          </div>
+          <div className="grid grid-cols-[120px_100px_1fr] gap-1 w-fit items-center">
+            <label>Spell speed</label>
+            <input className="w-[100px]" type="number" value={spellSpeed} onChange={updateSpellSpeed} />
+            <span>(Cast {cast})</span>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-1 w-fit items-center">
             <label>Pull timer</label>

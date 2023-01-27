@@ -5,7 +5,7 @@ export interface HudElementPlacement {
   xOffset: number;
   yOffset: number;
   isVisible: boolean;
-  job?: string;
+  job?: string | string[];
 }
 
 export interface HudState {
@@ -27,6 +27,8 @@ const initialState: HudState = {
     ActionList: createDefaultElementPlacement({ isVisible: false }),
     DanceGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
     EspritGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
+    SoulAndShroudGauge: createDefaultElementPlacement({ isVisible: true, job: 'RPR' }),
+    DeathGauge: createDefaultElementPlacement({ isVisible: true, job: 'RPR' }),
     Hotbar1: createDefaultElementPlacement({ isVisible: true }),
     Hotbar2: createDefaultElementPlacement({ isVisible: true }),
     Hotbar3: createDefaultElementPlacement({ isVisible: true }),
@@ -46,6 +48,7 @@ const initialState: HudState = {
     Settings: createDefaultElementPlacement({ isVisible: false }),
     Buffs: createDefaultElementPlacement({ isVisible: true }),
     Debuffs: createDefaultElementPlacement({ isVisible: true }),
+    CastBar: createDefaultElementPlacement({ isVisible: true }),
   },
 };
 
@@ -62,7 +65,7 @@ export interface SetOffsetActionPayload {
 
 function setElement(state: HudState, name: string, action: (element: HudElementPlacement) => void) {
   if (!state.elements[name]) {
-    state.elements[name] = createDefaultElementPlacement({ isVisible: true });
+    state.elements[name] = Object.assign({}, initialState.elements[name]);
   }
 
   action(state.elements[name]);
@@ -95,7 +98,7 @@ export const selectLock = (state: RootState) => state.hud.locked;
 export const selectElement = createSelector(
   selectElements,
   (_: any, name: string) => name,
-  (elements, name) => elements[name] || createDefaultElementPlacement({ isVisible: true })
+  (elements, name) => elements[name] || initialState.elements[name]
 );
 
 export default hudSlice.reducer;

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useAppSelector } from '../../../../app/hooks';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -31,7 +31,7 @@ export const DanceGauge = () => {
   const resources = useAppSelector(selectResources);
   const standardFinish = useAppSelector((state) => selectBuff(state, StatusId.StandardFinish));
   const [standardFinishRemainingTime, setStandardFinishRemainingTime] = useState<number | null>(null);
-  
+
   useEffect(() => {
     function set() {
       if (standardFinish) {

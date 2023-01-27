@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { FC, useRef, useState } from 'react';
 import Draggable, { ControlPosition, DraggableData, DraggableEvent, DraggableEventHandler } from 'react-draggable';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { selectJob } from '../player/playerSlice';
 import { selectElement, selectLock, setOffset } from './hudSlice';
 
 type HudItemProps = {
@@ -18,9 +19,14 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
 
   const hudElement = useAppSelector((state) => selectElement(state, name));
   const hudLock = useAppSelector(selectLock);
+  const job = useAppSelector(selectJob);
   const [initialPosition] = useState({ x: hudElement.xOffset, y: hudElement.yOffset });
 
   if (!hudElement.isVisible && hudLock) {
+    return null;
+  }
+
+  if (hudElement.job && !((Array.isArray(hudElement.job) && hudElement.job.includes(job)) || hudElement.job === job)) {
     return null;
   }
 

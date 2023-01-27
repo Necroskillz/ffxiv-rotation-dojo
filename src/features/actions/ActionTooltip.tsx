@@ -30,11 +30,11 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
         <div className="grid auto-cols-max grid-flow-col gap-8 items-center">
           <div className="grid auto-rows-max grid-flow-row">
             <div className="text-xiv-golden-brown text-right">Cast</div>
-            <div className="text-xl text-right">{action.castTime || 'Instant'}</div>
+            <div className="text-xl text-right">{action.castTime ? `${action.castTime / 1000}s` : 'Instant'}</div>
           </div>
           <div className="grid auto-rows-max grid-flow-row">
             <div className="text-xiv-golden-brown text-right">Recast</div>
-            <div className="text-xl text-right">{combatAction.cooldown(state) / 1000}s</div>
+            <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : NaN}s</div>
           </div>
         </div>
         <div dangerouslySetInnerHTML={{ __html: action.description }}></div>

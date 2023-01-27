@@ -64,6 +64,50 @@ const armsLength: CombatAction = createCombatAction({
   entersCombat: false,
 });
 
-export const role: CombatAction[] = [legGraze, secondWind, footGraze, peloton, headGraze, armsLength];
+const legSweep: CombatAction = createCombatAction({
+  id: ActionId.LegSweep,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Stun, 3));
+  },
+});
+
+const bloodbath: CombatAction = createCombatAction({
+  id: ActionId.Bloodbath,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.Bloodbath, 20));
+  },
+});
+
+const feint: CombatAction = createCombatAction({
+  id: ActionId.Feint,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Feint, 10));
+  },
+});
+
+const trueNorth: CombatAction = createCombatAction({
+  id: ActionId.TrueNorth,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.TrueNorth, 10));
+  },
+  maxCharges: () => 2,
+});
+
+export const role: CombatAction[] = [
+  legGraze,
+  secondWind,
+  footGraze,
+  peloton,
+  headGraze,
+  armsLength,
+  legSweep,
+  bloodbath,
+  feint,
+  trueNorth,
+];
 
 export const roleEpics = combineEpics(pelotonCombatEpic);
