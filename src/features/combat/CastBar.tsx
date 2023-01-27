@@ -17,11 +17,12 @@ export const CastBar = () => {
   useEffect(() => {
     function set() {
       if (cast) {
-        const castTime = Date.now() - cast.timestamp;
-        const seconds = Math.floor(castTime / 1000);
-        setCastTime(castTime);
+        const castProgressTime = Date.now() - cast.timestamp;
+        const remainingCastTime = cast.castTime - castProgressTime;
+        const seconds = Math.floor(remainingCastTime / 1000);
+        setCastTime(castProgressTime);
         setSeconds(seconds.toString().padStart(2, '0'));
-        setFraction(Math.floor((castTime - seconds * 1000) / 10).toString().padEnd(2, '0'));
+        setFraction(Math.floor((remainingCastTime - seconds * 1000) / 10).toString().padEnd(2, '0'));
       } else {
         setSeconds('');
         setFraction('');
