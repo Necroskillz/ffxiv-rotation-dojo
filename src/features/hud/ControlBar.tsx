@@ -39,7 +39,7 @@ export const ControlBar: FC = () => {
   }
 
   function resetCombat() {
-    dispatch(reset());
+    dispatch(reset(false));
   }
 
   function startPullTimer() {
@@ -52,6 +52,7 @@ export const ControlBar: FC = () => {
     }
 
     dispatch(setJob(value.value));
+    dispatch(reset(true));
   }
 
   return (
@@ -61,7 +62,7 @@ export const ControlBar: FC = () => {
         defaultValue={jobOptions.find((o) => o.value === job)}
         styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
         onChange={updateJob}
-        menuPlacement='top'
+        menuPlacement="top"
       ></Select>
       <button className="border px-1 rounded" onClick={toggleActions}>
         Actions

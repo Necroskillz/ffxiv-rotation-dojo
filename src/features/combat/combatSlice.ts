@@ -284,21 +284,23 @@ export const selectBuff = createSelector(
   }
 );
 
-export const reset = (): AppThunk => (dispatch, getState) => {
-  const state = getState().combat;
-  const preservedBuffs = [StatusId.ClosedPosition];
-  const buffs = state.buffs.filter((b) => !preservedBuffs.includes(b.id));
+export const reset =
+  (full: boolean): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState().combat;
+    const preservedBuffs = [StatusId.ClosedPosition];
+    const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
-  buffs.forEach((b) => dispatch(removeBuff(b.id)));
-  state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
-  Object.keys(state.cooldowns).forEach((k) => dispatch(removeCooldown(k as any)));
-  dispatch(breakCombo());
-  dispatch(removeQueuedAction());
-  dispatch(removeOgcdLock());
-  dispatch(setCast(null));
+    buffs.forEach((b) => dispatch(removeBuff(b.id)));
+    state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
+    Object.keys(state.cooldowns).forEach((k) => dispatch(removeCooldown(k as any)));
+    dispatch(breakCombo());
+    dispatch(removeQueuedAction());
+    dispatch(removeOgcdLock());
+    dispatch(setCast(null));
 
-  dispatch(clear());
-};
+    dispatch(clear());
+  };
 
 export const combo =
   (actionId: ActionId): AppThunk =>
