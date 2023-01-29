@@ -1,8 +1,20 @@
+import { combineEpics, Epic } from 'redux-observable';
+import { first, interval, map, switchMap, withLatestFrom } from 'rxjs';
+import { RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { CombatAction, createCombatAction } from './combat-action';
-import { buff, inCombat, ogcdLock } from './combatSlice';
+import { addMana, buff, inCombat, ogcdLock } from './combatSlice';
 import { OGCDLockDuration } from './enums';
+
+const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    first(),
+    switchMap(() => interval(3000)),
+    withLatestFrom(state$),
+    map(([, state]) => state),
+    map((state) => (inCombat(state) ? addMana(200) : addMana(600)))
+  );
 
 const sprint: CombatAction = createCombatAction({
   id: ActionId.Sprint,
@@ -50,3 +62,5 @@ const tinctureOfIntelligence: CombatAction = createCombatAction({
 });
 
 export const general: CombatAction[] = [sprint, tinctureOfDexterity, tinctureOfMind, tinctureOfStrength, tinctureOfIntelligence];
+
+export const generalEpics = combineEpics(combatManaTickEpic);

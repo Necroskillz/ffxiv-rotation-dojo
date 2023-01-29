@@ -1,16 +1,29 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, map, withLatestFrom } from 'rxjs';
+import { filter, interval, map, switchMap, takeWhile, withLatestFrom } from 'rxjs';
 import { RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { CombatAction, createCombatAction } from './combat-action';
-import { buff, debuff, hasBuff, inCombat, ogcdLock, removeBuff, setCombat } from './combatSlice';
+import { addBuff, addMana, buff, debuff, hasBuff, inCombat, ogcdLock, removeBuff, setCombat } from './combatSlice';
 
 const pelotonCombatEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     withLatestFrom(state$),
     filter(([a, s]) => a.type === setCombat.type && a.payload === true && hasBuff(s, StatusId.Peloton)),
     map(() => removeBuff(StatusId.Peloton))
+  );
+
+const lucidDreamingEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.LucidDreaming),
+    switchMap((a) =>
+      interval(3000).pipe(
+        withLatestFrom(state$),
+        map(([, state]) => state),
+        takeWhile((state) => hasBuff(state, a.payload.id)),
+        map(() => addMana(550))
+      )
+    )
   );
 
 const legGraze: CombatAction = createCombatAction({
@@ -97,6 +110,50 @@ const trueNorth: CombatAction = createCombatAction({
   maxCharges: () => 2,
 });
 
+const addle: CombatAction = createCombatAction({
+  id: ActionId.Addle,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Addle, 10));
+  },
+});
+
+const sleep: CombatAction = createCombatAction({
+  id: ActionId.Sleep,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Sleep, 30));
+  },
+});
+
+const surecast: CombatAction = createCombatAction({
+  id: ActionId.Surecast,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.Surecast, 6));
+  },
+  entersCombat: false,
+});
+
+const lucidDreaming: CombatAction = createCombatAction({
+  id: ActionId.LucidDreaming,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(addMana(550));
+    dispatch(buff(StatusId.LucidDreaming, 21));
+  },
+  entersCombat: false,
+});
+
+const swiftcast: CombatAction = createCombatAction({
+  id: ActionId.Swiftcast,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.Swiftcast, 10));
+  },
+  entersCombat: false,
+});
+
 export const role: CombatAction[] = [
   legGraze,
   secondWind,
@@ -108,6 +165,11 @@ export const role: CombatAction[] = [
   bloodbath,
   feint,
   trueNorth,
+  addle,
+  sleep,
+  surecast,
+  lucidDreaming,
+  swiftcast,
 ];
 
-export const roleEpics = combineEpics(pelotonCombatEpic);
+export const roleEpics = combineEpics(pelotonCombatEpic, lucidDreamingEpic);

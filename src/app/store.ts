@@ -9,8 +9,10 @@ import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { dncEpics } from '../features/combat/jobs/dnc/dnc';
 import { roleEpics } from '../features/combat/role';
 import { rprEpics } from '../features/combat/jobs/rpr/rpr';
+import { smnEpics } from '../features/combat/jobs/smn/smn';
+import { generalEpics } from '../features/combat/general';
 
-const rootEpic = combineEpics(dncEpics, rprEpics, roleEpics);
+const rootEpic = combineEpics(dncEpics, rprEpics, smnEpics, roleEpics, generalEpics);
 
 const hotbarMigrations: any = {
   0: (state: any) => ({

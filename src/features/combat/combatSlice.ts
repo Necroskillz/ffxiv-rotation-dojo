@@ -18,6 +18,7 @@ export interface StatusState {
   duration: number | null;
   timeoutId: NodeJS.Timeout | null;
   stacks: number | null;
+  visible: boolean;
 }
 
 export interface CooldownState {
@@ -38,6 +39,10 @@ export interface QueuedActionState {
   timeoutId: NodeJS.Timeout;
 }
 
+export interface PetState {
+  name: string;
+}
+
 export interface CombatState {
   resources: Record<string, number>;
   inCombat: boolean;
@@ -48,11 +53,13 @@ export interface CombatState {
   queuedAction: QueuedActionState | null;
   ogcdLock: NodeJS.Timeout | null;
   pullTimer: number | null;
-  cast: CastState | null
+  cast: CastState | null;
+  pet: PetState | null;
 }
 
 const initialState: CombatState = {
   resources: {
+    mana: 10000,
     esprit: 0,
     fans: 0,
     step: 0,
@@ -66,6 +73,10 @@ const initialState: CombatState = {
     hell: 0,
     lemure: 0,
     void: 0,
+    topaz: 0,
+    ruby: 0,
+    emerald: 0,
+    bahamut: 0,
   },
   inCombat: false,
   combo: {},
@@ -76,6 +87,7 @@ const initialState: CombatState = {
   ogcdLock: null,
   pullTimer: null,
   cast: null,
+  pet: null,
 };
 
 export interface AddComboActionPayload {
@@ -212,7 +224,10 @@ export const combatSlice = createSlice({
     },
     setCast: (state, action: PayloadAction<CastState | null>) => {
       state.cast = action.payload;
-    }
+    },
+    setPet: (state, action: PayloadAction<PetState | null>) => {
+      state.pet = action.payload;
+    },
   },
 });
 
@@ -236,24 +251,30 @@ export const {
   executeAction,
   clear,
   setPullTimer,
-  setCast
+  setCast,
+  setPet,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
 export const selectInCombat = (state: RootState) => state.combat.inCombat;
 export const selectResources = (state: RootState) => state.combat.resources;
+export const selectMana = (state: RootState) => state.combat.resources.mana;
 export const selectEspirt = (state: RootState) => state.combat.resources.esprit;
+export const selectFans = (state: RootState) => state.combat.resources.fans;
 export const selectSoul = (state: RootState) => state.combat.resources.soul;
 export const selectShroud = (state: RootState) => state.combat.resources.shroud;
 export const selectLemure = (state: RootState) => state.combat.resources.lemure;
+export const selectTopaz = (state: RootState) => state.combat.resources.topaz;
+export const selectRuby = (state: RootState) => state.combat.resources.ruby;
+export const selectEmerald = (state: RootState) => state.combat.resources.emerald;
 export const selectVoid = (state: RootState) => state.combat.resources.void;
-export const selectFans = (state: RootState) => state.combat.resources.fans;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
 export const selectCooldowns = (state: RootState) => state.combat.cooldowns;
 export const selectPullTimer = (state: RootState) => state.combat.pullTimer;
 export const selectCast = (state: RootState) => state.combat.cast;
+export const selectPet = (state: RootState) => state.combat.pet;
 
 export const selectBuff = createSelector(
   selectBuffs,
@@ -291,7 +312,7 @@ export const combo =
   };
 
 export const status =
-  (id: StatusId, duration: number | null, stacks: number | null, isHarm: boolean): AppThunk =>
+  (id: StatusId, duration: number | null, stacks: number | null, isHarm: boolean, isVisible: boolean): AppThunk =>
   (dispatch) => {
     const status: StatusState = {
       id,
@@ -307,6 +328,7 @@ export const status =
       duration,
       timestamp: Date.now(),
       stacks: stacks || null,
+      visible: isVisible,
     };
 
     if (isHarm) {
@@ -316,16 +338,21 @@ export const status =
     }
   };
 
+export interface StatusOptions {
+  stacks?: number;
+  isVisible?: boolean;
+}
+
 export const buff =
-  (id: StatusId, duration: number | null, stacks?: number): AppThunk =>
+  (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
   (dispatch) => {
-    dispatch(status(id, duration, stacks || null, false));
+    dispatch(status(id, duration, options?.stacks || null, false, options?.isVisible === undefined ? true : options.isVisible));
   };
 
 export const debuff =
   (id: StatusId, duration: number | null, stacks?: number): AppThunk =>
   (dispatch) => {
-    dispatch(status(id, duration, stacks || null, true));
+    dispatch(status(id, duration, stacks || null, true, true));
   };
 
 export const extendableDebuff =
@@ -352,9 +379,9 @@ export const removeBuffStack =
       const combat = selectCombat(getState());
 
       const status = combat.buffs.find((b) => b.id === id)!;
-      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
+      const remainingDuration = status.duration ? status.duration - (Date.now() - status.timestamp) / 1000 : null;
 
-      dispatch(buff(id, remainingDuration, stacks - 1));
+      dispatch(buff(id, remainingDuration, { stacks: stacks - 1 }));
     }
   };
 
@@ -363,14 +390,14 @@ export const addBuffStack =
   (dispatch, getState) => {
     const stacks = buffStacks(getState(), id);
     if (stacks === 0) {
-      dispatch(buff(id, duration, 1));
+      dispatch(buff(id, duration, { stacks: 1 }));
     } else {
       const combat = selectCombat(getState());
 
       const status = combat.buffs.find((b) => b.id === id)!;
       const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
 
-      dispatch(buff(id, remainingDuration, stacks + 1));
+      dispatch(buff(id, remainingDuration, { stacks: stacks + 1 }));
     }
   };
 
@@ -488,6 +515,13 @@ export const addResourceFactory =
     dispatch(setResource({ resourceType, amount: value }));
   };
 
+export const setResourceFactory =
+  (resourceType: string) =>
+  (amount: number): AppThunk =>
+  (dispatch) => {
+    dispatch(setResource({ resourceType, amount: amount }));
+  };
+
 export const removeResourceFactory =
   (resourceType: string) =>
   (amount: number): AppThunk =>
@@ -497,6 +531,8 @@ export const removeResourceFactory =
     dispatch(setResource({ resourceType, amount: resources[resourceType] - amount }));
   };
 
+export const addMana = addResourceFactory('mana', 10000);
+export const removeMana = removeResourceFactory('mana');
 export const addEsprit = addResourceFactory('esprit', 100);
 export const removeEsprit = removeResourceFactory('esprit');
 export const addFans = addResourceFactory('fans', 4);
@@ -509,6 +545,17 @@ export const addLemure = addResourceFactory('lemure', 5);
 export const removeLemure = removeResourceFactory('lemure');
 export const addVoid = addResourceFactory('void', 5);
 export const removeVoid = removeResourceFactory('void');
+export const setTopaz = setResourceFactory('topaz');
+export const removeTitan = removeResourceFactory('topaz');
+export const setRuby = setResourceFactory('ruby');
+export const removeIfrit = removeResourceFactory('ruby');
+export const setEmerald = setResourceFactory('emerald');
+export const removeGaruda = removeResourceFactory('emerald');
+export const setBahamut = setResourceFactory('bahamut');
+
+export function mana(state: RootState) {
+  return resource(state, 'mana');
+}
 
 export function hasCombo(state: RootState, id: number) {
   const action = getActionById(id);
@@ -521,6 +568,12 @@ export function hasBuff(state: RootState, id: number) {
   const combat = selectCombat(state);
 
   return combat.buffs.some((b) => b.id === id);
+}
+
+export function hasPet(state: RootState) {
+  const combat = selectCombat(state);
+
+  return combat.pet !== null;
 }
 
 export function hasDebuff(state: RootState, id: number) {

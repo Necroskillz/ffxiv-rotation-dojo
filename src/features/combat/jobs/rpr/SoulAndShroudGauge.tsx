@@ -9,7 +9,7 @@ export const SoulAndShroudGauge = () => {
   const shround = useAppSelector(selectShroud);
 
   return (
-    <HudItem name="SoulAndShroudGauge" defaultPosition={{ x: 20, y: 90 }}>
+    <HudItem name="SoulAndShroudGauge" defaultPosition={{ x: 20, y: 20 }}>
       <div className="grid w-40 gap-4">
         <div className="grid gap-0.5">
           <GaugeBar

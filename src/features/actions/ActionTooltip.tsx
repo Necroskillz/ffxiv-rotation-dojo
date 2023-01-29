@@ -30,12 +30,22 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
         <div className="grid auto-cols-max grid-flow-col gap-8 items-center">
           <div className="grid auto-rows-max grid-flow-row">
             <div className="text-xiv-golden-brown text-right">Cast</div>
-            <div className="text-xl text-right">{action.castTime ? `${action.castTime / 1000}s` : 'Instant'}</div>
+            <div className="text-xl text-right">
+              {combatAction ? (action.castTime === 0 ? 'Instant' : `${combatAction.castTime(state) / 1000}s`) : NaN}
+            </div>
           </div>
-          <div className="grid auto-rows-max grid-flow-row">
-            <div className="text-xiv-golden-brown text-right">Recast</div>
-            <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : NaN}s</div>
-          </div>
+          {action.recastTime > 0 && (
+            <div className="grid auto-rows-max grid-flow-row">
+              <div className="text-xiv-golden-brown text-right">Recast</div>
+              <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : NaN}s</div>
+            </div>
+          )}
+          {action.costType === 'mana' && (
+            <div className="grid auto-rows-max grid-flow-row">
+              <div className="text-xiv-golden-brown text-right">MP Cost</div>
+              <div className="text-xl text-right">{action.cost}</div>
+            </div>
+          )}
         </div>
         <div dangerouslySetInnerHTML={{ __html: action.description }}></div>
       </div>

@@ -10,6 +10,7 @@ import Select from 'react-select';
 const jobOptions: Option<string>[] = [
   { value: 'DNC', label: 'DNC' },
   { value: 'RPR', label: 'RPR' },
+  { value: 'SMN', label: 'SMN' },
 ];
 
 export const ControlBar: FC = () => {

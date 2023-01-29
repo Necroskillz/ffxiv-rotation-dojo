@@ -7,6 +7,10 @@ import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
+import { AetherflowGauge } from '../combat/jobs/smn/AetherflowGauge';
+import { TranceGauge } from '../combat/jobs/smn/TranceGauge';
+import { ManaBar } from '../combat/ManaBar';
+import { Pet } from '../combat/Pet';
 import PullTimer from '../combat/PullTimer';
 import { Hotbars } from '../hotbars/Hotbars';
 import { Settings } from './Settings';
@@ -16,6 +20,8 @@ export const Hud: FC = () => {
     <div>
       <ActionList />
       <CastBar />
+      <ManaBar />
+      <Pet />
       <Settings />
       <PullTimer />
       <Buffs />
@@ -24,6 +30,8 @@ export const Hud: FC = () => {
       <EspritGauge />
       <SoulAndShroudGauge />
       <DeathGauge />
+      <AetherflowGauge />
+      <TranceGauge />
       <Hotbars />
     </div>
   );

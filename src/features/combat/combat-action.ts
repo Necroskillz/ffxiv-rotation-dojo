@@ -1,15 +1,19 @@
 import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
+import { StatusId } from '../actions/status_enums';
 import { selectPlayer } from '../player/playerSlice';
 import {
   breakCombo,
   cooldown,
   CooldownState,
   executeAction,
+  hasBuff,
   modifyCooldown,
   ogcdLock,
+  removeBuff,
   removeCombo,
+  resource,
   selectCombat,
   selectCombo,
   selectInCombat,
@@ -126,6 +130,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       if (castTime === 0) {
+        if (hasBuff(getState(), StatusId.Swiftcast)) {
+          dispatch(removeBuff(StatusId.Swiftcast));
+        }
+
         resolve();
       } else {
         const resolveTimer = setTimeout(() => {
@@ -136,7 +144,13 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
     },
     isGlowing: options.isGlowing || (() => false),
-    isUsable: options.isUsable || (() => true),
+    isUsable: (state) => {
+      if (action.costType && action.costType !== 'unknown' && resource(state, action.costType) < action.cost) {
+        return false;
+      }
+
+      return options.isUsable ? options.isUsable(state) : true;
+    },
     redirect: options.redirect || (() => options.id),
     cooldown: (state) => {
       const baseRecast = options.cooldown ? options.cooldown(state) * 1000 : action.recastTime;
@@ -172,10 +186,14 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       return [cooldown, globalCooldown, extraCooldown];
     },
     castTime: (state) => {
+      if (hasBuff(state, StatusId.Swiftcast)) {
+        return 0;
+      }
+
       const baseCast = options.castTime ? options.castTime(state) * 1000 : action.castTime;
       if (options.reducedBySpellSpeed) {
         const player = selectPlayer(state);
-        return recastTime(baseCast, player.level, player.skillSpeed);
+        return recastTime(baseCast, player.level, player.spellSpeed);
       }
 
       return baseCast;

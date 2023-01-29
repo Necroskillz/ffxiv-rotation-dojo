@@ -5,7 +5,7 @@ import { AppThunk, ReducerAction, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { selectPartySize, setPartySize } from '../../../player/playerSlice';
-import { CombatAction, CombatActionExecuteContext, createCombatAction } from '../../combat-action';
+import { CombatAction, createCombatAction } from '../../combat-action';
 import {
   addBuff,
   addCooldown,
@@ -105,8 +105,8 @@ const resetDanceEpic: Epic = (action$) =>
 const technicalFinishEspritEpic: Epic<ReducerAction<StatusState>, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.TechnicalFinish),
-    switchMap((a) => {
-      return interval(1250).pipe(
+    switchMap((a) =>
+      interval(1250).pipe(
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, a.payload.id)),
@@ -130,39 +130,42 @@ const technicalFinishEspritEpic: Epic<ReducerAction<StatusState>, any, RootState
 
           return addEsprit(esprit);
         })
-      );
-    })
+      )
+    )
   );
 
 const standardFinishEspritEpic: Epic<ReducerAction<StatusState>, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Esprit),
-    switchMap((a) => {
-      return interval(2500).pipe(
+    switchMap((a) =>
+      interval(2500).pipe(
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, a.payload.id) && hasBuff(state, StatusId.ClosedPosition)),
         takeUntil(action$.pipe(first((aa) => aa.type === addBuff.type && aa.payload.id === a.payload.id))),
         filter(() => rng(20)),
         map(() => addEsprit(10))
-      );
-    })
+      )
+    )
   );
 
 const risingRythmEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Improvisation),
-    switchMap((a) => {
-      return interval(3000).pipe(
+    switchMap((a) =>
+      interval(3000).pipe(
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, a.payload.id)),
         takeUntil(action$.pipe(first((aa) => aa.type === addCooldown.type))),
         switchMap((state) =>
-          of(buff(StatusId.ImprovisationRegen, 15), buff(StatusId.RisingRhythm, 30, buffStacks(state, StatusId.RisingRhythm) + 1))
+          of(
+            buff(StatusId.ImprovisationRegen, 15),
+            buff(StatusId.RisingRhythm, 30, { stacks: buffStacks(state, StatusId.RisingRhythm) + 1 })
+          )
         )
-      );
-    })
+      )
+    )
   );
 
 const soloPartySizeEpic: Epic<any, any, RootState> = (action$) =>
@@ -473,7 +476,6 @@ const saberdance: CombatAction = createCombatAction({
   id: ActionId.SaberDance,
   execute: () => {},
   isUsable: (state) => !isDancing(state) && esprit(state) >= 50,
-  isGlowing: (state) => esprit(state) >= 50,
   reducedBySkillSpeed: true,
 });
 

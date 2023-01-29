@@ -30,11 +30,11 @@ export const DeathGauge = () => {
   }, [enshroud, setEnshroudRemainingTime]);
 
   return (
-    <HudItem name="DeathGauge" defaultPosition={{ x: 20, y: 180 }}>
+    <HudItem name="DeathGauge" defaultPosition={{ x: 20, y: 90 }}>
       <div className="grid w-36 justify-center">
         <div className="h-8 text-center w-full">{!!enshroudRemainingTime && <GaugeNumber number={enshroudRemainingTime} />}</div>
 
-        <div className="grid grid-flow-col auto-cols-max gap-1.5 ml-1.5">
+        <div className="grid grid-flow-col auto-cols-max gap-1.5">
           <GaugeDiamond fill={lemure >= 1} fillColor={lemureFillColor} />
           <GaugeDiamond fill={lemure >= 2 || lemure + voidShroud >= 2} fillColor={lemure >= 2 ? lemureFillColor : voidFillColor} />
           <GaugeDiamond fill={lemure >= 3 || lemure + voidShroud >= 3} fillColor={lemure >= 3 ? lemureFillColor : voidFillColor} />

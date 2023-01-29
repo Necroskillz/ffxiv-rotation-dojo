@@ -232,10 +232,9 @@ const bloodStalk: CombatAction = createCombatAction({
   id: ActionId.BloodStalk,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, 1));
+    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
   },
   redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresSlice : ActionId.BloodStalk),
-  isUsable: (state) => soul(state) >= 50,
   isGlowing: (state) => soul(state) >= 50,
 });
 
@@ -292,9 +291,9 @@ const gluttony: CombatAction = createCombatAction({
   id: ActionId.Gluttony,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, 2));
+    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 2 }));
   },
-  isUsable: (state) => !hasBuff(state, StatusId.Enshrouded) && soul(state) >= 50,
+  isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
   isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && soul(state) >= 50,
 });
 
@@ -305,7 +304,7 @@ const enshround: CombatAction = createCombatAction({
     dispatch(buff(StatusId.Enshrouded, 30));
     dispatch(addLemure(5));
   },
-  isUsable: (state) => !hasBuff(state, StatusId.Enshrouded) && shroud(state) >= 50,
+  isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
   isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && shroud(state) >= 50,
 });
 
@@ -346,7 +345,6 @@ const lemuresSlice: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
-  isUsable: (state) => voidShroud(state) >= 2,
   isGlowing: (state) => voidShroud(state) >= 2,
 });
 
@@ -366,8 +364,10 @@ const plentifulHarvest: CombatAction = createCombatAction({
     dispatch(addShroud(50));
     dispatch(removeBuff(StatusId.ImmortalSacrifice));
   },
-  isUsable: (state) => !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice),
-  isGlowing: (state) => !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice),
+  isUsable: (state) =>
+    !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice) && !hasBuff(state, StatusId.Enshrouded),
+  isGlowing: (state) =>
+    !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice) && !hasBuff(state, StatusId.Enshrouded),
   reducedBySkillSpeed: true,
 });
 
@@ -376,7 +376,6 @@ const communio: CombatAction = createCombatAction({
   execute: (dispatch, getState) => {
     dispatch(removeLemure(lemure(getState())));
   },
-  isUsable: (state) => lemure(state) > 0,
   isGlowing: (state) => lemure(state) === 1,
   reducedBySkillSpeed: true,
 });
@@ -468,10 +467,9 @@ const grimSwathe: CombatAction = createCombatAction({
   id: ActionId.GrimSwathe,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, 1));
+    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
   },
   redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresScythe : ActionId.BloodStalk),
-  isUsable: (state) => soul(state) >= 50,
   isGlowing: (state) => soul(state) >= 50,
 });
 
@@ -480,7 +478,6 @@ const lemuresScythe: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
-  isUsable: (state) => voidShroud(state) >= 2,
   isGlowing: (state) => voidShroud(state) >= 2,
 });
 
@@ -488,7 +485,7 @@ const arcaneCrest: CombatAction = createCombatAction({
   id: ActionId.ArcaneCrest,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.CrestofTimeBorrowed, 5))
+    dispatch(buff(StatusId.CrestofTimeBorrowed, 5));
   },
 });
 
@@ -523,7 +520,7 @@ export const rpr: CombatAction[] = [
   grimReaping,
   grimSwathe,
   lemuresScythe,
-  arcaneCrest
+  arcaneCrest,
 ];
 
 export const rprEpics = combineEpics(
