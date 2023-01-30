@@ -87,9 +87,16 @@ const removeSoulReaverEpic: Epic<any, any, RootState> = (action$, state$) =>
         filter(
           (aa) =>
             aa.type === executeAction.type &&
-            ![ActionId.Gallows, ActionId.Gibbet, ActionId.Guillotine, ActionId.BloodStalk, ActionId.Gluttony, ActionId.GrimSwathe].includes(
-              aa.payload.id
-            )
+            ![
+              ActionId.Gallows,
+              ActionId.Gibbet,
+              ActionId.Guillotine,
+              ActionId.BloodStalk,
+              ActionId.UnveiledGallows,
+              ActionId.UnveiledGibbet,
+              ActionId.Gluttony,
+              ActionId.GrimSwathe,
+            ].includes(aa.payload.id)
         ),
         withLatestFrom(state$),
         map(([, state]) => state),
@@ -234,7 +241,32 @@ const bloodStalk: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
   },
-  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresSlice : ActionId.BloodStalk),
+  redirect: (state) =>
+    hasBuff(state, StatusId.Enshrouded)
+      ? ActionId.LemuresSlice
+      : hasBuff(state, StatusId.EnhancedGibbet)
+      ? ActionId.UnveiledGibbet
+      : hasBuff(state, StatusId.EnhancedGallows)
+      ? ActionId.UnveiledGallows
+      : ActionId.BloodStalk,
+  isGlowing: (state) => soul(state) >= 50,
+});
+
+const unveiledGallows: CombatAction = createCombatAction({
+  id: ActionId.UnveiledGallows,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+  },
+  isGlowing: (state) => soul(state) >= 50,
+});
+
+const unveiledGibbet: CombatAction = createCombatAction({
+  id: ActionId.UnveiledGibbet,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+  },
   isGlowing: (state) => soul(state) >= 50,
 });
 
@@ -256,7 +288,7 @@ const gibbet: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.EnhancedGibbet));
     }
 
-    dispatch(buff(StatusId.EnhancedGallows, 30));
+    dispatch(buff(StatusId.EnhancedGallows, 60));
 
     dispatch(addShroud(10));
   },
@@ -276,7 +308,7 @@ const gallows: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.EnhancedGallows));
     }
 
-    dispatch(buff(StatusId.EnhancedGibbet, 30));
+    dispatch(buff(StatusId.EnhancedGibbet, 60));
 
     dispatch(addShroud(10));
   },
@@ -469,7 +501,7 @@ const grimSwathe: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
   },
-  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresScythe : ActionId.BloodStalk),
+  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresScythe : ActionId.GrimSwathe),
   isGlowing: (state) => soul(state) >= 50,
 });
 
@@ -521,6 +553,8 @@ export const rpr: CombatAction[] = [
   grimSwathe,
   lemuresScythe,
   arcaneCrest,
+  unveiledGallows,
+  unveiledGibbet,
 ];
 
 export const rprEpics = combineEpics(
