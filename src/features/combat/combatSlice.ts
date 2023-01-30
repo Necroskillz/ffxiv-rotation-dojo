@@ -223,6 +223,9 @@ export const combatSlice = createSlice({
       }
     },
     setCast: (state, action: PayloadAction<CastState | null>) => {
+      if (state.cast && action.payload === null) {
+        clearTimeout(state.cast.timeoutId);
+      }
       state.cast = action.payload;
     },
     setPet: (state, action: PayloadAction<PetState | null>) => {
