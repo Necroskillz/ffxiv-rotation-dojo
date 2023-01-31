@@ -31,13 +31,13 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
           <div className="grid auto-rows-max grid-flow-row">
             <div className="text-xiv-golden-brown text-right">Cast</div>
             <div className="text-xl text-right">
-              {combatAction ? (action.castTime === 0 ? 'Instant' : `${combatAction.castTime(state) / 1000}s`) : NaN}
+              {combatAction ? (action.castTime === 0 ? 'Instant' : `${combatAction.castTime(state) / 1000}s`) : '?'}
             </div>
           </div>
           {action.recastTime > 0 && (
             <div className="grid auto-rows-max grid-flow-row">
               <div className="text-xiv-golden-brown text-right">Recast</div>
-              <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : NaN}s</div>
+              <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : '?'}s</div>
             </div>
           )}
           {action.costType === 'mana' && (

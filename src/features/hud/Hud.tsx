@@ -5,6 +5,7 @@ import { CastBar } from '../combat/CastBar';
 import { Debuffs } from '../combat/Debuffs';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
+import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
 import { AetherflowGauge } from '../combat/jobs/smn/AetherflowGauge';
@@ -32,6 +33,7 @@ export const Hud: FC = () => {
       <DeathGauge />
       <AetherflowGauge />
       <TranceGauge />
+      <HeatGauge />
       <Hotbars />
     </div>
   );

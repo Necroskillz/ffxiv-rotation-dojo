@@ -27,6 +27,7 @@ import {
   selectCombat,
   selectResources,
   setResource,
+  gcd,
 } from '../../combatSlice';
 
 const rng = (chance: number) => Math.random() <= chance / 100;
@@ -283,7 +284,7 @@ const standardStep: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(dance(2));
     dispatch(buff(StatusId.StandardStep, 15));
-    dispatch(cooldown(58, 1500));
+    dispatch(gcd({ time: 1500 }));
   },
   isUsable: (state) => !isDancing(state),
   redirect: (state) => (hasBuff(state, StatusId.StandardStep) ? ActionId.StandardFinish : ActionId.StandardStep),

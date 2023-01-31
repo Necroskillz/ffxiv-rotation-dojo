@@ -68,11 +68,12 @@ export interface CombatActionOptions {
   entersCombat?: boolean;
   reducedBySkillSpeed?: boolean;
   reducedBySpellSpeed?: boolean;
+  isGcdAction?: boolean;
 }
 
 export function createCombatAction(options: CombatActionOptions): CombatAction {
   const action = getActionById(options.id);
-  const isGcdAction = action.type === 'Weaponskill' || action.type === 'Spell';
+  const isGcdAction = options.isGcdAction != null ? options.isGcdAction : action.type === 'Weaponskill' || action.type === 'Spell';
 
   const combatAction: CombatAction = {
     id: options.id,

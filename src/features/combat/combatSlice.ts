@@ -3,8 +3,9 @@ import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
+import { selectLevel, selectSkillSpeed, selectSpellSpeed } from '../player/playerSlice';
 import { actions } from './actions';
-import { CombatAction } from './combat-action';
+import { CombatAction, recastTime } from './combat-action';
 import { OGCDLockDuration } from './enums';
 
 export interface LogEvent {
@@ -77,6 +78,8 @@ const initialState: CombatState = {
     ruby: 0,
     emerald: 0,
     bahamut: 0,
+    heat: 0,
+    battery: 0,
   },
   inCombat: false,
   combo: {},
@@ -271,6 +274,8 @@ export const selectTopaz = (state: RootState) => state.combat.resources.topaz;
 export const selectRuby = (state: RootState) => state.combat.resources.ruby;
 export const selectEmerald = (state: RootState) => state.combat.resources.emerald;
 export const selectVoid = (state: RootState) => state.combat.resources.void;
+export const selectHeat = (state: RootState) => state.combat.resources.heat;
+export const selectBattery = (state: RootState) => state.combat.resources.battery;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -430,6 +435,11 @@ export const modifyCooldown =
   (dispatch, getState) => {
     const cooldowns = selectCooldowns(getState());
     const cooldown = cooldowns[cooldownGroup];
+
+    if (!cooldown) {
+      return;
+    }
+
     const remaining = cooldown.timestamp + cooldown.duration - Date.now();
 
     dispatch(
@@ -510,6 +520,18 @@ export const ogcdLock =
     );
   };
 
+export const gcd =
+  (options?: { time?: number; reducedBySkillSpeed?: boolean; reducedBySpellSpeed?: boolean }): AppThunk =>
+  (dispatch, getState) => {
+    const time = options?.time || 2500;
+    const speed = options?.reducedBySkillSpeed
+      ? selectSkillSpeed(getState())
+      : options?.reducedBySpellSpeed
+      ? selectSpellSpeed(getState())
+      : null;
+    dispatch(cooldown(58, speed ? recastTime(time, selectLevel(getState()), speed) : time));
+  };
+
 export const addResourceFactory =
   (resourceType: string, max: number) =>
   (amount: number): AppThunk =>
@@ -557,6 +579,10 @@ export const removeIfrit = removeResourceFactory('ruby');
 export const setEmerald = setResourceFactory('emerald');
 export const removeGaruda = removeResourceFactory('emerald');
 export const setBahamut = setResourceFactory('bahamut');
+export const addHeat = addResourceFactory('heat', 100);
+export const removeHeat = removeResourceFactory('heat');
+export const addBattery = addResourceFactory('battery', 100);
+export const removeBattery = removeResourceFactory('battery');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

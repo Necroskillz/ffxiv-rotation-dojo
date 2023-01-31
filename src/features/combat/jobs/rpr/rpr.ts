@@ -4,8 +4,7 @@ import { ReducerAction, RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
-import { selectLevel, selectSkillSpeed } from '../../../player/playerSlice';
-import { CombatAction, createCombatAction, recastTime } from '../../combat-action';
+import { CombatAction, createCombatAction } from '../../combat-action';
 import {
   addBuff,
   addBuffStack,
@@ -15,9 +14,9 @@ import {
   addVoid,
   buff,
   combo,
-  cooldown,
   executeAction,
   extendableDebuff,
+  gcd,
   hasBuff,
   hasCombo,
   inCombat,
@@ -272,9 +271,9 @@ const unveiledGibbet: CombatAction = createCombatAction({
 
 const soulSlice: CombatAction = createCombatAction({
   id: ActionId.SoulSlice,
-  execute: (dispatch, getState) => {
+  execute: (dispatch) => {
     dispatch(addSoul(50));
-    dispatch(cooldown(58, recastTime(2500, selectLevel(getState()), selectSkillSpeed(getState()))));
+    dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   maxCharges: () => 2,
 });
@@ -467,7 +466,7 @@ const soulScythe: CombatAction = createCombatAction({
   id: ActionId.SoulScythe,
   execute: (dispatch, getState) => {
     dispatch(addSoul(50));
-    dispatch(cooldown(58, recastTime(2500, selectLevel(getState()), selectSkillSpeed(getState()))));
+    dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   maxCharges: () => 2,
 });
