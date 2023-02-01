@@ -154,6 +154,51 @@ const swiftcast: CombatAction = createCombatAction({
   entersCombat: false,
 });
 
+const rampart: CombatAction = createCombatAction({
+  id: ActionId.Rampart,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(buff(StatusId.Rampart, 20));
+  },
+});
+
+const lowBlow: CombatAction = createCombatAction({
+  id: ActionId.LowBlow,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Stun, 5));
+  },
+});
+
+const interject: CombatAction = createCombatAction({
+  id: ActionId.Interject,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+  },
+});
+
+const reprisal: CombatAction = createCombatAction({
+  id: ActionId.Reprisal,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(debuff(StatusId.Reprisal, 10));
+  },
+});
+
+const shirk: CombatAction = createCombatAction({
+  id: ActionId.Shirk,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+  },
+});
+
+const provoke: CombatAction = createCombatAction({
+  id: ActionId.Provoke,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+  },
+});
+
 export const role: CombatAction[] = [
   legGraze,
   secondWind,
@@ -170,6 +215,12 @@ export const role: CombatAction[] = [
   surecast,
   lucidDreaming,
   swiftcast,
+  rampart,
+  lowBlow,
+  interject,
+  reprisal,
+  shirk,
+  provoke
 ];
 
 export const roleEpics = combineEpics(pelotonCombatEpic, lucidDreamingEpic);

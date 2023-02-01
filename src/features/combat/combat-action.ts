@@ -43,6 +43,7 @@ export interface CombatAction {
   cooldown: (state: RootState) => number;
   maxCharges: (state: RootState) => number;
   castTime: (state: RootState) => number;
+  cost: (state: RootState) => number;
   get isGcdAction(): boolean;
 }
 
@@ -65,10 +66,13 @@ export interface CombatActionOptions {
   maxCharges?: (state: RootState) => number;
   extraCooldown?: (state: RootState) => ExtraCooldownOptions;
   castTime?: (state: RootState) => number;
+  cost?: (state: RootState) => number;
   entersCombat?: boolean;
   reducedBySkillSpeed?: boolean;
   reducedBySpellSpeed?: boolean;
   isGcdAction?: boolean;
+  skipDefaultCostCheck?: boolean;
+  animationLock?: number;
 }
 
 export function createCombatAction(options: CombatActionOptions): CombatAction {
@@ -107,20 +111,21 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       if (isGcdAction) {
-        dispatch(ogcdLock(OGCDLockDuration.GCD));
+        dispatch(ogcdLock(options.animationLock != null ? options.animationLock : OGCDLockDuration.GCD));
       }
 
       function resolve() {
         if (!selectInCombat(getState()) && options.entersCombat !== false) {
           dispatch(setCombat(true));
         }
+        const cost = combatAction.cost(getState());
 
-        if (action.cost) {
+        if (cost) {
           const resources = selectResources(getState());
           dispatch(
             setResource({
               resourceType: action.costType!,
-              amount: resources[action.costType!] - action.cost,
+              amount: resources[action.costType!] - cost,
             })
           );
         }
@@ -146,7 +151,12 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     },
     isGlowing: options.isGlowing || (() => false),
     isUsable: (state) => {
-      if (action.costType && action.costType !== 'unknown' && resource(state, action.costType) < action.cost) {
+      if (
+        action.costType &&
+        action.costType !== 'unknown' &&
+        !options.skipDefaultCostCheck &&
+        resource(state, action.costType) < action.cost
+      ) {
         return false;
       }
 
@@ -199,6 +209,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
 
       return baseCast;
     },
+    cost: (state) => (options.cost ? options.cost(state) : action.cost),
     isGcdAction,
   };
 

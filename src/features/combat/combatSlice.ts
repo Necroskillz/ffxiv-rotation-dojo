@@ -80,6 +80,7 @@ const initialState: CombatState = {
     bahamut: 0,
     heat: 0,
     battery: 0,
+    beast: 0,
   },
   inCombat: false,
   combo: {},
@@ -276,6 +277,7 @@ export const selectEmerald = (state: RootState) => state.combat.resources.emeral
 export const selectVoid = (state: RootState) => state.combat.resources.void;
 export const selectHeat = (state: RootState) => state.combat.resources.heat;
 export const selectBattery = (state: RootState) => state.combat.resources.battery;
+export const selectBeast = (state: RootState) => state.combat.resources.beast;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -296,7 +298,7 @@ export const reset =
   (full: boolean): AppThunk =>
   (dispatch, getState) => {
     const state = getState().combat;
-    const preservedBuffs = [StatusId.ClosedPosition];
+    const preservedBuffs = [StatusId.ClosedPosition, StatusId.Defiance];
     const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
     buffs.forEach((b) => dispatch(removeBuff(b.id)));
@@ -366,7 +368,7 @@ export const debuff =
   };
 
 export const extendableDebuff =
-  (id: StatusId, duration: number, maxDuration: number, stacks?: number): AppThunk =>
+  (id: StatusId, duration: number, maxDuration: number): AppThunk =>
   (dispatch, getState) => {
     let extendedDuration = duration;
     if (hasDebuff(getState(), id)) {
@@ -376,7 +378,21 @@ export const extendableDebuff =
       const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
       extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
     }
-    dispatch(debuff(id, extendedDuration, stacks));
+    dispatch(debuff(id, extendedDuration));
+  };
+
+export const extendableBuff =
+  (id: StatusId, duration: number, maxDuration: number): AppThunk =>
+  (dispatch, getState) => {
+    let extendedDuration = duration;
+    if (hasBuff(getState(), id)) {
+      const combat = selectCombat(getState());
+
+      const status = combat.buffs.find((b) => b.id === id)!;
+      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
+      extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
+    }
+    dispatch(buff(id, extendedDuration));
   };
 
 export const removeBuffStack =
@@ -583,6 +599,8 @@ export const addHeat = addResourceFactory('heat', 100);
 export const removeHeat = removeResourceFactory('heat');
 export const addBattery = addResourceFactory('battery', 100);
 export const removeBattery = removeResourceFactory('battery');
+export const addBeast = addResourceFactory('beast', 100);
+export const removeBeast = removeResourceFactory('beast');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

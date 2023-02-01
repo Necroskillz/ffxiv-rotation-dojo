@@ -77,9 +77,8 @@ const slugShot: CombatAction = createCombatAction({
 const heatedSlugShot: CombatAction = createCombatAction({
   id: ActionId.HeatedSlugShot,
   execute: (dispatch, _, context) => {
-    dispatch(combo(ActionId.SlugShot));
-
     if (context.comboed) {
+      dispatch(combo(ActionId.SlugShot));
       dispatch(addHeat(5));
     }
   },

@@ -55,6 +55,7 @@ const initialState: HudState = {
     AetherflowGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     TranceGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     HeatGauge: createDefaultElementPlacement({ isVisible: true, job: ['MCH'] }),
+    BeastGauge: createDefaultElementPlacement({ isVisible: true, job: ['WAR'] }),
   },
 };
 

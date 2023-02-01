@@ -12,6 +12,7 @@ const jobOptions: Option<string>[] = [
   { value: 'MCH', label: 'MCH' },
   { value: 'RPR', label: 'RPR' },
   { value: 'SMN', label: 'SMN' },
+  { value: 'WAR', label: 'WAR' },
 ];
 
 export const ControlBar: FC = () => {

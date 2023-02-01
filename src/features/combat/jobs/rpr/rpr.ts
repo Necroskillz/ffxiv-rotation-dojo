@@ -162,7 +162,6 @@ const waxingSlice: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     if (context.comboed) {
       dispatch(combo(ActionId.WaxingSlice));
-
       dispatch(addSoul(10));
     }
   },

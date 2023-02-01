@@ -10,6 +10,7 @@ import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
 import { AetherflowGauge } from '../combat/jobs/smn/AetherflowGauge';
 import { TranceGauge } from '../combat/jobs/smn/TranceGauge';
+import { BeastGauge } from '../combat/jobs/war/BeastGauge';
 import { ManaBar } from '../combat/ManaBar';
 import { Pet } from '../combat/Pet';
 import PullTimer from '../combat/PullTimer';
@@ -34,6 +35,7 @@ export const Hud: FC = () => {
       <AetherflowGauge />
       <TranceGauge />
       <HeatGauge />
+      <BeastGauge />
       <Hotbars />
     </div>
   );
