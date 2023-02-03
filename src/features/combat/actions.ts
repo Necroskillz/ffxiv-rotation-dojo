@@ -1,5 +1,6 @@
 import { CombatAction } from './combat-action';
 import { general } from './general';
+import { brd } from './jobs/brd/brd';
 import { dnc } from './jobs/dnc/dnc';
 import { mch } from './jobs/mch/mch';
 import { rpr } from './jobs/rpr/rpr';
@@ -20,4 +21,4 @@ function combineActions(...actions: CombatAction[][]): Record<number, CombatActi
   return result;
 }
 
-export const actions = combineActions(dnc, mch, rpr, smn, war, role, general);
+export const actions = combineActions(dnc, mch, brd, rpr, smn, war, role, general);

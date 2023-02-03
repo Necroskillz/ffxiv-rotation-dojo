@@ -2,7 +2,6 @@ import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
-import { selectPlayer } from '../player/playerSlice';
 import {
   breakCombo,
   cooldown,
@@ -11,6 +10,7 @@ import {
   hasBuff,
   modifyCooldown,
   ogcdLock,
+  recastTime,
   removeBuff,
   removeCombo,
   resource,
@@ -23,15 +23,6 @@ import {
   setResource,
 } from './combatSlice';
 import { OGCDLockDuration } from './enums';
-
-const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
-  90: { SUB: 400, DIV: 1900 },
-};
-
-export function recastTime(baseRecast: number, level: number, speed: number) {
-  const modifiers = LevelModifiers[level];
-  return Math.floor((baseRecast * (1000 + Math.ceil((130 * (modifiers.SUB - speed)) / modifiers.DIV))) / 10000) * 10;
-}
 
 export interface CombatAction {
   id: ActionId;
@@ -54,6 +45,7 @@ export interface ExtraCooldownOptions {
 
 export interface CombatActionExecuteContext {
   comboed: boolean;
+  cost: number;
 }
 
 export interface CombatActionOptions {
@@ -82,7 +74,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
   const combatAction: CombatAction = {
     id: options.id,
     execute: (): AppThunk => (dispatch, getState) => {
-      const context: CombatActionExecuteContext = { comboed: false };
+      const context: CombatActionExecuteContext = { comboed: false, cost: 0 };
       const castTime = combatAction.castTime(getState());
 
       if (action.comboAction) {
@@ -121,6 +113,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         const cost = combatAction.cost(getState());
 
         if (cost) {
+          context.cost = cost;
           const resources = selectResources(getState());
           dispatch(
             setResource({
@@ -166,8 +159,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     cooldown: (state) => {
       const baseRecast = options.cooldown ? options.cooldown(state) * 1000 : action.recastTime;
       if ((options.reducedBySkillSpeed && action.type === 'Weaponskill') || (options.reducedBySpellSpeed && action.type === 'Spell')) {
-        const player = selectPlayer(state);
-        return recastTime(baseRecast, player.level, action.type === 'Spell' ? player.spellSpeed : player.skillSpeed);
+        return recastTime(state, baseRecast, action.type);
       }
 
       return baseRecast;
@@ -203,8 +195,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
 
       const baseCast = options.castTime ? options.castTime(state) * 1000 : action.castTime;
       if (options.reducedBySpellSpeed) {
-        const player = selectPlayer(state);
-        return recastTime(baseCast, player.level, player.spellSpeed);
+        return recastTime(state, baseCast, 'Spell');
       }
 
       return baseCast;

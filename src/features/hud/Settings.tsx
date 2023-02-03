@@ -7,7 +7,7 @@ import { selectElement, setVisility } from '../hud/hudSlice';
 import { Option } from '../../types';
 import { selectPlayer, setPartySize, setPullTimerDuration, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
 import { ChangeEvent, useMemo, useState } from 'react';
-import { recastTime } from '../combat/combat-action';
+import { recastTime } from '../combat/combatSlice';
 
 const partySizeOptions: Option<number>[] = [
   { value: 1, label: 'Solo' },
@@ -17,13 +17,14 @@ const partySizeOptions: Option<number>[] = [
 
 export function Settings() {
   const hudElement = useAppSelector((state) => selectElement(state, 'Settings'));
+  const state = useAppSelector((s) => s);
   const player = useAppSelector(selectPlayer);
   const dispatch = useAppDispatch();
   const [skillSpeed, setLocalSkillSpeed] = useState(player.skillSpeed);
   const [spellSpeed, setLocalSpellSpeed] = useState(player.spellSpeed);
   const [pullTimerDuration, setPullTimer] = useState(player.pullTimerDuration);
-  const gcd = useMemo(() => recastTime(2500, 90, skillSpeed) / 1000, [skillSpeed]);
-  const cast = useMemo(() => recastTime(2500, 90, spellSpeed) / 1000, [spellSpeed]);
+  const gcd = useMemo(() => recastTime(state, 2500, 'Weaponskill') / 1000, [state]);
+  const cast = useMemo(() => recastTime(state, 2500, 'Spell') / 1000, [state]);
 
   function close() {
     dispatch(setVisility({ element: 'Settings', isVisible: false }));

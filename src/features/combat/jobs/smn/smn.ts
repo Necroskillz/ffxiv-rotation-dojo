@@ -3,13 +3,11 @@ import { filter, map, of, switchMap, withLatestFrom } from 'rxjs';
 import { AppThunk, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
-import { selectLevel, selectSpellSpeed } from '../../../player/playerSlice';
-import { CombatAction, createCombatAction, recastTime } from '../../combat-action';
+import { CombatAction, createCombatAction } from '../../combat-action';
 import {
   addBuff,
   buff,
   combo,
-  cooldown,
   hasBuff,
   hasCombo,
   hasPet,
@@ -26,6 +24,7 @@ import {
   setPet,
   setResource,
   setTopaz,
+  gcd,
 } from '../../combatSlice';
 
 function topaz(state: RootState) {
@@ -202,6 +201,10 @@ const radiantAegis: CombatAction = createCombatAction({
     dispatch(buff(StatusId.RadiantAegis, 30));
   },
   maxCharges: () => 2,
+  extraCooldown: () => ({
+    cooldownGroup: 1000,
+    duration: 1,
+  }),
   isUsable: (state) => hasPet(state),
 });
 
@@ -221,9 +224,9 @@ const dreadwyrnTrance: CombatAction = createCombatAction({
 
 const summonBahamut: CombatAction = createCombatAction({
   id: ActionId.SummonBahamut,
-  execute: (dispatch, getState) => {
+  execute: (dispatch) => {
     dispatch(buff(StatusId.BahamutActive, 15, { isVisible: false }));
-    dispatch(cooldown(58, recastTime(2500, selectLevel(getState()), selectSpellSpeed(getState()))));
+    dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
     dispatch(setTopaz(9));
     dispatch(setRuby(9));
@@ -239,7 +242,7 @@ const summonPhoenix: CombatAction = createCombatAction({
   execute: (dispatch, getState) => {
     dispatch(buff(StatusId.PhoenixActive, 15, { isVisible: false }));
     dispatch(buff(StatusId.EverlastingFlight, 21));
-    dispatch(cooldown(58, recastTime(2500, selectLevel(getState()), selectSpellSpeed(getState()))));
+    dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
     dispatch(setTopaz(9));
     dispatch(setRuby(9));

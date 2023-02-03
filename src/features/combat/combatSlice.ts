@@ -3,10 +3,46 @@ import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
-import { selectLevel, selectSkillSpeed, selectSpellSpeed } from '../player/playerSlice';
+import { selectJob, selectLevel, selectSkillSpeed, selectSpellSpeed } from '../player/playerSlice';
 import { actions } from './actions';
-import { CombatAction, recastTime } from './combat-action';
+import { CombatAction } from './combat-action';
 import { OGCDLockDuration } from './enums';
+
+const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
+  90: { SUB: 400, DIV: 1900 },
+};
+
+// https://www.akhmorning.com/allagan-studies/how-to-be-a-math-wizard/shadowbringers/speed/#gcds--cast-times
+export function recastTime(state: RootState, time: number, type: string) {
+  const level = selectLevel(state);
+  const speed = type === 'Spell' ? selectSpellSpeed(state) : selectSkillSpeed(state);
+  const modifiers = LevelModifiers[level];
+  const spd = Math.floor(130 * ((speed - modifiers.SUB) / modifiers.DIV) + 1000);
+  const job = selectJob(state);
+
+  let typeY = 0;
+  let typeZ = 0;
+  let haste = 0;
+  let astralUmbral = 100;
+
+  switch (job) {
+    case 'BRD':
+      const armyRepertoire = selectArmyRepertoire(state);
+      const armysPaeonActive = selectBuff(state, StatusId.ArmysPaeonActive);
+      const armysMuse = selectBuff(state, StatusId.ArmysMuse);
+
+      const museMap: Record<number, number> = { 1: 1, 2: 2, 3: 4, 4: 12 };
+
+      typeY = armysMuse ? museMap[armyRepertoire] : armysPaeonActive ? armyRepertoire * 4 : 0;
+  }
+
+  const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
+  const gcd2 = Math.floor(((100 - typeY) * (100 - haste)) / 100);
+  const gcd3 = (100 - typeZ) / 100;
+  const gcd4 = Math.floor((((Math.ceil(gcd2 * gcd3) * gcd1) / 1000) * astralUmbral) / 100);
+
+  return gcd4 * 10;
+}
 
 export interface LogEvent {
   timestamp: Date;
@@ -81,6 +117,12 @@ const initialState: CombatState = {
     heat: 0,
     battery: 0,
     beast: 0,
+    soulVoice: 0,
+    wandererCoda: 0,
+    mageCoda: 0,
+    armyCoda: 0,
+    wandererRepertoire: 0,
+    armyRepertoire: 0,
   },
   inCombat: false,
   combo: {},
@@ -278,6 +320,12 @@ export const selectVoid = (state: RootState) => state.combat.resources.void;
 export const selectHeat = (state: RootState) => state.combat.resources.heat;
 export const selectBattery = (state: RootState) => state.combat.resources.battery;
 export const selectBeast = (state: RootState) => state.combat.resources.beast;
+export const selectSoulVoice = (state: RootState) => state.combat.resources.soulVoice;
+export const selectWandererCoda = (state: RootState) => state.combat.resources.wandererCoda;
+export const selectMageCoda = (state: RootState) => state.combat.resources.mageCoda;
+export const selectArmyCoda = (state: RootState) => state.combat.resources.armyCoda;
+export const selectWandererRepertoire = (state: RootState) => state.combat.resources.wandererRepertoire;
+export const selectArmyRepertoire = (state: RootState) => state.combat.resources.armyRepertoire;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -324,7 +372,14 @@ export const combo =
   };
 
 export const status =
-  (id: StatusId, duration: number | null, stacks: number | null, isHarm: boolean, isVisible: boolean): AppThunk =>
+  (
+    id: StatusId,
+    duration: number | null,
+    stacks: number | null,
+    isHarm: boolean,
+    isVisible: boolean,
+    expireCallback: (() => void) | null
+  ): AppThunk =>
   (dispatch) => {
     const status: StatusState = {
       id,
@@ -335,6 +390,8 @@ export const status =
             } else {
               dispatch(removeBuff(id));
             }
+
+            expireCallback && expireCallback();
           }, duration * 1000)
         : null,
       duration,
@@ -353,18 +410,28 @@ export const status =
 export interface StatusOptions {
   stacks?: number;
   isVisible?: boolean;
+  expireCallback?: () => void;
 }
 
 export const buff =
   (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
   (dispatch) => {
-    dispatch(status(id, duration, options?.stacks || null, false, options?.isVisible === undefined ? true : options.isVisible));
+    dispatch(
+      status(
+        id,
+        duration,
+        options?.stacks || null,
+        false,
+        options?.isVisible === undefined ? true : options.isVisible,
+        options?.expireCallback || null
+      )
+    );
   };
 
 export const debuff =
   (id: StatusId, duration: number | null, stacks?: number): AppThunk =>
   (dispatch) => {
-    dispatch(status(id, duration, stacks || null, true, true));
+    dispatch(status(id, duration, stacks || null, true, true, null));
   };
 
 export const extendableDebuff =
@@ -540,12 +607,8 @@ export const gcd =
   (options?: { time?: number; reducedBySkillSpeed?: boolean; reducedBySpellSpeed?: boolean }): AppThunk =>
   (dispatch, getState) => {
     const time = options?.time || 2500;
-    const speed = options?.reducedBySkillSpeed
-      ? selectSkillSpeed(getState())
-      : options?.reducedBySpellSpeed
-      ? selectSpellSpeed(getState())
-      : null;
-    dispatch(cooldown(58, speed ? recastTime(time, selectLevel(getState()), speed) : time));
+    const type = options?.reducedBySpellSpeed ? 'Spell' : options?.reducedBySkillSpeed ? 'Weaponskill' : null;
+    dispatch(cooldown(58, type ? recastTime(getState(), time, type) : time));
   };
 
 export const addResourceFactory =
@@ -601,6 +664,15 @@ export const addBattery = addResourceFactory('battery', 100);
 export const removeBattery = removeResourceFactory('battery');
 export const addBeast = addResourceFactory('beast', 100);
 export const removeBeast = removeResourceFactory('beast');
+export const addSoulVoice = addResourceFactory('soulVoice', 100);
+export const removeSoulVoice = removeResourceFactory('soulVoice');
+export const addWandererRepertiore = addResourceFactory('wandererRepertoire', 3);
+export const setWandererRepertiore = setResourceFactory('wandererRepertoire');
+export const addArmyRepertiore = addResourceFactory('armyRepertoire', 4);
+export const setArmyRepertiore = setResourceFactory('armyRepertoire');
+export const setWandererCoda = setResourceFactory('wandererCoda');
+export const setMageCoda = setResourceFactory('mageCoda');
+export const setArmyCoda = setResourceFactory('armyCoda');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');
