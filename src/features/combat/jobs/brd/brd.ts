@@ -280,7 +280,12 @@ const wanderersMinuet: CombatAction = createCombatAction({
     dispatch(
       buff(StatusId.WanderersMinuetActive, 45, {
         isVisible: false,
-        expireCallback: () => setTimeout(() => dispatch(removeBuff(StatusId.TheWanderersMinuet)), 3000),
+        expireCallback: () =>
+          setTimeout(() => {
+            if (hasBuff(getState(), StatusId.TheWanderersMinuet)) {
+              dispatch(removeBuff(StatusId.TheWanderersMinuet));
+            }
+          }, 3000),
       })
     );
   },
@@ -306,7 +311,12 @@ const magesBallad: CombatAction = createCombatAction({
     dispatch(
       buff(StatusId.MagesBalladActive, 45, {
         isVisible: false,
-        expireCallback: () => setTimeout(() => dispatch(removeBuff(StatusId.MagesBallad)), 3000),
+        expireCallback: () =>
+          setTimeout(() => {
+            if (hasBuff(getState(), StatusId.MagesBallad)) {
+              dispatch(removeBuff(StatusId.MagesBallad));
+            }
+          }, 3000),
       })
     );
   },
@@ -327,7 +337,11 @@ const armysPaeon: CombatAction = createCombatAction({
             dispatch(buff(StatusId.ArmysEthos, 30));
           }
 
-          setTimeout(() => dispatch(removeBuff(StatusId.ArmysPaeon)), 3000);
+          setTimeout(() => {
+            if (hasBuff(getState(), StatusId.ArmysPaeon)) {
+              dispatch(removeBuff(StatusId.ArmysPaeon));
+            }
+          }, 3000);
         },
       })
     );
