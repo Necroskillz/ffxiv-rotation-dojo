@@ -1,16 +1,17 @@
 import clsx from 'clsx';
-import { FC, useEffect, useState } from 'react';
+import { FC } from 'react';
 import { useAppSelector } from '../../../../app/hooks';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
-import { selectBuff, selectResources } from '../../combatSlice';
+import { selectResources } from '../../combatSlice';
 import { GaugeNumber } from '../../GaugeNumber';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDharmachakra } from '@fortawesome/free-solid-svg-icons';
 
 import style from './DanceGauge.module.css';
 import { HudItem } from '../../../hud/HudItem';
+import { useBuffTimer } from '../../hooks';
 
 type DanceStepProps = {
   actionId: ActionId;
@@ -29,23 +30,7 @@ export const DanceStep: FC<DanceStepProps> = ({ actionId, isActive }) => {
 
 export const DanceGauge = () => {
   const resources = useAppSelector(selectResources);
-  const standardFinish = useAppSelector((state) => selectBuff(state, StatusId.StandardFinish));
-  const [standardFinishRemainingTime, setStandardFinishRemainingTime] = useState<number | null>(null);
-
-  useEffect(() => {
-    function set() {
-      if (standardFinish) {
-        setStandardFinishRemainingTime(Math.ceil(standardFinish.duration! - (Date.now() - standardFinish.timestamp) / 1000));
-      } else {
-        setStandardFinishRemainingTime(null);
-      }
-    }
-
-    set();
-    const timer = setInterval(() => set(), 100);
-
-    return () => clearInterval(timer);
-  }, [standardFinish, setStandardFinishRemainingTime]);
+  const [{ remainingTime: standardFinishRemainingTime }] = useBuffTimer(StatusId.StandardFinish);
 
   return (
     <HudItem name="DanceGauge" defaultPosition={{ x: 20, y: 20 }}>
@@ -61,7 +46,7 @@ export const DanceGauge = () => {
             </div>
           )}
         </div>
-        <div className="h-8 text-center">{!!standardFinishRemainingTime && <GaugeNumber number={standardFinishRemainingTime} />}</div>
+        <div className="h-8 text-center">{standardFinishRemainingTime != null && <GaugeNumber number={standardFinishRemainingTime} />}</div>
       </div>
     </HudItem>
   );

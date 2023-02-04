@@ -1,38 +1,23 @@
-import { useEffect, useState } from 'react';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
-import { selectBuff, selectLemure, selectVoid } from '../../combatSlice';
+import { selectLemure, selectVoid } from '../../combatSlice';
 import { GaugeDiamond } from '../../GaugeDiamond';
 import { GaugeNumber } from '../../GaugeNumber';
+import { useBuffTimer } from '../../hooks';
 
 export const DeathGauge = () => {
   const lemure = useAppSelector(selectLemure);
   const voidShroud = useAppSelector(selectVoid);
-  const enshroud = useAppSelector((state) => selectBuff(state, StatusId.Enshrouded));
-  const [enshroudRemainingTime, setEnshroudRemainingTime] = useState<number | null>(null);
   const lemureFillColor = '#7EFFFF';
   const voidFillColor = '#FF49FF';
 
-  useEffect(() => {
-    function set() {
-      if (enshroud) {
-        setEnshroudRemainingTime(Math.ceil(enshroud.duration! - (Date.now() - enshroud.timestamp) / 1000));
-      } else {
-        setEnshroudRemainingTime(null);
-      }
-    }
-
-    set();
-    const timer = setInterval(() => set(), 100);
-
-    return () => clearInterval(timer);
-  }, [enshroud, setEnshroudRemainingTime]);
+  const [{ remainingTime }] = useBuffTimer(StatusId.Enshrouded);
 
   return (
     <HudItem name="DeathGauge" defaultPosition={{ x: 20, y: 90 }}>
       <div className="grid w-36 justify-center">
-        <div className="h-8 text-center w-full">{!!enshroudRemainingTime && <GaugeNumber number={enshroudRemainingTime} />}</div>
+        <div className="h-8 text-center w-full">{remainingTime != null && <GaugeNumber number={remainingTime} />}</div>
 
         <div className="grid grid-flow-col auto-cols-max gap-1.5">
           <GaugeDiamond fill={lemure >= 1} fillColor={lemureFillColor} />

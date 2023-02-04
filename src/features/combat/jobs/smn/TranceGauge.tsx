@@ -77,7 +77,7 @@ export const TranceGauge = () => {
               {garuda && <div>{emerald}</div>}
             </div>
           </div>
-          {timer !== null && <GaugeNumber className="-mt-[7px]" number={Math.ceil(timer / 1000)} />}
+          {timer !== null && <GaugeNumber className="-mt-[7px]" number={Math.round(timer / 1000)} />}
         </div>
       </div>
     </HudItem>

@@ -51,8 +51,8 @@ export const SongGauge = () => {
   useEffect(() => {
     function setBuff(buff: StatusState | null) {
       if (buff) {
-        setSongTime(Math.ceil((Date.now() - buff.timestamp) / 1000));
-        setSongRemainingTime(Math.ceil(buff.duration! - (Date.now() - buff.timestamp) / 1000));
+        setSongTime(Date.now() - buff.timestamp);
+        setSongRemainingTime(Math.round(buff.duration! - (Date.now() - buff.timestamp) / 1000));
 
         const map: Record<number, StatusId> = {
           [StatusId.WanderersMinuetActive]: StatusId.TheWanderersMinuet,
@@ -86,7 +86,7 @@ export const SongGauge = () => {
           <div className="h-[20px] -mb-[5px] text-sm leading-0 text-xiv-ui">{songName}</div>
           <GaugeBar
             current={songTime || 0}
-            max={45}
+            max={45000}
             texture={wanderersMinuet ? wanderersMinuetTexture : magesBallad ? magesBalladTexture : armysPaeonTexture}
             animate={songTime ? songTime >= 1 : true}
           />

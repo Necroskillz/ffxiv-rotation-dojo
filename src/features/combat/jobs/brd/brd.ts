@@ -289,6 +289,7 @@ const wanderersMinuet: CombatAction = createCombatAction({
       })
     );
   },
+  redirect: (state) => (hasBuff(state, StatusId.WanderersMinuetActive) ? ActionId.PitchPerfect : ActionId.TheWanderersMinuet),
 });
 
 const magesBallad: CombatAction = createCombatAction({
