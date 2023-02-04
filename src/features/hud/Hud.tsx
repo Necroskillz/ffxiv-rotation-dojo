@@ -6,6 +6,7 @@ import { Debuffs } from '../combat/Debuffs';
 import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
+import { DragonGauge } from '../combat/jobs/drg/DragonGauge';
 import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
 import { HutonGauge } from '../combat/jobs/nin/HutonGauge';
 import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
@@ -42,6 +43,7 @@ export const Hud: FC = () => {
       <SongGauge />
       <NinkiGauge />
       <HutonGauge />
+      <DragonGauge />
       <Hotbars />
     </div>
   );

@@ -59,6 +59,7 @@ const initialState: HudState = {
     SongGauge: createDefaultElementPlacement({ isVisible: true, job: ['BRD'] }),
     HutonGauge: createDefaultElementPlacement({ isVisible: true, job: ['NIN'] }),
     NinkiGauge: createDefaultElementPlacement({ isVisible: true, job: ['NIN'] }),
+    DragonGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRG'] }),
   },
 };
 

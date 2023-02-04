@@ -8,7 +8,7 @@ type CostProps = {
   size: number;
 };
 
-const displayedCostTypes = ['esprit', 'mana', 'soul', 'shroud', 'void', 'lemure', 'heat', 'battery', 'soulVoice', 'ninki'];
+const displayedCostTypes = ['esprit', 'mana', 'soul', 'shroud', 'void', 'lemure', 'heat', 'battery', 'soulVoice', 'ninki', 'firstmindsFocus'];
 
 export const Cost: FC<CostProps> = ({ action, size }) => {
   if (!action.cost || !displayedCostTypes.includes(action.costType!)) {

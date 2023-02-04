@@ -15,8 +15,9 @@ import { mchEpics } from '../features/combat/jobs/mch/mch';
 import { warEpics } from '../features/combat/jobs/war/war';
 import { brdEpics } from '../features/combat/jobs/brd/brd';
 import { ninEpics } from '../features/combat/jobs/nin/nin';
+import { drgEpics } from '../features/combat/jobs/drg/drg';
 
-const rootEpic = combineEpics(dncEpics, mchEpics, brdEpics, ninEpics, rprEpics, smnEpics, warEpics, roleEpics, generalEpics);
+const rootEpic = combineEpics(dncEpics, mchEpics, brdEpics, drgEpics, ninEpics, rprEpics, smnEpics, warEpics, roleEpics, generalEpics);
 
 const hotbarMigrations: any = {
   0: (state: any) => ({
