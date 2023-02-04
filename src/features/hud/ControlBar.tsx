@@ -7,13 +7,29 @@ import { lock, selectElement, selectLock, setVisility } from './hudSlice';
 import { Option } from '../../types';
 import Select from 'react-select';
 
-const jobOptions: Option<string>[] = [
-  { value: 'DNC', label: 'DNC' },
-  { value: 'MCH', label: 'MCH' },
-  { value: 'BRD', label: 'BRD' },
-  { value: 'RPR', label: 'RPR' },
-  { value: 'SMN', label: 'SMN' },
-  { value: 'WAR', label: 'WAR' },
+interface GroupOption {
+  label: string;
+  options: Option<string>[];
+}
+
+const jobOptions: GroupOption[] = [
+  { label: 'Tank', options: [{ value: 'WAR', label: 'WAR' }] },
+  {
+    label: 'Melee',
+    options: [
+      { value: 'NIN', label: 'NIN' },
+      { value: 'RPR', label: 'RPR' },
+    ],
+  },
+  { label: 'Caster', options: [{ value: 'SMN', label: 'SMN' }] },
+  {
+    label: 'Ranged',
+    options: [
+      { value: 'BRD', label: 'BRD' },
+      { value: 'DNC', label: 'DNC' },
+      { value: 'MCH', label: 'MCH' },
+    ],
+  },
 ];
 
 export const ControlBar: FC = () => {
@@ -60,9 +76,12 @@ export const ControlBar: FC = () => {
 
   return (
     <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
-      <Select
+      <Select<Option<string>, false, GroupOption>
         options={jobOptions}
-        defaultValue={jobOptions.find((o) => o.value === job)}
+        defaultValue={jobOptions
+          .map((o) => o.options)
+          .flat()
+          .find((o) => o.value === job)}
         styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
         onChange={updateJob}
         menuPlacement="top"

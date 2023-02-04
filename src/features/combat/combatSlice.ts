@@ -33,7 +33,13 @@ export function recastTime(state: RootState, time: number, type: string) {
 
       const museMap: Record<number, number> = { 1: 1, 2: 2, 3: 4, 4: 12 };
 
-      typeY = armysMuse ? museMap[armyRepertoire] : armysPaeonActive ? armyRepertoire * 4 : 0;
+      typeZ = armysMuse ? museMap[armyRepertoire] : armysPaeonActive ? armyRepertoire * 4 : 0;
+      break;
+    case 'NIN':
+      const huton = selectBuff(state, StatusId.HutonActive);
+
+      typeZ = huton ? 15 : 0;
+      break;
   }
 
   const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
@@ -123,6 +129,8 @@ const initialState: CombatState = {
     armyCoda: 0,
     wandererRepertoire: 0,
     armyRepertoire: 0,
+    ninki: 0,
+    mudra: 0,
   },
   inCombat: false,
   combo: {},
@@ -174,7 +182,7 @@ function removeStatus(state: CombatState, statusId: number, isHarm: boolean) {
   const collection = isHarm ? state.debuffs : state.buffs;
 
   const status = collection.find((b) => b.id === statusId)!;
-  if (status.timeoutId) {
+  if (status && status.timeoutId) {
     clearTimeout(status.timeoutId);
   }
 
@@ -326,6 +334,7 @@ export const selectMageCoda = (state: RootState) => state.combat.resources.mageC
 export const selectArmyCoda = (state: RootState) => state.combat.resources.armyCoda;
 export const selectWandererRepertoire = (state: RootState) => state.combat.resources.wandererRepertoire;
 export const selectArmyRepertoire = (state: RootState) => state.combat.resources.armyRepertoire;
+export const selectNinki = (state: RootState) => state.combat.resources.ninki;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -586,6 +595,7 @@ export const drainQueue = (): AppThunk => (dispatch, getState) => {
   const combatAction = actions[combat.queuedAction.actionId];
 
   if (isExecutable(getState(), combatAction)) {
+    dispatch(removeQueuedAction());
     dispatch(combatAction.execute());
   }
 };
@@ -665,7 +675,6 @@ export const removeBattery = removeResourceFactory('battery');
 export const addBeast = addResourceFactory('beast', 100);
 export const removeBeast = removeResourceFactory('beast');
 export const addSoulVoice = addResourceFactory('soulVoice', 100);
-export const removeSoulVoice = removeResourceFactory('soulVoice');
 export const addWandererRepertiore = addResourceFactory('wandererRepertoire', 3);
 export const setWandererRepertiore = setResourceFactory('wandererRepertoire');
 export const addArmyRepertiore = addResourceFactory('armyRepertoire', 4);
@@ -673,6 +682,9 @@ export const setArmyRepertiore = setResourceFactory('armyRepertoire');
 export const setWandererCoda = setResourceFactory('wandererCoda');
 export const setMageCoda = setResourceFactory('mageCoda');
 export const setArmyCoda = setResourceFactory('armyCoda');
+export const addNinki = addResourceFactory('ninki', 100);
+export const removeNinki = removeResourceFactory('ninki');
+export const setMudra = setResourceFactory('mudra');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

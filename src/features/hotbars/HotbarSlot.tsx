@@ -76,8 +76,8 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     setMouseOver(false);
   }
 
-  let activeTimer: MutableRefObject<NodeJS.Timer | null> =  useRef(null);
-  
+  let activeTimer: MutableRefObject<NodeJS.Timer | null> = useRef(null);
+
   const onClick = useCallback(() => {
     if (!combatAction || !hudLock) {
       return;
@@ -209,7 +209,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
             }}
           />
         )}
-        {(action && action.cost > 0) && <Cost action={action} size={size} />}
+        {action && action.cost > 0 && <Cost action={action} size={size} />}
       </div>
     </div>
   );

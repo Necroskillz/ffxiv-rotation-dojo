@@ -37,6 +37,9 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
 
         action({ progress, duration: cd.duration });
       } else {
+        if (applyCharges) {
+          setCharges(maxCharges);
+        }
         action(null);
       }
     }
@@ -79,7 +82,17 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
     return () => {
       if (timerId) clearInterval(timerId);
     };
-  }, [cooldown, globalCooldown, extraCooldown, setPrimaryCooldown, setSecondaryCooldown, setTextCooldown, maxCharges, isGcdAction]);
+  }, [
+    cooldown,
+    globalCooldown,
+    extraCooldown,
+    setPrimaryCooldown,
+    setSecondaryCooldown,
+    setTextCooldown,
+    setCharges,
+    maxCharges,
+    isGcdAction,
+  ]);
 
   return (
     <div

@@ -32,9 +32,11 @@ export function ActionList() {
           </button>
         </div>
         <div className="grid grid-cols-3 gap-1 w-[700px]">
-          {actions.map((a) => (
-            <Action key={a.id} action={a} />
-          ))}
+          {actions
+            .filter((a) => a.id < 999000)
+            .map((a) => (
+              <Action key={a.id} action={a} />
+            ))}
         </div>
       </div>
     </HudItem>

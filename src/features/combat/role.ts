@@ -39,6 +39,7 @@ const secondWind: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
 });
 
@@ -74,6 +75,7 @@ const armsLength: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.ArmsLength, 6));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
 });
 
@@ -83,6 +85,7 @@ const legSweep: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(debuff(StatusId.Stun, 3));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
 });
 
 const bloodbath: CombatAction = createCombatAction({
@@ -91,6 +94,8 @@ const bloodbath: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Bloodbath, 20));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
+  entersCombat: false,
 });
 
 const feint: CombatAction = createCombatAction({
@@ -99,6 +104,7 @@ const feint: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(debuff(StatusId.Feint, 10));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
 });
 
 const trueNorth: CombatAction = createCombatAction({
@@ -108,6 +114,8 @@ const trueNorth: CombatAction = createCombatAction({
     dispatch(buff(StatusId.TrueNorth, 10));
   },
   maxCharges: () => 2,
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
+  entersCombat: false,
 });
 
 const addle: CombatAction = createCombatAction({
@@ -160,6 +168,7 @@ const rampart: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Rampart, 20));
   },
+  entersCombat: false,
 });
 
 const lowBlow: CombatAction = createCombatAction({
@@ -190,6 +199,7 @@ const shirk: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
+  entersCombat: false,
 });
 
 const provoke: CombatAction = createCombatAction({
@@ -220,7 +230,7 @@ export const role: CombatAction[] = [
   interject,
   reprisal,
   shirk,
-  provoke
+  provoke,
 ];
 
 export const roleEpics = combineEpics(pelotonCombatEpic, lucidDreamingEpic);

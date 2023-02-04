@@ -59,6 +59,7 @@ export interface CombatActionOptions {
   extraCooldown?: (state: RootState) => ExtraCooldownOptions;
   castTime?: (state: RootState) => number;
   cost?: (state: RootState) => number;
+  cooldownGroup?: (state: RootState) => number;
   entersCombat?: boolean;
   reducedBySkillSpeed?: boolean;
   reducedBySpellSpeed?: boolean;
@@ -70,6 +71,10 @@ export interface CombatActionOptions {
 export function createCombatAction(options: CombatActionOptions): CombatAction {
   const action = getActionById(options.id);
   const isGcdAction = options.isGcdAction != null ? options.isGcdAction : action.type === 'Weaponskill' || action.type === 'Spell';
+
+  function getCooldownGroup(state: RootState) {
+    return options.cooldownGroup ? options.cooldownGroup(state) : action.cooldownGroup;
+  }
 
   const combatAction: CombatAction = {
     id: options.id,
@@ -97,9 +102,9 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       if (combatAction.maxCharges(getState()) > 1 && combatAction.getCooldown(getState())[0]) {
-        dispatch(modifyCooldown(action.cooldownGroup, combatAction.cooldown(getState())));
+        dispatch(modifyCooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
       } else {
-        dispatch(cooldown(action.cooldownGroup, combatAction.cooldown(getState())));
+        dispatch(cooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
       }
 
       if (isGcdAction) {
@@ -170,9 +175,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       let globalCooldown: CooldownState | null = null;
       let extraCooldown: CooldownState | null = null;
       const combat = selectCombat(state);
+      const cooldownGroup = getCooldownGroup(state);
 
-      if (action.cooldownGroup !== 58) {
-        cooldown = combat.cooldowns[action.cooldownGroup];
+      if (cooldownGroup !== 58) {
+        cooldown = combat.cooldowns[cooldownGroup];
       }
 
       if (isGcdAction) {

@@ -4,7 +4,7 @@ import { RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { CombatAction, createCombatAction } from './combat-action';
-import { addMana, buff, inCombat, ogcdLock } from './combatSlice';
+import { addMana, buff, hasBuff, inCombat, ogcdLock } from './combatSlice';
 import { OGCDLockDuration } from './enums';
 
 const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -22,6 +22,7 @@ const sprint: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Sprint, inCombat(getState()) ? 10 : 20));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
 });
 
@@ -31,6 +32,7 @@ const tinctureOfDexterity: CombatAction = createCombatAction({
     dispatch(ogcdLock(OGCDLockDuration.Potion));
     dispatch(buff(StatusId.Medicated, 30));
   },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
 });
 

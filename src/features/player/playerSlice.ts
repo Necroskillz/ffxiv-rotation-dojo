@@ -15,7 +15,7 @@ const initialState: PlayerState = {
   level: 90,
   skillSpeed: 400,
   spellSpeed: 400,
-  job: 'DNC',
+  job: 'WAR',
   pullTimerDuration: 17,
 };
 
