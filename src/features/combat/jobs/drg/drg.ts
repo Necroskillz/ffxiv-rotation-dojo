@@ -21,6 +21,7 @@ import {
   setEyeOfTheDragon,
   setThrust,
 } from '../../combatSlice';
+import { OGCDLockDuration } from '../../enums';
 
 function firstmindsFocus(state: RootState) {
   return resource(state, 'firstmindsFocus');
@@ -288,6 +289,7 @@ const stardiver: CombatAction = createCombatAction({
     dispatch(ogcdLock());
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
+  animationLock: OGCDLockDuration.Long,
 });
 
 const spineshatterDive: CombatAction = createCombatAction({
@@ -307,7 +309,7 @@ const dragonfireDive: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
-  animationLock: 1200,
+  animationLock: OGCDLockDuration.Long,
 });
 
 const wyrmwindThrust: CombatAction = createCombatAction({
