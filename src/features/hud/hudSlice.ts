@@ -60,6 +60,7 @@ const initialState: HudState = {
     HutonGauge: createDefaultElementPlacement({ isVisible: true, job: ['NIN'] }),
     NinkiGauge: createDefaultElementPlacement({ isVisible: true, job: ['NIN'] }),
     DragonGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRG'] }),
+    BalanceGauge: createDefaultElementPlacement({ isVisible: true, job: ['RDM'] }),
   },
 };
 

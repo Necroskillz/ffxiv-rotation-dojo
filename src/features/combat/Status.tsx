@@ -28,7 +28,7 @@ export const Status: FC<BuffProps> = ({ buff }) => {
   useEffect(() => {
     function set() {
       if (buff.duration) {
-        setRemainingTime(Math.ceil(buff.duration - (Date.now() - buff.timestamp) / 1000));
+        setRemainingTime(Math.round(buff.duration - (Date.now() - buff.timestamp) / 1000));
       } else {
         setRemainingTime(null);
       }
@@ -48,7 +48,7 @@ export const Status: FC<BuffProps> = ({ buff }) => {
     <div className="grid grid-flow-row-dense">
       <StatusTooltip status={status} anchorId={`status_${status.id}`} />
       <img id={`status_${status.id}`} src={'https://xivapi.com' + icon} alt={status.name} />
-      <div className="justify-self-center self-start text-xl -mt-4 text-teal-300">{remainingTime}</div>
+      <div className="justify-self-center self-start text-xl -mt-4 text-teal-300">{remainingTime || null}</div>
     </div>
   );
 };

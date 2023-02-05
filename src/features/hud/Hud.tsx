@@ -10,6 +10,7 @@ import { DragonGauge } from '../combat/jobs/drg/DragonGauge';
 import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
 import { HutonGauge } from '../combat/jobs/nin/HutonGauge';
 import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
+import { BalanceGauge } from '../combat/jobs/rdm/BalanceGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
 import { AetherflowGauge } from '../combat/jobs/smn/AetherflowGauge';
@@ -44,6 +45,7 @@ export const Hud: FC = () => {
       <NinkiGauge />
       <HutonGauge />
       <DragonGauge />
+      <BalanceGauge />
       <Hotbars />
     </div>
   );

@@ -29,8 +29,8 @@ import {
   setResource,
   gcd,
 } from '../../combatSlice';
+import { rng } from '../../utils';
 
-const rng = (chance: number) => Math.random() <= chance / 100;
 const shuffleArray = (array: any[]) => {
   const result = [];
   while (array.length) {

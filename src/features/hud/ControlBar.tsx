@@ -22,7 +22,13 @@ const jobOptions: GroupOption[] = [
       { value: 'RPR', label: 'RPR' },
     ],
   },
-  { label: 'Caster', options: [{ value: 'SMN', label: 'SMN' }] },
+  {
+    label: 'Caster',
+    options: [
+      { value: 'SMN', label: 'SMN' },
+      { value: 'RDM', label: 'RDM' },
+    ],
+  },
   {
     label: 'Ranged',
     options: [

@@ -134,6 +134,9 @@ const initialState: CombatState = {
     firstmindsFocus: 0,
     eyeOfTheDragon: 0,
     thrust: 0,
+    whiteMana: 0,
+    blackMana: 0,
+    manaStack: 0,
   },
   inCombat: false,
   combo: {},
@@ -340,6 +343,9 @@ export const selectArmyRepertoire = (state: RootState) => state.combat.resources
 export const selectNinki = (state: RootState) => state.combat.resources.ninki;
 export const selectEyeOfTheDragon = (state: RootState) => state.combat.resources.eyeOfTheDragon;
 export const selectFirstmindsFocus = (state: RootState) => state.combat.resources.firstmindsFocus;
+export const selectBlackMana = (state: RootState) => state.combat.resources.blackMana;
+export const selectWhiteMana = (state: RootState) => state.combat.resources.whiteMana;
+export const selectManaStack = (state: RootState) => state.combat.resources.manaStack;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -653,13 +659,9 @@ export const removeResourceFactory =
   };
 
 export const addMana = addResourceFactory('mana', 10000);
-export const removeMana = removeResourceFactory('mana');
 export const addEsprit = addResourceFactory('esprit', 100);
-export const removeEsprit = removeResourceFactory('esprit');
 export const addFans = addResourceFactory('fans', 4);
-export const removeFans = removeResourceFactory('fans');
 export const addSoul = addResourceFactory('soul', 100);
-export const removeSoul = removeResourceFactory('soul');
 export const addShroud = addResourceFactory('shroud', 100);
 export const removeShroud = removeResourceFactory('shroud');
 export const addLemure = addResourceFactory('lemure', 5);
@@ -674,11 +676,8 @@ export const setEmerald = setResourceFactory('emerald');
 export const removeGaruda = removeResourceFactory('emerald');
 export const setBahamut = setResourceFactory('bahamut');
 export const addHeat = addResourceFactory('heat', 100);
-export const removeHeat = removeResourceFactory('heat');
 export const addBattery = addResourceFactory('battery', 100);
-export const removeBattery = removeResourceFactory('battery');
 export const addBeast = addResourceFactory('beast', 100);
-export const removeBeast = removeResourceFactory('beast');
 export const addSoulVoice = addResourceFactory('soulVoice', 100);
 export const addWandererRepertiore = addResourceFactory('wandererRepertoire', 3);
 export const setWandererRepertiore = setResourceFactory('wandererRepertoire');
@@ -688,13 +687,14 @@ export const setWandererCoda = setResourceFactory('wandererCoda');
 export const setMageCoda = setResourceFactory('mageCoda');
 export const setArmyCoda = setResourceFactory('armyCoda');
 export const addNinki = addResourceFactory('ninki', 100);
-export const removeNinki = removeResourceFactory('ninki');
 export const setMudra = setResourceFactory('mudra');
 export const addEyeOfTheDragon = addResourceFactory('eyeOfTheDragon', 2);
 export const setEyeOfTheDragon = setResourceFactory('eyeOfTheDragon');
 export const addFirstmindsFocus = addResourceFactory('firstmindsFocus', 2);
 export const setFirstmindsFocus = setResourceFactory('firstmindsFocus');
 export const setThrust = setResourceFactory('thrust');
+export const addManaStack = addResourceFactory('manaStack', 3);
+export const setManaStack = setResourceFactory('manaStack');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

@@ -2,8 +2,10 @@ import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
+import { selectJob } from '../player/playerSlice';
 import {
   breakCombo,
+  buff,
   cooldown,
   CooldownState,
   executeAction,
@@ -120,12 +122,15 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         if (cost) {
           context.cost = cost;
           const resources = selectResources(getState());
-          dispatch(
-            setResource({
-              resourceType: action.costType!,
-              amount: resources[action.costType!] - cost,
-            })
-          );
+
+          action.costType!.split(',').forEach((ct) => {
+            dispatch(
+              setResource({
+                resourceType: ct,
+                amount: resources[ct] - cost,
+              })
+            );
+          });
         }
 
         options.execute(dispatch as any, getState, context);
@@ -134,15 +139,26 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       if (castTime === 0) {
-        if (hasBuff(getState(), StatusId.Swiftcast)) {
-          dispatch(removeBuff(StatusId.Swiftcast));
+        if (action.castTime > 0) {
+          if (hasBuff(getState(), StatusId.Acceleration)) {
+            dispatch(removeBuff(StatusId.Acceleration));
+          } else if (hasBuff(getState(), StatusId.Dualcast)) {
+            dispatch(removeBuff(StatusId.Dualcast));
+          } else if (hasBuff(getState(), StatusId.Swiftcast)) {
+            dispatch(removeBuff(StatusId.Swiftcast));
+          }
         }
 
         resolve();
       } else {
         const resolveTimer = setTimeout(() => {
           dispatch(setCast(null));
+
           resolve();
+
+          if (selectJob(getState()) === 'RDM') {
+            dispatch(buff(StatusId.Dualcast, 15));
+          }
         }, castTime);
         dispatch(setCast({ castTime, timeoutId: resolveTimer, timestamp: Date.now(), actionId: action.id }));
       }
@@ -195,7 +211,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       return [cooldown, globalCooldown, extraCooldown];
     },
     castTime: (state) => {
-      if (hasBuff(state, StatusId.Swiftcast)) {
+      if (hasBuff(state, StatusId.Swiftcast) || hasBuff(state, StatusId.Dualcast)) {
         return 0;
       }
 

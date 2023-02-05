@@ -26,8 +26,7 @@ import {
   extendableDebuff,
   addSoulVoice,
 } from '../../combatSlice';
-
-const rng = (chance: number) => Math.random() <= chance / 100;
+import { rng } from '../../utils';
 
 function soulVoice(state: RootState) {
   return resource(state, 'soulVoice');

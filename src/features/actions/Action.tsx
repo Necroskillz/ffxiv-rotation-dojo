@@ -21,6 +21,7 @@ export const Action: FC<ActionProps> = ({ action }) => {
     <React.Fragment>
       <ActionTooltip anchorId={`action_${action.id}`} action={action} combatAction={combatAction} />
       <div id={`action_${action.id}`} className="grid auto-cols-max grid-flow-col gap-2 items-center">
+        {!combatAction && <div className="text-red-500 static text-4xl">?</div>}
         <div ref={drag}>
           <img className="w-10" src={'https://xivapi.com' + action.icon} alt={action.name} />
         </div>
