@@ -201,6 +201,7 @@ const riposte: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Riposte));
   },
   redirect: (state) => (whiteMana(state) >= 20 && blackMana(state) >= 20 ? ActionId.EnchantedRiposte : ActionId.Riposte),
+  reducedBySkillSpeed: true,
 });
 
 const enchantedRiposte: CombatAction = createCombatAction({
@@ -220,6 +221,7 @@ const zwerchhau: CombatAction = createCombatAction({
   },
   redirect: (state) => (whiteMana(state) >= 15 && blackMana(state) >= 15 ? ActionId.EnchantedZwerchhau : ActionId.Zwerchhau),
   isGlowing: (state) => hasCombo(state, ActionId.Zwerchhau),
+  reducedBySkillSpeed: true,
 });
 
 const enchantedZwerchhau: CombatAction = createCombatAction({
@@ -238,6 +240,7 @@ const redoublement: CombatAction = createCombatAction({
   execute: () => {},
   redirect: (state) => (whiteMana(state) >= 15 && blackMana(state) >= 15 ? ActionId.EnchantedRedoublement : ActionId.Redoublement),
   isGlowing: (state) => hasCombo(state, ActionId.Redoublement),
+  reducedBySkillSpeed: true,
 });
 
 const enchantedRedoublement: CombatAction = createCombatAction({
@@ -248,6 +251,7 @@ const enchantedRedoublement: CombatAction = createCombatAction({
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Redoublement),
+  reducedBySkillSpeed: true,
 });
 
 const manafication: CombatAction = createCombatAction({
@@ -404,11 +408,13 @@ const reprise: CombatAction = createCombatAction({
   id: ActionId.Reprise,
   execute: () => {},
   redirect: (state) => (whiteMana(state) >= 5 && blackMana(state) >= 5 ? ActionId.EnchantedReprise : ActionId.Reprise),
+  reducedBySkillSpeed: true,
 });
 
 const enchantedReprise: CombatAction = createCombatAction({
   id: ActionId.EnchantedReprise,
   execute: () => {},
+  reducedBySkillSpeed: true,
 });
 
 const veraero2: CombatAction = createCombatAction({
@@ -454,6 +460,7 @@ const moulinet: CombatAction = createCombatAction({
   id: ActionId.Moulinet,
   execute: () => {},
   redirect: (state) => (whiteMana(state) >= 20 && blackMana(state) >= 20 ? ActionId.EnchantedMoulinet : ActionId.Moulinet),
+  reducedBySkillSpeed: true,
 });
 
 const enchantedMoulinet: CombatAction = createCombatAction({
