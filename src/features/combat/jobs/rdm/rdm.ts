@@ -74,7 +74,7 @@ export const addBlackAndWhiteMana =
     dispatch(setResource({ resourceType: 'whiteMana', amount: whiteValue }));
   };
 
-const consumeManaficationEpic: Epic<any, any, RootState> = (action$, state$) =>
+const consumeManaficationEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Manafication),
     switchMap(() =>
@@ -97,10 +97,16 @@ const consumeManaficationEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(() => removeBuffStack(StatusId.Manafication))
   );
 
-const removeManaStackEpic: Epic<any, any, RootState> = (action$, state$) =>
+const removeManaStackEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Spell'),
     map(() => setManaStack(0))
+  );
+
+const removeDualcastWithPotionEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Medicine'),
+    map(() => removeBuff(StatusId.Dualcast))
   );
 
 function joltRedirect(state: RootState) {
@@ -510,4 +516,4 @@ export const rdm: CombatAction[] = [
   enchantedMoulinet,
 ];
 
-export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic);
+export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic, removeDualcastWithPotionEpic);
