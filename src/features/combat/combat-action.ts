@@ -140,7 +140,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
 
       if (castTime === 0) {
         if (action.castTime > 0) {
-          if (hasBuff(getState(), StatusId.Acceleration)) {
+          if (
+            hasBuff(getState(), StatusId.Acceleration) &&
+            [ActionId.VerthunderIII, ActionId.VeraeroIII, ActionId.Impact].includes(action.id)
+          ) {
             dispatch(removeBuff(StatusId.Acceleration));
           } else if (hasBuff(getState(), StatusId.Dualcast)) {
             dispatch(removeBuff(StatusId.Dualcast));
