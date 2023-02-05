@@ -396,8 +396,7 @@ const plentifulHarvest: CombatAction = createCombatAction({
   },
   isUsable: (state) =>
     !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice) && !hasBuff(state, StatusId.Enshrouded),
-  isGlowing: (state) =>
-    !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice) && !hasBuff(state, StatusId.Enshrouded),
+  isGlowing: (state) => hasBuff(state, StatusId.ImmortalSacrifice),
   reducedBySkillSpeed: true,
 });
 
