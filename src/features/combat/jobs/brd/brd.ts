@@ -210,6 +210,10 @@ const windbite: CombatAction = createCombatAction({
 const stormbite: CombatAction = createCombatAction({
   id: ActionId.Stormbite,
   execute: (dispatch) => {
+    if (rng(35)) {
+      dispatch(buff(StatusId.StraightShotReady, 30));
+    }
+
     dispatch(debuff(StatusId.Stormbite, 30));
   },
   reducedBySkillSpeed: true,
@@ -225,6 +229,10 @@ const venomousBite: CombatAction = createCombatAction({
 const causticBite: CombatAction = createCombatAction({
   id: ActionId.CausticBite,
   execute: (dispatch) => {
+    if (rng(35)) {
+      dispatch(buff(StatusId.StraightShotReady, 30));
+    }
+
     dispatch(debuff(StatusId.CausticBite, 30));
   },
   reducedBySkillSpeed: true,
@@ -395,6 +403,10 @@ const empyrealArrow: CombatAction = createCombatAction({
 const ironJaws: CombatAction = createCombatAction({
   id: ActionId.IronJaws,
   execute: (dispatch, getState) => {
+    if (rng(35)) {
+      dispatch(buff(StatusId.StraightShotReady, 30));
+    }
+
     if (hasDebuff(getState(), StatusId.Stormbite)) {
       dispatch(extendableDebuff(StatusId.Stormbite, 30, 30));
     }
