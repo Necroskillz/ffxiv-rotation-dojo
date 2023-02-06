@@ -483,7 +483,7 @@ const saberdance: CombatAction = createCombatAction({
 const closedPosition: CombatAction = createCombatAction({
   id: ActionId.ClosedPosition,
   execute: (dispatch) => {
-    ogcdLock();
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.ClosedPosition, null));
   },
   isUsable: (state) => !isDancing(state) && selectPartySize(state) > 1,
@@ -494,7 +494,7 @@ const closedPosition: CombatAction = createCombatAction({
 const ending: CombatAction = createCombatAction({
   id: ActionId.Ending,
   execute: (dispatch) => {
-    ogcdLock();
+    dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ClosedPosition));
   },
   isUsable: (state) => !isDancing(state),
@@ -503,8 +503,8 @@ const ending: CombatAction = createCombatAction({
 
 const improvisation: CombatAction = createCombatAction({
   id: ActionId.Improvisation,
-  execute: (dispatch, getState) => {
-    ogcdLock();
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Improvisation, 15));
     dispatch(buff(StatusId.ImprovisationRegen, 15));
   },
@@ -532,7 +532,7 @@ const improvisedFinish: CombatAction = createCombatAction({
 const shieldSamba: CombatAction = createCombatAction({
   id: ActionId.ShieldSamba,
   execute: (dispatch) => {
-    ogcdLock();
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.ShieldSamba, 15));
   },
   cooldown: () => 90,
@@ -542,7 +542,7 @@ const shieldSamba: CombatAction = createCombatAction({
 const curingWaltz: CombatAction = createCombatAction({
   id: ActionId.CuringWaltz,
   execute: (dispatch) => {
-    ogcdLock();
+    dispatch(ogcdLock());
   },
   entersCombat: false,
 });
@@ -550,7 +550,7 @@ const curingWaltz: CombatAction = createCombatAction({
 const enAvant: CombatAction = createCombatAction({
   id: ActionId.EnAvant,
   execute: (dispatch) => {
-    ogcdLock();
+    dispatch(ogcdLock());
   },
   maxCharges: () => 3,
   extraCooldown: () => ({

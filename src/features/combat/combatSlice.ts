@@ -40,6 +40,11 @@ export function recastTime(state: RootState, time: number, type: string) {
 
       typeZ = huton ? 15 : 0;
       break;
+    case 'SAM':
+      const fuka = selectBuff(state, StatusId.Fuka);
+
+      typeY = fuka ? 13 : 0;
+      break;
   }
 
   const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
@@ -137,6 +142,9 @@ const initialState: CombatState = {
     whiteMana: 0,
     blackMana: 0,
     manaStack: 0,
+    sen: 0,
+    meditation: 0,
+    kenki: 0,
   },
   inCombat: false,
   combo: {},
@@ -346,6 +354,9 @@ export const selectFirstmindsFocus = (state: RootState) => state.combat.resource
 export const selectBlackMana = (state: RootState) => state.combat.resources.blackMana;
 export const selectWhiteMana = (state: RootState) => state.combat.resources.whiteMana;
 export const selectManaStack = (state: RootState) => state.combat.resources.manaStack;
+export const selectSen = (state: RootState) => state.combat.resources.sen;
+export const selectMeditation = (state: RootState) => state.combat.resources.meditation;
+export const selectKenki = (state: RootState) => state.combat.resources.kenki;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -491,7 +502,11 @@ export const removeBuffStack =
     } else {
       const combat = selectCombat(getState());
 
-      const status = combat.buffs.find((b) => b.id === id)!;
+      const status = combat.buffs.find((b) => b.id === id);
+      if (!status) {
+        return;
+      }
+
       const remainingDuration = status.duration ? status.duration - (Date.now() - status.timestamp) / 1000 : null;
 
       dispatch(buff(id, remainingDuration, { stacks: stacks - 1 }));
@@ -695,6 +710,10 @@ export const setFirstmindsFocus = setResourceFactory('firstmindsFocus');
 export const setThrust = setResourceFactory('thrust');
 export const addManaStack = addResourceFactory('manaStack', 3);
 export const setManaStack = setResourceFactory('manaStack');
+export const setSen = setResourceFactory('sen');
+export const addKenki = addResourceFactory('kenki', 100);
+export const addMeditation = addResourceFactory('meditation', 3);
+export const setMeditation = setResourceFactory('meditation');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

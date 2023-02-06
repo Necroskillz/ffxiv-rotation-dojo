@@ -219,11 +219,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       const baseCast = options.castTime ? options.castTime(state) * 1000 : action.castTime;
-      if (options.reducedBySpellSpeed) {
-        return recastTime(state, baseCast, 'Spell');
-      }
-
-      return baseCast;
+      return recastTime(state, baseCast, options.reducedBySpellSpeed ? 'Spell' : 'Weaponskill');
     },
     cost: (state) => (options.cost ? options.cost(state) : action.cost),
     isGcdAction,

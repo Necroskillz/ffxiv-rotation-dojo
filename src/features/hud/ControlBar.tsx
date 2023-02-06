@@ -20,6 +20,7 @@ const jobOptions: GroupOption[] = [
       { value: 'DRG', label: 'DRG' },
       { value: 'NIN', label: 'NIN' },
       { value: 'RPR', label: 'RPR' },
+      { value: 'SAM', label: 'SAM' },
     ],
   },
   {

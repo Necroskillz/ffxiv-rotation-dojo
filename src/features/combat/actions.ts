@@ -7,6 +7,7 @@ import { mch } from './jobs/mch/mch';
 import { nin } from './jobs/nin/nin';
 import { rdm } from './jobs/rdm/rdm';
 import { rpr } from './jobs/rpr/rpr';
+import { sam } from './jobs/sam/sam';
 import { smn } from './jobs/smn/smn';
 import { war } from './jobs/war/war';
 import { role } from './role';
@@ -24,4 +25,4 @@ function combineActions(...actions: CombatAction[][]): Record<number, CombatActi
   return result;
 }
 
-export const actions = combineActions(dnc, mch, brd, drg, nin, rpr, smn, rdm, war, role, general);
+export const actions = combineActions(dnc, mch, brd, drg, nin, rpr, sam, smn, rdm, war, role, general);

@@ -61,6 +61,8 @@ const initialState: HudState = {
     NinkiGauge: createDefaultElementPlacement({ isVisible: true, job: ['NIN'] }),
     DragonGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRG'] }),
     BalanceGauge: createDefaultElementPlacement({ isVisible: true, job: ['RDM'] }),
+    SenGauge: createDefaultElementPlacement({ isVisible: true, job: ['SAM'] }),
+    KenkiGauge: createDefaultElementPlacement({ isVisible: true, job: ['SAM'] }),
   },
 };
 

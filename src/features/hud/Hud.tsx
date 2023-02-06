@@ -13,6 +13,8 @@ import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
 import { BalanceGauge } from '../combat/jobs/rdm/BalanceGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
+import { KenkiGauge } from '../combat/jobs/sam/KenkiGauge';
+import { SenGauge } from '../combat/jobs/sam/SenGauge';
 import { AetherflowGauge } from '../combat/jobs/smn/AetherflowGauge';
 import { TranceGauge } from '../combat/jobs/smn/TranceGauge';
 import { BeastGauge } from '../combat/jobs/war/BeastGauge';
@@ -31,8 +33,6 @@ export const Hud: FC = () => {
       <Pet />
       <Settings />
       <PullTimer />
-      <Buffs />
-      <Debuffs />
       <DanceGauge />
       <EspritGauge />
       <SoulAndShroudGauge />
@@ -46,7 +46,11 @@ export const Hud: FC = () => {
       <HutonGauge />
       <DragonGauge />
       <BalanceGauge />
+      <SenGauge />
+      <KenkiGauge />
       <Hotbars />
+      <Buffs />
+      <Debuffs />
     </div>
   );
 };
