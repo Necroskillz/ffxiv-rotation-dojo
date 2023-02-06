@@ -145,6 +145,7 @@ const initialState: CombatState = {
     sen: 0,
     meditation: 0,
     kenki: 0,
+    cartridge: 0,
   },
   inCombat: false,
   combo: {},
@@ -357,6 +358,7 @@ export const selectManaStack = (state: RootState) => state.combat.resources.mana
 export const selectSen = (state: RootState) => state.combat.resources.sen;
 export const selectMeditation = (state: RootState) => state.combat.resources.meditation;
 export const selectKenki = (state: RootState) => state.combat.resources.kenki;
+export const selectCartridge = (state: RootState) => state.combat.resources.cartridge;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -714,6 +716,7 @@ export const setSen = setResourceFactory('sen');
 export const addKenki = addResourceFactory('kenki', 100);
 export const addMeditation = addResourceFactory('meditation', 3);
 export const setMeditation = setResourceFactory('meditation');
+export const addCartridge = addResourceFactory('cartridge', 3);
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

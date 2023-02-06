@@ -13,7 +13,13 @@ interface GroupOption {
 }
 
 const jobOptions: GroupOption[] = [
-  { label: 'Tank', options: [{ value: 'WAR', label: 'WAR' }] },
+  {
+    label: 'Tank',
+    options: [
+      { value: 'WAR', label: 'WAR' },
+      { value: 'GNB', label: 'GNB' },
+    ],
+  },
   {
     label: 'Melee',
     options: [

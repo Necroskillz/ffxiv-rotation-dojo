@@ -63,6 +63,7 @@ const initialState: HudState = {
     BalanceGauge: createDefaultElementPlacement({ isVisible: true, job: ['RDM'] }),
     SenGauge: createDefaultElementPlacement({ isVisible: true, job: ['SAM'] }),
     KenkiGauge: createDefaultElementPlacement({ isVisible: true, job: ['SAM'] }),
+    PowderGauge: createDefaultElementPlacement({ isVisible: true, job: ['GNB'] }),
   },
 };
 

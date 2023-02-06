@@ -18,6 +18,7 @@ import { ninEpics } from '../features/combat/jobs/nin/nin';
 import { drgEpics } from '../features/combat/jobs/drg/drg';
 import { rdmEpics } from '../features/combat/jobs/rdm/rdm';
 import { samEpics } from '../features/combat/jobs/sam/sam';
+import { gnbEpics } from '../features/combat/jobs/gnb/gnb';
 
 const rootEpic = combineEpics(
   dncEpics,
@@ -29,6 +30,7 @@ const rootEpic = combineEpics(
   samEpics,
   smnEpics,
   rdmEpics,
+  gnbEpics,
   warEpics,
   roleEpics,
   generalEpics
