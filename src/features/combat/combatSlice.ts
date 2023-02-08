@@ -45,6 +45,8 @@ export function recastTime(state: RootState, time: number, type: string) {
 
       typeY = fuka ? 13 : 0;
       break;
+    case 'MNK':
+      typeZ = 20;
   }
 
   const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
@@ -146,6 +148,10 @@ const initialState: CombatState = {
     meditation: 0,
     kenki: 0,
     cartridge: 0,
+    chakra: 0,
+    beastChakra: 0,
+    solarNadi: 0,
+    lunarNadi: 0,
   },
   inCombat: false,
   combo: {},
@@ -359,6 +365,20 @@ export const selectSen = (state: RootState) => state.combat.resources.sen;
 export const selectMeditation = (state: RootState) => state.combat.resources.meditation;
 export const selectKenki = (state: RootState) => state.combat.resources.kenki;
 export const selectCartridge = (state: RootState) => state.combat.resources.cartridge;
+export const selectChakra = (state: RootState) => state.combat.resources.chakra;
+export const selectBeastChakra = (state: RootState) => {
+  let value = state.combat.resources.beastChakra;
+  const currentChakras = [];
+
+  while (value !== 0) {
+    currentChakras.unshift(value % 10);
+    value = Math.floor(value / 10);
+  }
+
+  return currentChakras;
+};
+export const selectSolarNadi = (state: RootState) => state.combat.resources.solarNadi;
+export const selectLunarNadi = (state: RootState) => state.combat.resources.lunarNadi;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -717,6 +737,10 @@ export const addKenki = addResourceFactory('kenki', 100);
 export const addMeditation = addResourceFactory('meditation', 3);
 export const setMeditation = setResourceFactory('meditation');
 export const addCartridge = addResourceFactory('cartridge', 3);
+export const addChakra = addResourceFactory('chakra', 5);
+export const setBeastChakra = setResourceFactory('beastChakra');
+export const setLunarNadi = setResourceFactory('lunarNadi');
+export const setSolarNadi = setResourceFactory('solarNadi');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

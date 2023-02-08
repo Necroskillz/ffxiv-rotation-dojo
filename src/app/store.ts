@@ -19,12 +19,14 @@ import { drgEpics } from '../features/combat/jobs/drg/drg';
 import { rdmEpics } from '../features/combat/jobs/rdm/rdm';
 import { samEpics } from '../features/combat/jobs/sam/sam';
 import { gnbEpics } from '../features/combat/jobs/gnb/gnb';
+import { mnkEpics } from '../features/combat/jobs/mnk/mnk';
 
 const rootEpic = combineEpics(
   dncEpics,
   mchEpics,
   brdEpics,
   drgEpics,
+  mnkEpics,
   ninEpics,
   rprEpics,
   samEpics,

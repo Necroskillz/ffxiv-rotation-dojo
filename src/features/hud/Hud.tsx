@@ -9,6 +9,8 @@ import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
 import { DragonGauge } from '../combat/jobs/drg/DragonGauge';
 import { PowderGauge } from '../combat/jobs/gnb/PowderGauge';
 import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
+import { ChakraGauge } from '../combat/jobs/mnk/ChakraGauge';
+import { MastersGauge } from '../combat/jobs/mnk/MastersGauge';
 import { HutonGauge } from '../combat/jobs/nin/HutonGauge';
 import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
 import { BalanceGauge } from '../combat/jobs/rdm/BalanceGauge';
@@ -50,6 +52,8 @@ export const Hud: FC = () => {
       <SenGauge />
       <KenkiGauge />
       <PowderGauge />
+      <ChakraGauge />
+      <MastersGauge />
       <Hotbars />
       <Buffs />
       <Debuffs />
