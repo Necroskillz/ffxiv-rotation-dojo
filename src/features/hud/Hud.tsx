@@ -7,6 +7,8 @@ import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
 import { DragonGauge } from '../combat/jobs/drg/DragonGauge';
+import { BloodGauge } from '../combat/jobs/drk/BloodGauge';
+import { DarksideGauge } from '../combat/jobs/drk/DarksideGauge';
 import { PowderGauge } from '../combat/jobs/gnb/PowderGauge';
 import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
 import { ChakraGauge } from '../combat/jobs/mnk/ChakraGauge';
@@ -54,6 +56,8 @@ export const Hud: FC = () => {
       <PowderGauge />
       <ChakraGauge />
       <MastersGauge />
+      <DarksideGauge />
+      <BloodGauge />
       <Hotbars />
       <Buffs />
       <Debuffs />

@@ -50,7 +50,7 @@ const initialState: HudState = {
     Debuffs: createDefaultElementPlacement({ isVisible: true }),
     CastBar: createDefaultElementPlacement({ isVisible: true }),
     PullTimer: createDefaultElementPlacement({ isVisible: true }),
-    ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
+    ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN', 'DRK', 'BLM', 'PLD'] }),
     Pet: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     AetherflowGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     TranceGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
@@ -66,6 +66,8 @@ const initialState: HudState = {
     PowderGauge: createDefaultElementPlacement({ isVisible: true, job: ['GNB'] }),
     ChakraGauge: createDefaultElementPlacement({ isVisible: true, job: ['MNK'] }),
     MastersGauge: createDefaultElementPlacement({ isVisible: true, job: ['MNK'] }),
+    DarksideGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRK'] }),
+    BloodGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRK'] }),
   },
 };
 

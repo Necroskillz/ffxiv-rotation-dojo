@@ -16,8 +16,9 @@ const jobOptions: GroupOption[] = [
   {
     label: 'Tank',
     options: [
-      { value: 'WAR', label: 'WAR' },
+      { value: 'DRK', label: 'DRK' },
       { value: 'GNB', label: 'GNB' },
+      { value: 'WAR', label: 'WAR' },
     ],
   },
   {

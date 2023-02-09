@@ -105,6 +105,7 @@ const noMercy: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.NoMercy, 20));
   },
+  entersCombat: false,
 });
 
 const royalGuard: CombatAction = createCombatAction({
@@ -114,7 +115,7 @@ const royalGuard: CombatAction = createCombatAction({
     dispatch(buff(StatusId.RoyalGuard, null));
   },
   entersCombat: false,
-  redirect: (state) => (hasBuff(state, StatusId.Defiance) ? ActionId.ReleaseRoyalGuard : ActionId.RoyalGuard),
+  redirect: (state) => (hasBuff(state, StatusId.RoyalGuard) ? ActionId.ReleaseRoyalGuard : ActionId.RoyalGuard),
 });
 
 const releaseRoyalGuard: CombatAction = createCombatAction({
@@ -309,6 +310,7 @@ const camouflage: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Camouflage, 20));
   },
+  entersCombat: false,
 });
 
 const nebula: CombatAction = createCombatAction({
@@ -317,6 +319,7 @@ const nebula: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Nebula, 15));
   },
+  entersCombat: false,
 });
 
 const aurora: CombatAction = createCombatAction({
@@ -330,6 +333,7 @@ const aurora: CombatAction = createCombatAction({
     cooldownGroup: 1001,
     duration: 1,
   }),
+  entersCombat: false,
 });
 
 const superbolide: CombatAction = createCombatAction({
@@ -338,6 +342,7 @@ const superbolide: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Superbolide, 10));
   },
+  entersCombat: false,
 });
 
 const heartOfLight: CombatAction = createCombatAction({
@@ -346,6 +351,7 @@ const heartOfLight: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.HeartofLight, 15));
   },
+  entersCombat: false,
 });
 
 const heartOfStone: CombatAction = createCombatAction({
@@ -362,6 +368,7 @@ const heartOfCorundum: CombatAction = createCombatAction({
     dispatch(buff(StatusId.ClarityofCorundum, 4));
     dispatch(buff(StatusId.CatharsisofCorundum, 20));
   },
+  entersCombat: false,
 });
 
 const demonSlice: CombatAction = createCombatAction({

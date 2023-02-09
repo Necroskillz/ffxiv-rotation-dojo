@@ -152,6 +152,7 @@ const initialState: CombatState = {
     beastChakra: 0,
     solarNadi: 0,
     lunarNadi: 0,
+    blood: 0,
   },
   inCombat: false,
   combo: {},
@@ -379,6 +380,8 @@ export const selectBeastChakra = (state: RootState) => {
 };
 export const selectSolarNadi = (state: RootState) => state.combat.resources.solarNadi;
 export const selectLunarNadi = (state: RootState) => state.combat.resources.lunarNadi;
+export const selectBlood = (state: RootState) => state.combat.resources.blood;
+export const selectDarkArts = (state: RootState) => state.combat.resources.darkArts;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -399,7 +402,7 @@ export const reset =
   (full: boolean): AppThunk =>
   (dispatch, getState) => {
     const state = getState().combat;
-    const preservedBuffs = [StatusId.ClosedPosition, StatusId.Defiance];
+    const preservedBuffs = [StatusId.ClosedPosition, StatusId.Defiance, StatusId.RoyalGuard, StatusId.Grit];
     const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
     buffs.forEach((b) => dispatch(removeBuff(b.id)));
@@ -502,7 +505,7 @@ export const extendableDebuff =
   };
 
 export const extendableBuff =
-  (id: StatusId, duration: number, maxDuration: number): AppThunk =>
+  (id: StatusId, duration: number, maxDuration: number, options?: StatusOptions): AppThunk =>
   (dispatch, getState) => {
     let extendedDuration = duration;
     if (hasBuff(getState(), id)) {
@@ -512,7 +515,7 @@ export const extendableBuff =
       const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
       extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
     }
-    dispatch(buff(id, extendedDuration));
+    dispatch(buff(id, extendedDuration, options));
   };
 
 export const removeBuffStack =
@@ -741,6 +744,8 @@ export const addChakra = addResourceFactory('chakra', 5);
 export const setBeastChakra = setResourceFactory('beastChakra');
 export const setLunarNadi = setResourceFactory('lunarNadi');
 export const setSolarNadi = setResourceFactory('solarNadi');
+export const addBlood = addResourceFactory('blood', 100);
+export const setDarkArts = setResourceFactory('darkArts');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

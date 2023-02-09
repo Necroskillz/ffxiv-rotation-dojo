@@ -20,6 +20,7 @@ import { rdmEpics } from '../features/combat/jobs/rdm/rdm';
 import { samEpics } from '../features/combat/jobs/sam/sam';
 import { gnbEpics } from '../features/combat/jobs/gnb/gnb';
 import { mnkEpics } from '../features/combat/jobs/mnk/mnk';
+import { drkEpics } from '../features/combat/jobs/drk/drk';
 
 const rootEpic = combineEpics(
   dncEpics,
@@ -32,6 +33,7 @@ const rootEpic = combineEpics(
   samEpics,
   smnEpics,
   rdmEpics,
+  drkEpics,
   gnbEpics,
   warEpics,
   roleEpics,
@@ -53,11 +55,22 @@ const hotbarMigrations: any = {
   }),
 };
 
+const hudMigrations: any = {
+  0: (state: any) => {
+    const elements = state.elements;
+    elements['ManaBar'].job = ['SMN', 'DRK', 'BLM', 'PLD'];
+    return {
+      locked: state.locked,
+      elements,
+    };
+  },
+};
+
 const rootReducer = combineReducers({
   hotbars: persistReducer({ key: 'store_hotbars', storage, version: 0, migrate: createMigrate(hotbarMigrations) }, hotbarReducer),
   combat: combatReducer,
   player: persistReducer({ key: 'store_player', storage }, playerReducer),
-  hud: persistReducer({ key: 'store_hud', storage }, hudReducer),
+  hud: persistReducer({ key: 'store_hud', storage, version: 0, migrate: createMigrate(hudMigrations) }, hudReducer),
 });
 
 const epicMiddleware = createEpicMiddleware<ReducerAction<any>, ReducerAction<any>, any>();
