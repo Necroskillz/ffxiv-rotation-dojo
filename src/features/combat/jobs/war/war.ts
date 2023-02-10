@@ -90,7 +90,6 @@ const fellCleave: CombatAction = createCombatAction({
     dispatch(modifyCooldown(20, -5000));
   },
   reducedBySkillSpeed: true,
-  skipDefaultCostCheck: true,
   isUsable: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
   isGlowing: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
   redirect: (state) => (hasBuff(state, StatusId.NascentChaos) ? ActionId.InnerChaos : ActionId.FellCleave),
@@ -230,7 +229,6 @@ const decimate: CombatAction = createCombatAction({
   id: ActionId.Decimate,
   execute: () => {},
   reducedBySkillSpeed: true,
-  skipDefaultCostCheck: true,
   isUsable: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
   isGlowing: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
   redirect: (state) => (hasBuff(state, StatusId.NascentChaos) ? ActionId.ChaoticCyclone : ActionId.Decimate),

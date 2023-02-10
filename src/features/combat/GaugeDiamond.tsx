@@ -8,5 +8,5 @@ type GaugeDiamondProps = {
 };
 
 export const GaugeDiamond: FC<GaugeDiamondProps> = ({ fill, fillColor }) => {
-  return <div className={style.diamond} style={fill ? { backgroundColor: fillColor } : {}}></div>;
+  return <div className={style.diamond} style={fill ? { background: fillColor } : {}}></div>;
 };

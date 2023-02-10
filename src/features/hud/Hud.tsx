@@ -3,6 +3,7 @@ import { ActionList } from '../actions/ActionList';
 import { Buffs } from '../combat/Buffs';
 import { CastBar } from '../combat/CastBar';
 import { Debuffs } from '../combat/Debuffs';
+import { ElementalGauge } from '../combat/jobs/blm/ElementalGauge';
 import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
@@ -58,6 +59,7 @@ export const Hud: FC = () => {
       <MastersGauge />
       <DarksideGauge />
       <BloodGauge />
+      <ElementalGauge />
       <Hotbars />
       <Buffs />
       <Debuffs />

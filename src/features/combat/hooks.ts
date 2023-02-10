@@ -21,6 +21,9 @@ export function useBuffTimer(id: StatusId) {
         setRemaningTime(Math.round(remainingTime / 1000));
       } else {
         setRemaningTime(null);
+        setRemaningTimeMS(null);
+        setTime(null);
+        setTimeMS(null);
       }
     }
 
@@ -30,8 +33,5 @@ export function useBuffTimer(id: StatusId) {
     return () => clearInterval(timer);
   }, [status]);
 
-  return [
-    { remainingTime, remainingTimeMS },
-    { time, timeMS },
-  ];
+  return [{ remainingTime, remainingTimeMS }, { time, timeMS }, { status }];
 }

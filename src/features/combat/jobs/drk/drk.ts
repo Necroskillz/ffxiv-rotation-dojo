@@ -55,7 +55,6 @@ const popTBNEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.BlackestNight),
     delay(3000),
-
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => inCombat(state)),
@@ -109,7 +108,6 @@ const bloodspiller: CombatAction = createCombatAction({
   isUsable: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
   isGlowing: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
   reducedBySkillSpeed: true,
-  skipDefaultCostCheck: true,
 });
 
 const grit: CombatAction = createCombatAction({
@@ -309,7 +307,6 @@ const quietus: CombatAction = createCombatAction({
   isUsable: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
   isGlowing: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
   reducedBySkillSpeed: true,
-  skipDefaultCostCheck: true,
 });
 
 const abyssalDrain: CombatAction = createCombatAction({

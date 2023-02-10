@@ -8,12 +8,14 @@ import {
   buff,
   cooldown,
   CooldownState,
+  drainQueue,
   executeAction,
   hasBuff,
   modifyCooldown,
   ogcdLock,
   recastTime,
   removeBuff,
+  removeBuffStack,
   removeCombo,
   resource,
   selectCombat,
@@ -25,6 +27,20 @@ import {
   setResource,
 } from './combatSlice';
 import { OGCDLockDuration } from './enums';
+
+const subTypeMap: Record<number, string> = {
+  [ActionId.Fire]: 'fire',
+  [ActionId.FireIII]: 'fire',
+  [ActionId.FireIV]: 'fire',
+  [ActionId.HighFireII]: 'fire',
+  [ActionId.Flare]: 'fire',
+  [ActionId.Despair]: 'fire',
+  [ActionId.Blizzard]: 'ice',
+  [ActionId.BlizzardIII]: 'ice',
+  [ActionId.BlizzardIV]: 'ice',
+  [ActionId.Freeze]: 'ice',
+  [ActionId.HighBlizzardII]: 'ice',
+};
 
 export interface CombatAction {
   id: ActionId;
@@ -59,14 +75,13 @@ export interface CombatActionOptions {
   cooldown?: (state: RootState) => number;
   maxCharges?: (state: RootState) => number;
   extraCooldown?: (state: RootState) => ExtraCooldownOptions;
-  castTime?: (state: RootState) => number;
-  cost?: (state: RootState) => number;
+  castTime?: (state: RootState, baseCastTime: number) => number;
+  cost?: (state: RootState, baseCost: number) => number;
   cooldownGroup?: (state: RootState) => number;
   entersCombat?: boolean;
   reducedBySkillSpeed?: boolean;
   reducedBySpellSpeed?: boolean;
   isGcdAction?: boolean;
-  skipDefaultCostCheck?: boolean;
   animationLock?: number;
 }
 
@@ -136,6 +151,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         options.execute(dispatch as any, getState, context);
 
         dispatch(executeAction({ id: options.id }));
+        dispatch(drainQueue());
       }
 
       if (castTime === 0) {
@@ -147,6 +163,8 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
             dispatch(removeBuff(StatusId.Acceleration));
           } else if (hasBuff(getState(), StatusId.Dualcast)) {
             dispatch(removeBuff(StatusId.Dualcast));
+          } else if (hasBuff(getState(), StatusId.Triplecast)) {
+            dispatch(removeBuffStack(StatusId.Triplecast));
           } else if (hasBuff(getState(), StatusId.Swiftcast)) {
             dispatch(removeBuff(StatusId.Swiftcast));
           }
@@ -168,12 +186,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     },
     isGlowing: options.isGlowing || (() => false),
     isUsable: (state) => {
-      if (
-        action.costType &&
-        action.costType !== 'unknown' &&
-        !options.skipDefaultCostCheck &&
-        resource(state, action.costType) < action.cost
-      ) {
+      if (action.costType && action.costType !== 'unknown' && resource(state, action.costType) < combatAction.cost(state)) {
         return false;
       }
 
@@ -214,14 +227,14 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       return [cooldown, globalCooldown, extraCooldown];
     },
     castTime: (state) => {
-      if (hasBuff(state, StatusId.Swiftcast) || hasBuff(state, StatusId.Dualcast)) {
+      if (hasBuff(state, StatusId.Swiftcast) || hasBuff(state, StatusId.Dualcast) || hasBuff(state, StatusId.Triplecast)) {
         return 0;
       }
 
-      const baseCast = options.castTime ? options.castTime(state) * 1000 : action.castTime;
-      return recastTime(state, baseCast, options.reducedBySpellSpeed ? 'Spell' : 'Weaponskill');
+      const baseCast = options.castTime ? options.castTime(state, action.castTime / 1000) * 1000 : action.castTime;
+      return recastTime(state, baseCast, options.reducedBySpellSpeed ? 'Spell' : 'Weaponskill', subTypeMap[action.id]);
     },
-    cost: (state) => (options.cost ? options.cost(state) : action.cost),
+    cost: (state) => (options.cost ? options.cost(state, action.cost) : action.cost),
     isGcdAction,
   };
 

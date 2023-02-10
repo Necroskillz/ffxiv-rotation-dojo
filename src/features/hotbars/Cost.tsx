@@ -32,6 +32,10 @@ export const Cost: FC<CostProps> = ({ action, size }) => {
   const state = useAppSelector((state) => state);
 
   const combatAction = actions[action.id];
+  if (!combatAction) {
+    return null;
+  }
+
   const cost = combatAction.cost(state);
 
   if (!cost || !displayedCostTypes.includes(action.costType!)) {
@@ -40,7 +44,7 @@ export const Cost: FC<CostProps> = ({ action, size }) => {
 
   return (
     <div className={style.cost} style={{ fontSize: 12 * size, bottom: -8 * size }}>
-      {cost}
+      {action.costType === 'mana' && action.cost === 10000 ? 'All' : cost}
     </div>
   );
 };

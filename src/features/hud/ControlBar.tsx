@@ -34,6 +34,7 @@ const jobOptions: GroupOption[] = [
   {
     label: 'Caster',
     options: [
+      { value: 'BLM', label: 'BLM' },
       { value: 'SMN', label: 'SMN' },
       { value: 'RDM', label: 'RDM' },
     ],

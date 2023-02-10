@@ -68,6 +68,7 @@ const initialState: HudState = {
     MastersGauge: createDefaultElementPlacement({ isVisible: true, job: ['MNK'] }),
     DarksideGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRK'] }),
     BloodGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRK'] }),
+    ElementalGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLM'] }),
   },
 };
 

@@ -43,7 +43,7 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
           {action.costType === 'mana' && (
             <div className="grid auto-rows-max grid-flow-row">
               <div className="text-xiv-golden-brown text-right">MP Cost</div>
-              <div className="text-xl text-right">{action.cost}</div>
+              <div className="text-xl text-right">{combatAction ? combatAction.cost(state) : action.cost}</div>
             </div>
           )}
         </div>

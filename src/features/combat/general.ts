@@ -3,8 +3,9 @@ import { first, interval, map, switchMap, withLatestFrom } from 'rxjs';
 import { RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
+import { selectJob } from '../player/playerSlice';
 import { CombatAction, createCombatAction } from './combat-action';
-import { addMana, buff, hasBuff, inCombat, ogcdLock } from './combatSlice';
+import { addMana, buff, buffStacks, hasBuff, inCombat, ogcdLock } from './combatSlice';
 import { OGCDLockDuration } from './enums';
 
 const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -13,7 +14,30 @@ const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(() => interval(3000)),
     withLatestFrom(state$),
     map(([, state]) => state),
-    map((state) => (inCombat(state) ? addMana(200) : addMana(600)))
+    map((state) => {
+      if (!inCombat(state)) {
+        return addMana(600);
+      }
+
+      if (selectJob(state) === 'BLM') {
+        if (hasBuff(state, StatusId.AstralFireActive)) {
+          return addMana(0);
+        }
+
+        switch (buffStacks(state, StatusId.UmbralIceActive)) {
+          case 0:
+            return addMana(200);
+          case 1:
+            return addMana(3200);
+          case 2:
+            return addMana(4700);
+          case 3:
+            return addMana(6200);
+        }
+      } else {
+        return addMana(200);
+      }
+    })
   );
 
 const sprint: CombatAction = createCombatAction({

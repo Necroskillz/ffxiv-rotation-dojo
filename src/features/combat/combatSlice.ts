@@ -13,7 +13,7 @@ const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
 };
 
 // https://www.akhmorning.com/allagan-studies/how-to-be-a-math-wizard/shadowbringers/speed/#gcds--cast-times
-export function recastTime(state: RootState, time: number, type: string) {
+export function recastTime(state: RootState, time: number, type: string, subType?: string) {
   const level = selectLevel(state);
   const speed = type === 'Spell' ? selectSpellSpeed(state) : selectSkillSpeed(state);
   const modifiers = LevelModifiers[level];
@@ -47,6 +47,19 @@ export function recastTime(state: RootState, time: number, type: string) {
       break;
     case 'MNK':
       typeZ = 20;
+      break;
+    case 'BLM':
+      if (hasBuff(state, StatusId.LeyLines)) {
+        typeY = 15;
+      }
+
+      if (
+        (subType === 'fire' && buffStacks(state, StatusId.UmbralIceActive) === 3) ||
+        (subType === 'ice' && buffStacks(state, StatusId.AstralFireActive) === 3)
+      ) {
+        astralUmbral = 50;
+      }
+      break;
   }
 
   const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
@@ -153,6 +166,9 @@ const initialState: CombatState = {
     solarNadi: 0,
     lunarNadi: 0,
     blood: 0,
+    polyglot: 0,
+    paradox: 0,
+    umbralHeart: 0,
   },
   inCombat: false,
   combo: {},
@@ -382,6 +398,9 @@ export const selectSolarNadi = (state: RootState) => state.combat.resources.sola
 export const selectLunarNadi = (state: RootState) => state.combat.resources.lunarNadi;
 export const selectBlood = (state: RootState) => state.combat.resources.blood;
 export const selectDarkArts = (state: RootState) => state.combat.resources.darkArts;
+export const selectPolyglot = (state: RootState) => state.combat.resources.polyglot;
+export const selectParadox = (state: RootState) => state.combat.resources.paradox;
+export const selectUmbralHeart = (state: RootState) => state.combat.resources.umbralHeart;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -746,6 +765,10 @@ export const setLunarNadi = setResourceFactory('lunarNadi');
 export const setSolarNadi = setResourceFactory('solarNadi');
 export const addBlood = addResourceFactory('blood', 100);
 export const setDarkArts = setResourceFactory('darkArts');
+export const setParadox = setResourceFactory('paradox');
+export const addPolyglot = addResourceFactory('polyglot', 2);
+export const addUmbralHeart = addResourceFactory('umbralHeart', 3);
+export const removeUmbralHeart = removeResourceFactory('umbralHeart');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');
