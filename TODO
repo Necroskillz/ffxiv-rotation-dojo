@@ -1,5 +1,10 @@
-- tooltip z index
+- cancel cast
 - disable right click
-- sort action list by categories
-- ping
+- parse conditional tooltips
+- combat text
 - setup combat state
+- tooltip z index
+- sort action list by categories
+- positionals (movement)
+- follow list of actions (correct/fail)
+- ping
