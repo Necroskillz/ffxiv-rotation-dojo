@@ -169,6 +169,7 @@ const initialState: CombatState = {
     polyglot: 0,
     paradox: 0,
     umbralHeart: 0,
+    oath: 0,
   },
   inCombat: false,
   combo: {},
@@ -401,6 +402,7 @@ export const selectDarkArts = (state: RootState) => state.combat.resources.darkA
 export const selectPolyglot = (state: RootState) => state.combat.resources.polyglot;
 export const selectParadox = (state: RootState) => state.combat.resources.paradox;
 export const selectUmbralHeart = (state: RootState) => state.combat.resources.umbralHeart;
+export const selectOath = (state: RootState) => state.combat.resources.oath;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -769,6 +771,7 @@ export const setParadox = setResourceFactory('paradox');
 export const addPolyglot = addResourceFactory('polyglot', 2);
 export const addUmbralHeart = addResourceFactory('umbralHeart', 3);
 export const removeUmbralHeart = removeResourceFactory('umbralHeart');
+export const addOath = addResourceFactory('oath', 100);
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

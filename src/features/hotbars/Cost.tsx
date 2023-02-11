@@ -26,6 +26,7 @@ const displayedCostTypes = [
   'kenki',
   'blood',
   'beast',
+  'oath',
 ];
 
 export const Cost: FC<CostProps> = ({ action, size }) => {

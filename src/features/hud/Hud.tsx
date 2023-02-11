@@ -16,6 +16,7 @@ import { ChakraGauge } from '../combat/jobs/mnk/ChakraGauge';
 import { MastersGauge } from '../combat/jobs/mnk/MastersGauge';
 import { HutonGauge } from '../combat/jobs/nin/HutonGauge';
 import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
+import { OathGauge } from '../combat/jobs/pld/OathGauge';
 import { BalanceGauge } from '../combat/jobs/rdm/BalanceGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
 import { SoulAndShroudGauge } from '../combat/jobs/rpr/SoulAndShroudGauge';
@@ -60,6 +61,7 @@ export const Hud: FC = () => {
       <DarksideGauge />
       <BloodGauge />
       <ElementalGauge />
+      <OathGauge />
       <Hotbars />
       <Buffs />
       <Debuffs />

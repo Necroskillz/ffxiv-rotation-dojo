@@ -58,7 +58,7 @@ const enochianEpic: Epic<any, any, RootState> = (action$) =>
 const thunder3TickEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addDebuff.type && a.payload.id === StatusId.ThunderIII),
-    pipe(delay(1000)),
+    delay(1000),
     switchMap((a) =>
       interval(3000).pipe(
         startWith(0),
@@ -75,7 +75,7 @@ const thunder3TickEpic: Epic<any, any, RootState> = (action$, state$) =>
 const thunder4TickEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addDebuff.type && a.payload.id === StatusId.ThunderIV),
-    pipe(delay(1000)),
+    delay(1000),
     switchMap((a) =>
       interval(3000).pipe(
         startWith(0),
@@ -302,6 +302,7 @@ const thunder3: CombatAction = createCombatAction({
   execute: (dispatch, getState) => {
     dispatch(debuff(StatusId.ThunderIII, 30));
     dispatch(removeBuff(StatusId.Thundercloud));
+    dispatch(removeBuff(StatusId.ThunderIV));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));
@@ -505,6 +506,7 @@ const thunder4: CombatAction = createCombatAction({
   execute: (dispatch, getState) => {
     dispatch(debuff(StatusId.ThunderIV, 30));
     dispatch(removeBuff(StatusId.Thundercloud));
+    dispatch(removeBuff(StatusId.ThunderIII));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));

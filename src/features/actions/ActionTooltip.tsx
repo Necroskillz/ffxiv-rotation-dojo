@@ -12,6 +12,8 @@ type ActionTooltipProps = {
 
 export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, anchorId }) => {
   const state = useAppSelector((state) => state);
+  const castTime = combatAction ? combatAction.castTime(state) : action.castTime;
+  const recastTime = combatAction ? combatAction.cooldown(state) : action.recastTime;
 
   return (
     <Tooltip anchorId={anchorId} float={true} noArrow={true} style={{ zIndex: 1000 }}>
@@ -30,14 +32,12 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
         <div className="grid auto-cols-max grid-flow-col gap-8 items-center">
           <div className="grid auto-rows-max grid-flow-row">
             <div className="text-xiv-golden-brown text-right">Cast</div>
-            <div className="text-xl text-right">
-              {combatAction ? (action.castTime === 0 ? 'Instant' : `${combatAction.castTime(state) / 1000}s`) : '?'}
-            </div>
+            <div className="text-xl text-right">{castTime === 0 ? 'Instant' : `${castTime / 1000}s`}</div>
           </div>
           {action.recastTime > 0 && (
             <div className="grid auto-rows-max grid-flow-row">
               <div className="text-xiv-golden-brown text-right">Recast</div>
-              <div className="text-xl text-right">{combatAction ? combatAction.cooldown(state) / 1000 : '?'}s</div>
+              <div className="text-xl text-right">{recastTime / 1000}s</div>
             </div>
           )}
           {action.costType === 'mana' && (
