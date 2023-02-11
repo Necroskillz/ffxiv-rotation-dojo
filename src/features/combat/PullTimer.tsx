@@ -51,7 +51,7 @@ const PullTimer = () => {
           <span className="text-7xl">{fraction}</span>
         </div>
       ) : (
-        <div className="h-[130px] w-[200px]"></div>
+        <div className="h-[130px] w-[200px]">Pull timer</div>
       )}
     </HudItem>
   );
