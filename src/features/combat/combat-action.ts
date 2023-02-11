@@ -129,6 +129,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       function resolve() {
+        if (!combatAction.isUsable(getState())) {
+          return;
+        }
+
         if (!selectInCombat(getState()) && options.entersCombat !== false) {
           dispatch(setCombat(true));
         }
