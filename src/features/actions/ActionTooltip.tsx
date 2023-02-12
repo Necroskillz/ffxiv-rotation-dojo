@@ -25,7 +25,21 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
           <div>
             <div>{action.name}</div>
             <div>
-              <span className="text-xiv-golden-brown">{action.type}</span> <span className="text-gray-400">[{action.id}]</span>
+              <div className="grid grid-flow-col auto-cols-max gap-3">
+                <div>
+                  <span className="text-xiv-golden-brown">{action.type}</span> <span className="text-gray-400">[{action.id}]</span>
+                </div>
+                {action.range != null && (
+                  <div>
+                    <span className="text-gray-400">Range</span> <span>{action.range}y</span>
+                  </div>
+                )}
+                {action.radius != null && (
+                  <div>
+                    <span className="text-gray-400">Radius</span> <span>{action.radius}y</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -17,6 +17,8 @@ export interface ActionInfo {
   job: string[];
   comboAction: number | null;
   isAssignableToHotbar: boolean;
+  range: number | null;
+  radius: number | null;
 }
 
 const actions: ActionInfo[] = data;
