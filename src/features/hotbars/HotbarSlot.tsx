@@ -156,12 +156,14 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
           dispatch(assignKeybind({ hotbarId, slotId, key: event.code === 'Escape' ? null : extractKey(event), modifier }));
 
           event.stopPropagation();
+          event.preventDefault();
         }
       } else {
         if (keybind.key === extractKey(event) && keybind.modifier === modifier) {
           onClick();
 
           event.stopPropagation();
+          event.preventDefault();
         }
       }
     }
