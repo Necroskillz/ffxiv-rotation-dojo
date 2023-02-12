@@ -27,33 +27,37 @@ export function Help() {
         </div>
         <div className="w-[700px]">
           <h2 className="text-xl mb-2">How to use</h2>
-          <p>
-            <ol className="list-decimal ml-8">
-              <li>Choose a job in the bottom left corner</li>
-              <li>
-                Click <b>Unlock</b> and drag elements around/set hotbar settings to set up your HUD (the layout is shared between jobs).
-                Afterwards click <b>Lock</b>.
-              </li>
-              <li>
-                Click <b>Keybinding Mode</b> to set up your binds. While this is active, mouseover a hotbar slot, and press a key (optionaly
-                with a modifier) to bind it to that slot (keybinds are shared between jobs). Afterwards click <b>End keybinding mode</b>.
-              </li>
-              <li>
-                Click <b>Actions</b> and drag abilities to hotbars.
-              </li>
-              <li>
-                Click <b>Settings</b> to customize skill/spell speed, party size and pull timer.
-              </li>
-              <li>
-                Click <b>Reset</b> at any point to reset combat to the initial state (cooldowns, resources, buffs, debuffs, etc.).
-              </li>
-            </ol>
-          </p>
+          <ol className="list-decimal ml-8">
+            <li>Choose a job in the bottom left corner</li>
+            <li>
+              Click <b>Unlock</b> and drag elements around/set hotbar settings to set up your HUD (the layout is shared between jobs).
+              Afterwards click <b>Lock</b>.
+            </li>
+            <li>
+              Click <b>Keybinding Mode</b> to set up your binds. While this is active, mouseover a hotbar slot, and press a key (optionaly
+              with a modifier) to bind it to that slot (keybinds are shared between jobs). Afterwards click <b>End keybinding mode</b>.
+            </li>
+            <li>
+              Click <b>Actions</b> and drag abilities to hotbars.
+            </li>
+            <li>
+              Click <b>Settings</b> to customize skill/spell speed, party size and pull timer.
+            </li>
+            <li>
+              Click <b>Reset</b> at any point to reset combat to the initial state (cooldowns, resources, buffs, debuffs, etc.).
+            </li>
+          </ol>
           <h2 className="text-xl mb-2 mt-2">About</h2>
           <p>
             This project is open source hosted at{' '}
-            <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo">https://github.com/Necroskillz/ffxiv-rotation-dojo</a>. Report
-            issues <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo/issues">here</a>.
+            <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo">
+              https://github.com/Necroskillz/ffxiv-rotation-dojo
+            </a>
+            . Report issues{' '}
+            <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo/issues">
+              here
+            </a>
+            .
           </p>
         </div>
       </div>
