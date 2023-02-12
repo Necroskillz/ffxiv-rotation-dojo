@@ -739,6 +739,11 @@ const hellfrogMedium: CombatAction = createCombatAction({
   isGlowing: (state) => ninki(state) >= 50,
 });
 
+const hollowNozuchi: CombatAction = createCombatAction({
+  id: ActionId.HollowNozuchi,
+  execute: () => {},
+});
+
 export const nin: CombatAction[] = [
   spinningEdge,
   gustSlash,
@@ -780,6 +785,7 @@ export const nin: CombatAction[] = [
   hakkeMujinsatsu,
   hurajin,
   hellfrogMedium,
+  hollowNozuchi
 ];
 
 export const ninEpics = combineEpics(
