@@ -1,6 +1,7 @@
 - cancel cast
 - disable right click
 - parse conditional tooltips
+- HUD editor
 - combat text
 - setup combat state
 - tooltip z index
