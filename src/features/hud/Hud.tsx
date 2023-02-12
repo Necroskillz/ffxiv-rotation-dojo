@@ -29,11 +29,13 @@ import { ManaBar } from '../combat/ManaBar';
 import { Pet } from '../combat/Pet';
 import PullTimer from '../combat/PullTimer';
 import { Hotbars } from '../hotbars/Hotbars';
+import { Help } from './Help';
 import { Settings } from './Settings';
 
 export const Hud: FC = () => {
   return (
     <div>
+      <Help />
       <ActionList />
       <CastBar />
       <ManaBar />

@@ -6,6 +6,8 @@ import { selectJob, selectPullTimerDuration, setJob } from '../player/playerSlic
 import { lock, selectElement, selectLock, setVisility } from './hudSlice';
 import { Option } from '../../types';
 import Select from 'react-select';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 
 interface GroupOption {
   label: string;
@@ -54,6 +56,7 @@ export const ControlBar: FC = () => {
   const dispatch = useAppDispatch();
   const actions = useAppSelector((state) => selectElement(state, 'ActionList'));
   const settings = useAppSelector((state) => selectElement(state, 'Settings'));
+  const help = useAppSelector((state) => selectElement(state, 'Help'));
   const hudLock = useAppSelector(selectLock);
   const pullTimerDuration = useAppSelector(selectPullTimerDuration);
   const keybindingMode = useAppSelector(selectKeybindingMode);
@@ -69,6 +72,10 @@ export const ControlBar: FC = () => {
 
   function toggleSettings() {
     dispatch(setVisility({ element: 'Settings', isVisible: !settings.isVisible }));
+  }
+
+  function toggleHelp() {
+    dispatch(setVisility({ element: 'Help', isVisible: !help.isVisible }));
   }
 
   function toggleLock() {
@@ -93,35 +100,42 @@ export const ControlBar: FC = () => {
   }
 
   return (
-    <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
-      <Select<Option<string>, false, GroupOption>
-        options={jobOptions}
-        defaultValue={jobOptions
-          .map((o) => o.options)
-          .flat()
-          .find((o) => o.value === job)}
-        styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
-        onChange={updateJob}
-        menuPlacement="top"
-      ></Select>
-      <button className="border px-1 rounded" onClick={toggleActions}>
-        Actions
-      </button>
-      <button className="border px-1 rounded" onClick={toggleLock}>
-        {hudLock ? 'Unlock' : 'Lock'}
-      </button>
-      <button className="border px-1 rounded" onClick={toggleKeybindingMode}>
-        {!keybindingMode ? 'Keybinding Mode' : 'End Keybinding Mode'}
-      </button>
-      <button className="border px-1 rounded" onClick={toggleSettings}>
-        Settings
-      </button>
-      <button className="border px-1 rounded" onClick={resetCombat}>
-        Reset
-      </button>
-      <button className="border px-1 rounded" onClick={startPullTimer}>
-        Pull timer
-      </button>
+    <div className="grid grid-cols-[_1fr_50px]">
+      <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
+        <Select<Option<string>, false, GroupOption>
+          options={jobOptions}
+          defaultValue={jobOptions
+            .map((o) => o.options)
+            .flat()
+            .find((o) => o.value === job)}
+          styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
+          onChange={updateJob}
+          menuPlacement="top"
+        ></Select>
+        <button className="border px-1 rounded" onClick={toggleActions}>
+          Actions
+        </button>
+        <button className="border px-1 rounded" onClick={toggleLock}>
+          {hudLock ? 'Unlock' : 'Lock'}
+        </button>
+        <button className="border px-1 rounded" onClick={toggleKeybindingMode}>
+          {!keybindingMode ? 'Keybinding Mode' : 'End Keybinding Mode'}
+        </button>
+        <button className="border px-1 rounded" onClick={toggleSettings}>
+          Settings
+        </button>
+        <button className="border px-1 rounded" onClick={resetCombat}>
+          Reset
+        </button>
+        <button className="border px-1 rounded" onClick={startPullTimer}>
+          Pull timer
+        </button>
+      </div>
+      <div className="grid items-center">
+        <button onClick={toggleHelp}>
+          <FontAwesomeIcon icon={faCircleQuestion} size="xl" />
+        </button>
+      </div>
     </div>
   );
 };

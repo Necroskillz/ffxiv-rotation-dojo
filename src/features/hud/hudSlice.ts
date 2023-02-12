@@ -24,6 +24,7 @@ function createDefaultElementPlacement(options: Pick<HudElementPlacement, 'isVis
 const initialState: HudState = {
   locked: true,
   elements: {
+    Help: createDefaultElementPlacement({ isVisible: true }),
     ActionList: createDefaultElementPlacement({ isVisible: false }),
     DanceGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
     EspritGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
