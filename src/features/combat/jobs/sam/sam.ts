@@ -88,6 +88,7 @@ const consumeMeikyoEpic: Epic<any, any, RootState> = (action$) =>
               ActionId.KaeshiHiganbana,
               ActionId.KaeshiSetsugekka,
               ActionId.KaeshiGoken,
+              ActionId.Enpi,
             ].includes(aa.payload.id)
         ),
         takeUntil(action$.pipe(first((a) => a.type === removeBuff.type && a.payload === a.payload.id)))
