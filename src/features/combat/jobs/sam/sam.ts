@@ -247,7 +247,7 @@ const yukikaze: CombatAction = createCombatAction({
   id: ActionId.Yukikaze,
   execute: (dispatch, getState, context) => {
     if (context.comboed || hasBuff(getState(), StatusId.MeikyoShisui)) {
-      dispatch(addKenki(10));
+      dispatch(addKenki(15));
       dispatch(addSen(ActionId.Yukikaze));
     }
   },
