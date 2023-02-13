@@ -443,7 +443,7 @@ export const combo =
     dispatch(
       addCombo({
         actionId,
-        timeoutId: setTimeout(() => dispatch(removeCombo(actionId)), 20000),
+        timeoutId: setTimeout(() => dispatch(removeCombo(actionId)), 30000),
       })
     );
   };
