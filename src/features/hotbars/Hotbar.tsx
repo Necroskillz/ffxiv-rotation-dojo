@@ -1,7 +1,7 @@
 import { FC } from 'react';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HotbarState } from './hotbarSlice';
+import { HotbarState, selectHotbarLock, setLock } from './hotbarSlice';
 import { HotbarSlot } from './HotbarSlot';
 import { HudItem } from '../hud/HudItem';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -14,12 +14,16 @@ type HotbarProps = {
 export const Hotbar: FC<HotbarProps> = ({ hotbar }) => {
   const dispatch = useAppDispatch();
   const hudLock = useAppSelector(selectLock);
+  const hotbarLock = useAppSelector(selectHotbarLock);
   const configElement = useAppSelector((state) => selectElement(state, `HotbarConfig${hotbar.id}`));
   const config = hotbar.config;
   const rows = Array.from({ length: config.rows }).map(() => 12 / config.rows);
 
   function toggleConfig() {
     dispatch(setVisility({ element: `HotbarConfig${hotbar.id}`, isVisible: !configElement.isVisible }));
+  }
+  function toggleLock() {
+    dispatch(setLock(!hotbarLock));
   }
 
   return (
@@ -34,6 +38,11 @@ export const Hotbar: FC<HotbarProps> = ({ hotbar }) => {
             </div>
           ))}
         </div>
+        {hudLock && hotbar.id === 1 && (
+          <button onClick={toggleLock} className="place-self-center">
+            <FontAwesomeIcon icon={hotbarLock ? faLock : faLockOpen} />
+          </button>
+        )}
         {!hudLock && (
           <button onClick={toggleConfig}>
             <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>

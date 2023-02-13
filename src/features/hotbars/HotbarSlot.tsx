@@ -4,7 +4,7 @@ import { actions } from '../combat/actions';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { CooldownState, queue } from '../combat/combatSlice';
 import { CooldownSwipe } from './CooldownSwipe';
-import { assignAction, assignKeybind, selectKeybind, selectKeybindingMode, selectSlot } from './hotbarSlice';
+import { assignAction, assignKeybind, selectHotbarLock, selectKeybind, selectKeybindingMode, selectSlot } from './hotbarSlice';
 import { Keybind } from './Keybind';
 import { useDrag, useDrop } from 'react-dnd';
 import { ActionId } from '../actions/action_enums';
@@ -42,6 +42,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const keybind = useAppSelector((state) => selectKeybind(state, { hotbarId, slotId }));
   const keybindingMode = useAppSelector(selectKeybindingMode);
   const hudLock = useAppSelector(selectLock);
+  const hotbarLock = useAppSelector(selectHotbarLock);
   const job = useAppSelector(selectJob);
   const actionId = slot.actionId[job];
 
@@ -109,7 +110,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     () => ({
       type: 'action',
       item: { id: actionId },
-      canDrag: () => !!action && hudLock,
+      canDrag: () => !!action && hudLock && !hotbarLock,
       end: (item, monitor) => {
         if (!monitor.didDrop()) {
           dispatch(assignAction({ hotbarId, slotId, job, actionId: null }));
@@ -121,7 +122,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
         }
       },
     }),
-    [action, hudLock, job]
+    [action, hudLock, job, hotbarLock]
   );
 
   useEffect(() => {

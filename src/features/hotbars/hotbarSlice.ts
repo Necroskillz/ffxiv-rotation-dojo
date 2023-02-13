@@ -29,6 +29,7 @@ export interface HotbarState {
 export interface HotbarsState {
   hotbars: HotbarState[];
   keybindingMode: boolean;
+  lock: boolean;
 }
 
 function createDefaultHotbar(id: number): HotbarState {
@@ -37,7 +38,7 @@ function createDefaultHotbar(id: number): HotbarState {
     config: {
       buttons: 12,
       rows: 1,
-      size: 1
+      size: 1,
     },
     keybinds: [],
     slots: [],
@@ -96,6 +97,7 @@ const initialState: HotbarsState = {
     createDefaultHotbar(8),
   ],
   keybindingMode: false,
+  lock: false,
 };
 
 export interface AssingActionPayload {
@@ -160,13 +162,17 @@ export const hotbarSlice = createSlice({
       const config = getHotbar(state.hotbars, action.payload.hotbarId).config;
       config.rows = action.payload.rows;
     },
+    setLock: (state, action: PayloadAction<boolean>) => {
+      state.lock = action.payload;
+    },
   },
 });
 
-export const { assignAction, assignKeybind, setKeybindingMode, setSize, setRows } = hotbarSlice.actions;
+export const { assignAction, assignKeybind, setKeybindingMode, setSize, setRows, setLock } = hotbarSlice.actions;
 
 export const selectHotbars = (state: RootState) => state.hotbars.hotbars;
 export const selectKeybindingMode = (state: RootState) => state.hotbars.keybindingMode;
+export const selectHotbarLock = (state: RootState) => state.hotbars.lock;
 
 export interface SelectSlotParams {
   hotbarId: number;

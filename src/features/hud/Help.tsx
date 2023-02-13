@@ -35,7 +35,7 @@ export function Help() {
             </li>
             <li>
               Click <b>Keybinding Mode</b> to set up your binds. While this is active, mouseover a hotbar slot, and press a key (optionaly
-              with a modifier) to bind it to that slot (keybinds are shared between jobs). Afterwards click <b>End keybinding mode</b>.
+              with a modifier) to bind it to that slot (keybinds are shared between jobs, ESC to unbind). Afterwards click <b>End keybinding mode</b>.
             </li>
             <li>
               Click <b>Actions</b> and drag abilities to hotbars.
