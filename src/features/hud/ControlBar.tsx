@@ -8,6 +8,7 @@ import { Option } from '../../types';
 import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
+import clsx from 'clsx';
 
 interface GroupOption {
   label: string;
@@ -115,10 +116,10 @@ export const ControlBar: FC = () => {
         <button className="border px-1 rounded" onClick={toggleActions}>
           Actions
         </button>
-        <button className="border px-1 rounded" onClick={toggleLock}>
+        <button className={clsx('border px-1 rounded', { 'bg-white text-xiv-bg': !hudLock })} onClick={toggleLock}>
           {hudLock ? 'Unlock' : 'Lock'}
         </button>
-        <button className="border px-1 rounded" onClick={toggleKeybindingMode}>
+        <button className={clsx('border px-1 rounded', { 'bg-white text-xiv-bg': keybindingMode })} onClick={toggleKeybindingMode}>
           {!keybindingMode ? 'Keybinding Mode' : 'End Keybinding Mode'}
         </button>
         <button className="border px-1 rounded" onClick={toggleSettings}>
