@@ -528,7 +528,7 @@ const fuko: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(combo(ActionId.Fuga));
 
-    dispatch(addKenki(5));
+    dispatch(addKenki(10));
   },
   reducedBySkillSpeed: true,
 });
