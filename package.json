@@ -1,9 +1,21 @@
 {
-  "name": "ffxiv-rotation",
-  "version": "0.1.0",
+  "name": "ffxiv-rotation-dojo",
+  "version": "1.0.0",
   "homepage": "https://necroskillz.github.io/ffxiv-rotation-dojo",
+  "main": "electron/main.js",
+  "author": "Necroskillz",
+  "description": "App for trying FFXIV rotations",
   "private": true,
   "dependencies": {
+    "electron-is-dev": "^2.0.0",
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.5",
+    "@electron-forge/maker-deb": "^6.0.5",
+    "@electron-forge/maker-rpm": "^6.0.5",
+    "@electron-forge/maker-squirrel": "^6.0.5",
+    "@electron-forge/maker-zip": "^6.0.5",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
@@ -20,6 +32,7 @@
     "@types/react-modal": "^3.13.1",
     "autoprefixer": "^10.4.13",
     "clsx": "^1.2.1",
+    "electron": "^23.0.0",
     "gh-pages": "^5.0.0",
     "postcss": "^8.4.19",
     "react": "^18.2.0",
@@ -45,7 +58,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
