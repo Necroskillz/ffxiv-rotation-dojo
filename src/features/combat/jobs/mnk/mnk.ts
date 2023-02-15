@@ -160,27 +160,48 @@ export const addBeastChakra =
     dispatch(setBeastChakra(current * 10 + chakra));
   };
 
-export const consumePerfectBalance =
-  (chakra: BeastChakra): AppThunk =>
-  (dispatch, getState) => {
-    if (hasBuff(getState(), StatusId.PerfectBalance)) {
-      dispatch(removeBuffStack(StatusId.PerfectBalance));
-      dispatch(addBeastChakra(chakra));
-    }
-  };
-
 function hasForm(state: RootState, form: StatusId) {
   return hasBuff(state, form) || hasBuff(state, StatusId.FormlessFist) || hasBuff(state, StatusId.PerfectBalance);
 }
+
+const forms = [StatusId.OpoopoForm, StatusId.RaptorForm, StatusId.CoeurlForm, StatusId.FormlessFist, StatusId.PerfectBalance];
+
+export const setForm =
+  (form: StatusId, chakra?: BeastChakra): AppThunk =>
+  (dispatch, getState) => {
+    function clear() {
+      forms.forEach((f) => {
+        if (f !== form && hasBuff(getState(), f)) {
+          dispatch(removeBuff(f));
+        }
+      });
+    }
+
+    if ([StatusId.FormlessFist, StatusId.PerfectBalance].includes(form)) {
+      clear();
+
+      if (form === StatusId.PerfectBalance) {
+        dispatch(buff(StatusId.PerfectBalance, 20, { stacks: 3 }));
+      } else {
+        dispatch(buff(StatusId.FormlessFist, 30));
+      }
+    } else {
+      if (hasBuff(getState(), StatusId.PerfectBalance)) {
+        dispatch(removeBuffStack(StatusId.PerfectBalance));
+        dispatch(addBeastChakra(chakra!));
+      } else {
+        clear();
+
+        dispatch(buff(form, 30));
+      }
+    }
+  };
 
 const bootshine: CombatAction = createCombatAction({
   id: ActionId.Bootshine,
   execute: (dispatch) => {
     dispatch(removeBuff(StatusId.LeadenFist));
-    dispatch(removeBuff(StatusId.OpoopoForm));
-    dispatch(removeBuff(StatusId.CoeurlForm));
-    dispatch(buff(StatusId.RaptorForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.OpoOpo));
+    dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
   },
   isGlowing: (state) => hasForm(state, StatusId.OpoopoForm),
   reducedBySkillSpeed: true,
@@ -189,9 +210,7 @@ const bootshine: CombatAction = createCombatAction({
 const trueStrike: CombatAction = createCombatAction({
   id: ActionId.TrueStrike,
   execute: (dispatch) => {
-    dispatch(removeBuff(StatusId.RaptorForm));
-    dispatch(buff(StatusId.CoeurlForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Raptor));
+    dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
   isUsable: (state) => hasForm(state, StatusId.RaptorForm),
@@ -201,9 +220,7 @@ const trueStrike: CombatAction = createCombatAction({
 const snapPunch: CombatAction = createCombatAction({
   id: ActionId.SnapPunch,
   execute: (dispatch) => {
-    dispatch(removeBuff(StatusId.CoeurlForm));
-    dispatch(buff(StatusId.OpoopoForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Couerl));
+    dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
   isUsable: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -217,9 +234,7 @@ const dragonKick: CombatAction = createCombatAction({
       dispatch(buff(StatusId.LeadenFist, 30));
     }
 
-    dispatch(removeBuff(StatusId.OpoopoForm));
-    dispatch(buff(StatusId.RaptorForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.OpoOpo));
+    dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
   },
   isGlowing: (state) => hasForm(state, StatusId.OpoopoForm),
   reducedBySkillSpeed: true,
@@ -229,9 +244,7 @@ const twinSnakes: CombatAction = createCombatAction({
   id: ActionId.TwinSnakes,
   execute: (dispatch) => {
     dispatch(buff(StatusId.DisciplinedFist, 15));
-    dispatch(removeBuff(StatusId.RaptorForm));
-    dispatch(buff(StatusId.CoeurlForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Raptor));
+    dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
   isUsable: (state) => hasForm(state, StatusId.RaptorForm),
@@ -242,9 +255,7 @@ const demolish: CombatAction = createCombatAction({
   id: ActionId.Demolish,
   execute: (dispatch) => {
     dispatch(debuff(StatusId.Demolish, 18));
-    dispatch(removeBuff(StatusId.CoeurlForm));
-    dispatch(buff(StatusId.OpoopoForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Couerl));
+    dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
   isUsable: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -265,7 +276,7 @@ const meditation: CombatAction = createCombatAction({
 const formShift: CombatAction = createCombatAction({
   id: ActionId.FormShift,
   execute: (dispatch) => {
-    dispatch(buff(StatusId.FormlessFist, 30));
+    dispatch(setForm(StatusId.FormlessFist));
   },
   entersCombat: false,
   reducedBySkillSpeed: true,
@@ -303,7 +314,7 @@ const perfectBalance: CombatAction = createCombatAction({
   id: ActionId.PerfectBalance,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.PerfectBalance, 20, { stacks: 3 }));
+    dispatch(setForm(StatusId.PerfectBalance));
   },
   isUsable: (state) => inCombat(state),
   maxCharges: () => 2,
@@ -351,6 +362,7 @@ const elixirField: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(setBeastChakra(0));
     dispatch(setLunarNadi(1));
+    dispatch(setForm(StatusId.FormlessFist));
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
@@ -361,6 +373,7 @@ const risingPhoenix: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(setBeastChakra(0));
     dispatch(setSolarNadi(1));
+    dispatch(setForm(StatusId.FormlessFist));
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
@@ -375,6 +388,7 @@ const celestialRevolution: CombatAction = createCombatAction({
     } else {
       dispatch(setLunarNadi(1));
     }
+    dispatch(setForm(StatusId.FormlessFist));
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
@@ -386,6 +400,7 @@ const phantomRush: CombatAction = createCombatAction({
     dispatch(setBeastChakra(0));
     dispatch(setSolarNadi(0));
     dispatch(setLunarNadi(0));
+    dispatch(setForm(StatusId.FormlessFist));
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
@@ -479,10 +494,7 @@ const armOfTheDestroyer: CombatAction = createCombatAction({
 const shadowOfTheDestroyer: CombatAction = createCombatAction({
   id: ActionId.ShadowoftheDestroyer,
   execute: (dispatch) => {
-    dispatch(removeBuff(StatusId.OpoopoForm));
-    dispatch(removeBuff(StatusId.CoeurlForm));
-    dispatch(buff(StatusId.RaptorForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.OpoOpo));
+    dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
   },
   reducedBySkillSpeed: true,
 });
@@ -491,9 +503,7 @@ const fourPointFury: CombatAction = createCombatAction({
   id: ActionId.FourpointFury,
   execute: (dispatch) => {
     dispatch(buff(StatusId.DisciplinedFist, 15));
-    dispatch(removeBuff(StatusId.RaptorForm));
-    dispatch(buff(StatusId.CoeurlForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Raptor));
+    dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
   isUsable: (state) => hasForm(state, StatusId.RaptorForm),
@@ -503,9 +513,7 @@ const fourPointFury: CombatAction = createCombatAction({
 const rockbreaker: CombatAction = createCombatAction({
   id: ActionId.Rockbreaker,
   execute: (dispatch) => {
-    dispatch(removeBuff(StatusId.CoeurlForm));
-    dispatch(buff(StatusId.OpoopoForm, 30));
-    dispatch(consumePerfectBalance(BeastChakra.Couerl));
+    dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
   isUsable: (state) => hasForm(state, StatusId.CoeurlForm),
