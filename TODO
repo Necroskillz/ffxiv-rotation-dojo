@@ -1,12 +1,9 @@
-- hotbar lock
-- cancel cast
 - disable right click
-- parse conditional tooltips
-- HUD editor
 - combat text
+- HUD editor
 - setup combat state
 - tooltip z index
 - sort action list by categories
-- positionals (movement)
+- positionals (movement), cancel cast
 - follow list of actions (correct/fail)
 - ping

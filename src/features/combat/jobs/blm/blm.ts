@@ -334,6 +334,7 @@ const sharpcast: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Sharpcast, 30));
   },
+  cooldown: () => 30,
   maxCharges: () => 2,
   extraCooldown: () => ({
     cooldownGroup: 1000,
