@@ -1,8 +1,10 @@
 import { FC } from 'react';
 import { ActionList } from '../actions/ActionList';
 import { Buffs } from '../combat/Buffs';
+import { BuffScrollingText } from '../combat/BuffScrollingText';
 import { CastBar } from '../combat/CastBar';
 import { Debuffs } from '../combat/Debuffs';
+import { DebuffScrollingText } from '../combat/DebuffScrollingText';
 import { ElementalGauge } from '../combat/jobs/blm/ElementalGauge';
 import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
@@ -35,6 +37,8 @@ import { Settings } from './Settings';
 export const Hud: FC = () => {
   return (
     <div>
+      <BuffScrollingText />
+      <DebuffScrollingText />
       <Help />
       <ActionList />
       <CastBar />

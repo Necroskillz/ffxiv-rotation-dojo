@@ -11,7 +11,7 @@ export const Debuffs = () => {
   return (
     <HudItem name="Debuffs" defaultPosition={{ x: 20, y: 150 }}>
       <div className="h-20 grid auto-cols-max grid-flow-col gap-x-1">
-        {hudLock || debuffs.length ? debuffs.map((b) => <Status key={b.id} buff={b} />) : 'Debuffs'}
+        {hudLock || debuffs.length ? debuffs.map((b) => <Status key={b.id} status={b} />) : 'Debuffs'}
       </div>
     </HudItem>
   );

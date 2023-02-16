@@ -9,7 +9,8 @@ module.exports = {
         'xiv-golden-brown': '#A49F8C',
         'xiv-orange': '#EE7318',
         'xiv-ui': '#E8E1CE',
-        'pull-timer': '#D4A900'
+        'xiv-debuff': '#F8D5BB',
+        'pull-timer': '#D4A900',
       },
     },
     fontFamily: {

@@ -51,6 +51,8 @@ const initialState: HudState = {
     Debuffs: createDefaultElementPlacement({ isVisible: true }),
     CastBar: createDefaultElementPlacement({ isVisible: true }),
     PullTimer: createDefaultElementPlacement({ isVisible: true }),
+    BuffScrollingText: createDefaultElementPlacement({ isVisible: true }),
+    DebuffScrollingText: createDefaultElementPlacement({ isVisible: true }),
     ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN', 'DRK', 'BLM', 'PLD'] }),
     Pet: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     AetherflowGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),

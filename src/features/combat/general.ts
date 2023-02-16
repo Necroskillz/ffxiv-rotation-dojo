@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { first, interval, map, switchMap, withLatestFrom } from 'rxjs';
-import { RootState } from '../../app/store';
+import { concatMap, EMPTY, first, interval, map, Subject, switchMap, tap, withLatestFrom } from 'rxjs';
+import { ReducerAction, RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { selectJob } from '../player/playerSlice';
@@ -39,6 +39,16 @@ const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
       }
     })
   );
+
+const actions$ = new Subject<ReducerAction<any>>();
+
+const captureActionsEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    tap(actions$),
+    concatMap(() => EMPTY)
+  );
+
+export const actionStream$ = actions$.asObservable();
 
 const sprint: CombatAction = createCombatAction({
   id: ActionId.Sprint,
@@ -89,4 +99,4 @@ const tinctureOfIntelligence: CombatAction = createCombatAction({
 
 export const general: CombatAction[] = [sprint, tinctureOfDexterity, tinctureOfMind, tinctureOfStrength, tinctureOfIntelligence];
 
-export const generalEpics = combineEpics(combatManaTickEpic);
+export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic);

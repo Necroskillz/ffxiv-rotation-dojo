@@ -11,3 +11,52 @@ body {
 .App input {
   color: #000;
 }
+
+@keyframes scrolling-text-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(300px);
+    opacity: 0;
+  }
+}
+
+.scroll-down-enter {
+  animation: scrolling-text-down 5000ms;
+  animation-timing-function: linear;
+  opacity: 0;
+}
+
+.scroll-down-enter-done {
+  opacity: 0;
+}
+
+@keyframes scrolling-text-up {
+  0% {
+    transform: translateY(120px);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+.scroll-up-enter {
+  animation: scrolling-text-up 2000ms;
+  animation-timing-function: linear;
+  opacity: 0;
+}
+
+.scroll-up-enter-done {
+  opacity: 0;
+}
+
