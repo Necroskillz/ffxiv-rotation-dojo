@@ -18,9 +18,9 @@ import {
   debuff,
   addDebuff,
   ogcdLock,
-  addMana,
   mana,
   hasDebuff,
+  event,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -377,7 +377,7 @@ const manafont: CombatAction = createCombatAction({
   id: ActionId.Manafont,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(addMana(3000));
+    dispatch(event(ActionId.Manafont, { mana: 3000 }));
   },
   cooldown: () => 120,
 });

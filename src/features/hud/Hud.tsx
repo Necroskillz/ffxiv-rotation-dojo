@@ -30,6 +30,7 @@ import { BeastGauge } from '../combat/jobs/war/BeastGauge';
 import { ManaBar } from '../combat/ManaBar';
 import { Pet } from '../combat/Pet';
 import PullTimer from '../combat/PullTimer';
+import ResourceScrollingText from '../combat/ResourceScrollingText';
 import { Hotbars } from '../hotbars/Hotbars';
 import { Help } from './Help';
 import { Settings } from './Settings';
@@ -39,6 +40,7 @@ export const Hud: FC = () => {
     <div>
       <BuffScrollingText />
       <DebuffScrollingText />
+      <ResourceScrollingText />
       <Help />
       <ActionList />
       <CastBar />

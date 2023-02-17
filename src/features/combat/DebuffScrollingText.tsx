@@ -15,7 +15,7 @@ export const DebuffScrollingText = () => {
           removeType={removeDebuff.type}
           direction="up"
           multipleText="Multiple Debuffs"
-          addTextColor="text-xiv-debuff"
+          addTextColor="text-xiv-offensive"
           time={2000}
         />
       ) : (

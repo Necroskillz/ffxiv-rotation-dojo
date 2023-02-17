@@ -13,7 +13,6 @@ import {
   removeBuff,
   resource,
   removeBuffStack,
-  addMana,
   gcd,
   debuff,
   addBuff,
@@ -21,6 +20,7 @@ import {
   setCombat,
   inCombat,
   addOath,
+  event,
 } from '../../combatSlice';
 
 const passageOfArmsStopEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -70,7 +70,9 @@ const riotBlade: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     if (context.comboed) {
       dispatch(combo(ActionId.RiotBlade));
-      dispatch(addMana(1000));
+      dispatch(event(ActionId.RiotBlade, { potency: 280, mana: 1000 }));
+    } else {
+      dispatch(event(ActionId.RiotBlade, { potency: 120 }));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.RiotBlade),
@@ -123,8 +125,9 @@ const requiescat: CombatAction = createCombatAction({
 const atonement: CombatAction = createCombatAction({
   id: ActionId.Atonement,
   execute: (dispatch) => {
+    dispatch(event(ActionId.Atonement, { potency: 380, mana: 400 }));
+
     dispatch(removeBuffStack(StatusId.SwordOath));
-    dispatch(addMana(400));
   },
   isUsable: (state) => hasBuff(state, StatusId.SwordOath),
   isGlowing: (state) => hasBuff(state, StatusId.SwordOath),
@@ -203,7 +206,7 @@ const excipation: CombatAction = createCombatAction({
   id: ActionId.Expiacion,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(addMana(500));
+    dispatch(event(ActionId.Atonement, { potency: 450, mana: 500 }));
   },
 });
 
@@ -279,8 +282,10 @@ const prominence: CombatAction = createCombatAction({
   id: ActionId.Prominence,
   execute: (dispatch, _, context) => {
     if (context.comboed) {
-      dispatch(addMana(1000));
+      dispatch(event(ActionId.Prominence, { potency: 170, mana: 1000 }));
       dispatch(buff(StatusId.DivineMight, 30));
+    } else {
+      dispatch(event(ActionId.Prominence, { potency: 100 }));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Prominence),

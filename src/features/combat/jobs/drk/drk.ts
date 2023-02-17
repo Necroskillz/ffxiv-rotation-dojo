@@ -19,10 +19,10 @@ import {
   removeBuffStack,
   modifyCooldown,
   extendableBuff,
-  addMana,
   addBlood,
   addBuff,
   setDarkArts,
+  event,
 } from '../../combatSlice';
 
 function blood(state: RootState) {
@@ -37,18 +37,16 @@ const consumeBloodWeaponEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === executeAction.type && ['Weaponskill', 'Spell'].includes(getActionById(a.payload.id).type)),
     withLatestFrom(state$),
-    map(([, state]) => state),
-    filter((state) => hasBuff(state, StatusId.BloodWeapon)),
-    switchMap(() => of(removeBuffStack(StatusId.BloodWeapon), addMana(600), addBlood(10)))
+    filter(([_, state]) => hasBuff(state, StatusId.BloodWeapon)),
+    switchMap(([a]) => of(removeBuffStack(StatusId.BloodWeapon), event(a.payload.id, { mana: 600 }), addBlood(10)))
   );
 
 const consumeDeliriumEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === executeAction.type && [ActionId.Bloodspiller, ActionId.Quietus].includes(a.payload.id)),
     withLatestFrom(state$),
-    map(([, state]) => state),
-    filter((state) => hasBuff(state, StatusId.Delirium)),
-    switchMap(() => of(removeBuffStack(StatusId.Delirium), addMana(200)))
+    filter(([_, state]) => hasBuff(state, StatusId.Delirium)),
+    switchMap(([a]) => of(removeBuffStack(StatusId.Delirium), event(a.payload.id, { mana: 200 })))
   );
 
 const popTBNEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -73,8 +71,10 @@ const syphonStrike: CombatAction = createCombatAction({
   id: ActionId.SyphonStrike,
   execute: (dispatch, _, context) => {
     if (context.comboed) {
+      dispatch(event(ActionId.SyphonStrike, { potency: 260, mana: 600 }));
       dispatch(combo(ActionId.SyphonStrike));
-      dispatch(addMana(600));
+    } else {
+      dispatch(event(ActionId.SyphonStrike, { potency: 120 }));
     }
   },
   reducedBySkillSpeed: true,
@@ -159,7 +159,7 @@ const carveAndSpit: CombatAction = createCombatAction({
   id: ActionId.CarveandSpit,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(addMana(600));
+    dispatch(event(ActionId.CarveandSpit, { potency: 510, mana: 600 }));
   },
 });
 
@@ -292,8 +292,10 @@ const stalwartSoul: CombatAction = createCombatAction({
   id: ActionId.StalwartSoul,
   execute: (dispatch, _, context) => {
     if (context.comboed) {
-      dispatch(addMana(600));
+      dispatch(event(ActionId.StalwartSoul, { potency: 140, mana: 600 }));
       dispatch(addBlood(20));
+    } else {
+      dispatch(event(ActionId.StalwartSoul, { potency: 100 }));
     }
   },
   reducedBySkillSpeed: true,
@@ -313,7 +315,7 @@ const abyssalDrain: CombatAction = createCombatAction({
   id: ActionId.AbyssalDrain,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(addMana(600));
+    dispatch(event(ActionId.AbyssalDrain, { potency: 240, mana: 600, healthPotency: 200 }));
   },
 });
 

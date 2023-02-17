@@ -200,6 +200,14 @@ export interface ModifyResourceActionPayload {
   amount: number;
 }
 
+export interface EventPayload {
+  potency: number;
+  healthPotency: number;
+  mana: number;
+  actionId: ActionId;
+  statuses: StatusId[];
+}
+
 function addStatus(state: CombatState, status: StatusState, isHarm: boolean) {
   const collection = isHarm ? state.debuffs : state.buffs;
 
@@ -324,6 +332,7 @@ export const combatSlice = createSlice({
     setPet: (state, action: PayloadAction<PetState | null>) => {
       state.pet = action.payload;
     },
+    addEvent: (state, action: PayloadAction<EventPayload>) => {},
   },
 });
 
@@ -349,6 +358,7 @@ export const {
   setPullTimer,
   setCast,
   setPet,
+  addEvent,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
@@ -691,6 +701,30 @@ export const gcd =
     const time = options?.time || 2500;
     const type = options?.reducedBySpellSpeed ? 'Spell' : options?.reducedBySkillSpeed ? 'Weaponskill' : null;
     dispatch(cooldown(58, type ? recastTime(getState(), time, type) : time));
+  };
+
+interface EventOptions {
+  potency?: number;
+  mana?: number;
+  healthPotency?: number;
+}
+
+export const event =
+  (actionId: ActionId, options?: EventOptions): AppThunk =>
+  (dispatch) => {
+    if (options?.mana) {
+      dispatch(addMana(options.mana));
+    }
+
+    dispatch(
+      addEvent({
+        actionId,
+        healthPotency: options?.healthPotency || 0,
+        mana: options?.mana || 0,
+        potency: options?.potency || 0,
+        statuses: [],
+      })
+    );
   };
 
 export const addResourceFactory =

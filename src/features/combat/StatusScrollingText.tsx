@@ -81,6 +81,8 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
         this.buffer.unshift(item);
 
         this.setState({ items: this.buffer });
+
+        setTimeout(() => this.removeItem(item), this.props.time - 50);
       });
   }
 
@@ -102,7 +104,6 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
               nodeRef={i.ref}
               classNames={`scroll-${this.props.direction}`}
               timeout={{ enter: this.props.time, exit: 0 }}
-              onEntered={() => this.removeItem(i)}
             >
               <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute">
                 {i.addedIcons.length > 0 && (
