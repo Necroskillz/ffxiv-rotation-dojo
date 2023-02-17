@@ -85,7 +85,7 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
 
   render(): React.ReactNode {
     return (
-      <HudItem name="ResourceScrollingText" defaultPosition={{ x: 650, y: 250 }}>
+      <HudItem name="ResourceScrollingText" defaultPosition={{ x: 150, y: 150 }}>
         {this.props.hudLock ? (
           <div className="w-[350px] h-[300px]">
             <TransitionGroup>
