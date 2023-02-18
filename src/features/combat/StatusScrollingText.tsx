@@ -33,7 +33,6 @@ let id = 0;
 
 export class StatusScrollingText extends React.Component<StatusScrollingTextProps, StatusScrollingTextState> {
   private unsubscribe = new Subject<void>();
-  private buffer: Item[] = [];
   private stackCache: Map<number, number> = new Map();
 
   constructor(props: StatusScrollingTextProps) {
@@ -52,16 +51,28 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           status: action.type === this.props.addType ? getStatusById(action.payload.id) : getStatusById(action.payload),
         })),
         filter(({ status }) => status.icon.length > 0),
-        tap(({ action }) => {
+        filter(({ action }) => {
           if (action.payload.stacks != null) {
+            const previousStacks = this.stackCache.get(action.payload.id) || 0;
             this.stackCache.set(action.payload.id, action.payload.stacks);
+
+            if (action.payload.stacks < previousStacks && action.payload.stacks > 0) {
+              return false;
+            }
           }
+
+          return true;
         }),
         map(({ action, status }) => ({
           ...status,
           direction: action.type === this.props.addType ? '+' : '-',
           stacks: this.stackCache.get(status.id) || null,
         })),
+        tap((item) => {
+          if (item.direction === '-') {
+            this.stackCache.delete(item.id);
+          }
+        }),
         bufferTime(0),
         filter((items) => items.length > 0)
       )
@@ -78,16 +89,14 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           ref: createRef<HTMLDivElement>(),
         };
 
-        this.buffer.unshift(item);
+        this.setState({ items: [...this.state.items, item] });
 
-        this.setState({ items: this.buffer });
-
-        setTimeout(() => this.removeItem(item), this.props.time - 50);
+        setTimeout(() => this.removeItem(item), this.props.time);
       });
   }
 
   private removeItem(item: Item) {
-    this.buffer = this.buffer.filter((i) => i !== item);
+    this.setState({ items: this.state.items.filter((i) => i !== item) });
   }
 
   componentWillUnmount(): void {

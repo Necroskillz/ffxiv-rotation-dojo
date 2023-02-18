@@ -71,7 +71,7 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
 
         this.setState({ items: [...this.state.items, item] });
 
-        setTimeout(() => this.removeItem(item), 4950);
+        setTimeout(() => this.removeItem(item), 5000);
       });
   }
 

@@ -36,6 +36,14 @@ body {
   opacity: 0;
 }
 
+.scroll-down-exit {
+  opacity: 0;
+}
+
+.scroll-down-exit-done {
+  opacity: 0;
+}
+
 @keyframes scrolling-text-up {
   0% {
     transform: translateY(120px);
@@ -60,3 +68,10 @@ body {
   opacity: 0;
 }
 
+.scroll-up-exit {
+  opacity: 0;
+}
+
+.scroll-up-exit-done {
+  opacity: 0;
+}
