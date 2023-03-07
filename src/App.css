@@ -75,3 +75,38 @@ body {
 .scroll-up-exit-done {
   opacity: 0;
 }
+
+@keyframes wave {
+  0% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.dot {
+  display: inline-block;
+}
+
+:not(:first-child).dot-enter {
+  transform: translateY(-15px);
+  opacity: 0;
+}
+
+:not(:first-child).dot-enter-active {
+  opacity: 1;
+  animation: wave 250ms;
+  animation-timing-function: linear;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+.dot-exit {
+  transform: translateY(0) !important;
+  opacity: 1;
+}
+
+.dot-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}

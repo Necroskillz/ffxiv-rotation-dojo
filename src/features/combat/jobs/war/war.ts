@@ -1,6 +1,7 @@
 import { combineEpics, Epic } from 'redux-observable';
 import { filter, map, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
+import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
@@ -19,6 +20,8 @@ import {
   addBeast,
   extendableBuff,
   debuff,
+  event,
+  dmgEvent,
 } from '../../combatSlice';
 
 function beast(state: RootState) {
@@ -34,9 +37,18 @@ const decreaseInnerReleaseEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(() => removeBuffStack(StatusId.InnerRelease))
   );
 
+const bloodwhettingEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill'),
+    withLatestFrom(state$),
+    filter(([, state]) => hasBuff(state, StatusId.Bloodwhetting)),
+    map(([action]) => event(action.payload.id, { healthPotency: 400 }))
+  );
+
 const heavySwing: CombatAction = createCombatAction({
   id: ActionId.HeavySwing,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.HeavySwing, context, { potency: 200 }));
     dispatch(combo(ActionId.HeavySwing));
   },
   reducedBySkillSpeed: true,
@@ -45,6 +57,8 @@ const heavySwing: CombatAction = createCombatAction({
 const maim: CombatAction = createCombatAction({
   id: ActionId.Maim,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Maim, context, { potency: 150, comboPotency: 300 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.Maim));
       dispatch(addBeast(10));
@@ -57,6 +71,8 @@ const maim: CombatAction = createCombatAction({
 const stormsPath: CombatAction = createCombatAction({
   id: ActionId.StormsPath,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 150, comboPotency: 430, healthPotency: 250 }));
+
     if (context.comboed) {
       dispatch(addBeast(20));
     }
@@ -68,6 +84,8 @@ const stormsPath: CombatAction = createCombatAction({
 const stormsEye: CombatAction = createCombatAction({
   id: ActionId.StormsEye,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 150, comboPotency: 430 }));
+
     if (context.comboed) {
       dispatch(addBeast(10));
       dispatch(extendableBuff(StatusId.SurgingTempest, 30, 60));
@@ -86,7 +104,9 @@ const innerBeast: CombatAction = createCombatAction({
 
 const fellCleave: CombatAction = createCombatAction({
   id: ActionId.FellCleave,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 490 }));
+
     dispatch(modifyCooldown(20, -5000));
   },
   reducedBySkillSpeed: true,
@@ -113,7 +133,8 @@ const infuriate: CombatAction = createCombatAction({
 
 const innerChaos: CombatAction = createCombatAction({
   id: ActionId.InnerChaos,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.InnerChaos, context, { potency: 650 }));
     dispatch(removeBuff(StatusId.NascentChaos));
     dispatch(modifyCooldown(20, -5000));
   },
@@ -164,7 +185,9 @@ const innerRelease: CombatAction = createCombatAction({
 
 const primalRend: CombatAction = createCombatAction({
   id: ActionId.PrimalRend,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.PrimalRend, context, { potency: 700 }));
+
     dispatch(removeBuff(StatusId.PrimalRendReady));
   },
   reducedBySkillSpeed: true,
@@ -175,7 +198,8 @@ const primalRend: CombatAction = createCombatAction({
 
 const onslaught: CombatAction = createCombatAction({
   id: ActionId.Onslaught,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Onslaught, context, { potency: 150 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -187,20 +211,25 @@ const onslaught: CombatAction = createCombatAction({
 
 const upheaval: CombatAction = createCombatAction({
   id: ActionId.Upheaval,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Upheaval, context, { potency: 370 }));
     dispatch(ogcdLock());
   },
 });
 
 const tomahawk: CombatAction = createCombatAction({
   id: ActionId.Tomahawk,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Tomahawk, context, { potency: 150 }));
+  },
   reducedBySkillSpeed: true,
 });
 
 const overpower: CombatAction = createCombatAction({
   id: ActionId.Overpower,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Overpower, context, { potency: 110 }));
+
     dispatch(combo(ActionId.Overpower));
   },
   reducedBySkillSpeed: true,
@@ -209,6 +238,8 @@ const overpower: CombatAction = createCombatAction({
 const mythrilTempest: CombatAction = createCombatAction({
   id: ActionId.MythrilTempest,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.MythrilTempest, context, { potency: 100, comboPotency: 150 }));
+
     if (context.comboed) {
       dispatch(addBeast(20));
       dispatch(extendableBuff(StatusId.SurgingTempest, 30, 60));
@@ -227,7 +258,9 @@ const steelCyclone: CombatAction = createCombatAction({
 
 const decimate: CombatAction = createCombatAction({
   id: ActionId.Decimate,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Decimate, context, { potency: 200 }));
+  },
   reducedBySkillSpeed: true,
   isUsable: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
   isGlowing: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
@@ -237,7 +270,9 @@ const decimate: CombatAction = createCombatAction({
 
 const chaoticCyclone: CombatAction = createCombatAction({
   id: ActionId.ChaoticCyclone,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 320 }));
+
     dispatch(removeBuff(StatusId.NascentChaos));
     dispatch(modifyCooldown(20, -5000));
   },
@@ -248,7 +283,8 @@ const chaoticCyclone: CombatAction = createCombatAction({
 
 const orogeny: CombatAction = createCombatAction({
   id: ActionId.Orogeny,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Orogeny, context, { potency: 150 }));
     dispatch(ogcdLock());
   },
 });
@@ -258,6 +294,7 @@ const thrillofBattle: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.ThrillofBattle, 10));
+    dispatch(event(ActionId.ThrillofBattle, { healthPercent: 20 }));
   },
   entersCombat: false,
 });
@@ -316,6 +353,8 @@ const equilibrium: CombatAction = createCombatAction({
   id: ActionId.Equilibrium,
   execute: (dispatch) => {
     dispatch(ogcdLock());
+    dispatch(event(ActionId.Equilibrium, { healthPotency: 1200 }));
+    dispatch(buff(StatusId.Equilibrium, 15, { periodicEffect: () => dispatch(event(0, { healthPotency: 200 })) }));
   },
   entersCombat: false,
 });
@@ -324,8 +363,13 @@ const shakeItOff: CombatAction = createCombatAction({
   id: ActionId.ShakeItOff,
   execute: (dispatch) => {
     dispatch(ogcdLock());
+    dispatch(event(ActionId.ShakeItOff, { healthPotency: 300 }));
     dispatch(buff(StatusId.ShakeItOff, 30));
-    dispatch(buff(StatusId.ShakeItOffOverTime, 15));
+    dispatch(buff(StatusId.ShakeItOffOverTime, 15, { periodicEffect: () => dispatch(event(0, { healthPotency: 100 })) }));
+    dispatch(removeBuff(StatusId.ThrillofBattle));
+    dispatch(removeBuff(StatusId.Vengeance));
+    dispatch(removeBuff(StatusId.VulnerabilityDown));
+    dispatch(removeBuff(StatusId.Bloodwhetting));
   },
   entersCombat: false,
 });
@@ -363,4 +407,4 @@ export const war: CombatAction[] = [
   shakeItOff,
 ];
 
-export const warEpics = combineEpics(decreaseInnerReleaseEpic);
+export const warEpics = combineEpics(decreaseInnerReleaseEpic, bloodwhettingEpic);

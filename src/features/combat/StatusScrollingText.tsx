@@ -34,6 +34,7 @@ let id = 0;
 export class StatusScrollingText extends React.Component<StatusScrollingTextProps, StatusScrollingTextState> {
   private unsubscribe = new Subject<void>();
   private stackCache: Map<number, number> = new Map();
+  private buffer: Item[] = [];
 
   constructor(props: StatusScrollingTextProps) {
     super(props);
@@ -89,14 +90,17 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           ref: createRef<HTMLDivElement>(),
         };
 
-        this.setState({ items: [...this.state.items, item] });
+        this.buffer.push(item);
+
+        this.setState({ items: this.buffer });
 
         setTimeout(() => this.removeItem(item), this.props.time);
       });
   }
 
   private removeItem(item: Item) {
-    this.setState({ items: this.state.items.filter((i) => i !== item) });
+    this.buffer = this.buffer.filter((i) => i !== item);
+    this.setState({ items: this.buffer });
   }
 
   componentWillUnmount(): void {

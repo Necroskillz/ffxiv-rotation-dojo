@@ -54,6 +54,8 @@ const initialState: HudState = {
     BuffScrollingText: createDefaultElementPlacement({ isVisible: true }),
     DebuffScrollingText: createDefaultElementPlacement({ isVisible: true }),
     ResourceScrollingText: createDefaultElementPlacement({ isVisible: true }),
+    DamageScrollingText: createDefaultElementPlacement({ isVisible: true }),
+    DotScrollingText: createDefaultElementPlacement({ isVisible: true }),
     ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN', 'DRK', 'BLM', 'PLD'] }),
     Pet: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     AetherflowGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),

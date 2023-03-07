@@ -16,6 +16,7 @@ interface Item {
   abilityName: string;
   mana: number;
   health: number;
+  healthPercent: number;
 }
 
 type ResourceScrollingTextState = {
@@ -41,7 +42,7 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
   componentDidMount(): void {
     actionStream$
       .pipe(
-        filter((a) => a.type === addEvent.type && (a.payload.mana > 0 || a.payload.healthPotency > 0)),
+        filter((a) => a.type === addEvent.type && (a.payload.mana > 0 || a.payload.healthPotency > 0 || a.payload.healthPercent > 0)),
         takeUntil(this.unsubscribe),
         bufferTime(0),
         filter((actions) => actions.length > 0)
@@ -53,11 +54,12 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           abilityName: '',
           mana: 0,
           health: 0,
+          healthPercent: 0,
         };
 
         actions.forEach((a) => {
           if (!item.abilityName) {
-            item.abilityName = getActionById(a.payload.actionId).name;
+            item.abilityName = a.payload.actionId === 0 ? '' : getActionById(a.payload.actionId).name;
           }
 
           if (a.payload.mana) {
@@ -67,16 +69,23 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           if (a.payload.healthPotency) {
             item.health += a.payload.healthPotency;
           }
+
+          if (a.payload.healthPercent) {
+            item.healthPercent += a.payload.healthPercent;
+          }
         });
 
-        this.setState({ items: [...this.state.items, item] });
+        this.buffer.push(item);
+
+        this.setState({ items: this.buffer });
 
         setTimeout(() => this.removeItem(item), 5000);
       });
   }
 
   private removeItem(item: Item) {
-    this.setState({ items: this.state.items.filter((i) => i !== item) });
+    this.buffer = this.buffer.filter((i) => i !== item);
+    this.setState({ items: this.buffer });
   }
 
   componentWillUnmount(): void {
@@ -102,6 +111,12 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
                     {i.health > 0 && (
                       <React.Fragment>
                         <span className="text-lg">{i.health}</span>
+                        <span className="font-ui-medium text-xs">HP potency</span>
+                      </React.Fragment>
+                    )}
+                    {i.healthPercent > 0 && (
+                      <React.Fragment>
+                        <span className="text-lg">{i.healthPercent}%</span>
                         <span className="font-ui-medium text-xs">HP</span>
                       </React.Fragment>
                     )}

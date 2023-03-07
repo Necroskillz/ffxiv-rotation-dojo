@@ -70,6 +70,7 @@ export enum StatusId {
   Bioblaster = 1866,
   Flamethrower = 1205,
   Wildfire = 861,
+  WildfireBuff = 1946,
   InnerRelease = 1177,
   InnerStrength = 2663,
   PrimalRendReady = 2624,
@@ -88,6 +89,7 @@ export enum StatusId {
   NascentFlash = 1857,
   NascentGlint = 1858,
   HolmgangDebuff = 88,
+  Equilibrium = 2681,
   RagingStrikes = 125,
   BattleVoice = 141,
   TheWanderersMinuet = 2216,
@@ -239,4 +241,5 @@ export enum StatusId {
   EnochianActive = 999017,
   AstralFireActive = 999018,
   UmbralIceActive = 999019,
+  SlipstreamActive = 999020,
 }

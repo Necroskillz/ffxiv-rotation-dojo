@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, switchMap, interval, map, takeUntil, first, startWith, delay, takeWhile, withLatestFrom } from 'rxjs';
+import { filter, switchMap, interval, map, takeUntil, first } from 'rxjs';
 import { AppThunk, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
@@ -16,11 +16,11 @@ import {
   addBuff,
   addPolyglot,
   debuff,
-  addDebuff,
   ogcdLock,
   mana,
-  hasDebuff,
   event,
+  removeBuffAction,
+  dmgEvent,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -49,50 +49,8 @@ const enochianEpic: Epic<any, any, RootState> = (action$) =>
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.EnochianActive),
     switchMap(() =>
       interval(30000).pipe(
-        takeUntil(action$.pipe(first((aa) => aa.type === removeBuff.type && aa.payload === StatusId.EnochianActive))),
+        takeUntil(action$.pipe(first((aa) => aa.type === removeBuffAction.type && aa.payload === StatusId.EnochianActive))),
         map(() => addPolyglot(1))
-      )
-    )
-  );
-
-const thunder3TickEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addDebuff.type && a.payload.id === StatusId.ThunderIII),
-    delay(1000),
-    switchMap((a) =>
-      interval(3000).pipe(
-        startWith(0),
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasDebuff(state, StatusId.ThunderIII)),
-        takeUntil(action$.pipe(first((aa) => aa.type === addDebuff.type && aa.payload.id === a.payload.id))),
-        filter(() => rng(10)),
-        map(() => buff(StatusId.Thundercloud, 40))
-      )
-    )
-  );
-
-const thunder4TickEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addDebuff.type && a.payload.id === StatusId.ThunderIV),
-    delay(1000),
-    switchMap((a) =>
-      interval(3000).pipe(
-        startWith(0),
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasDebuff(state, StatusId.ThunderIV)),
-        takeUntil(action$.pipe(first((aa) => aa.type === addDebuff.type && aa.payload.id === a.payload.id))),
-        filter(() => {
-          for (let i = 0; i < 5 /* targets */; i++) {
-            if (rng(3)) {
-              return true;
-            }
-          }
-
-          return false;
-        }),
-        map(() => buff(StatusId.Thundercloud, 40))
       )
     )
   );
@@ -178,6 +136,8 @@ function cost(state: RootState, baseCost: number, aspect: 'fire' | 'ice') {
 const fire: CombatAction = createCombatAction({
   id: ActionId.Fire,
   execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Fire, context, { potency: 180 }));
+
     if (umbralIce(getState()) > 0) {
       dispatch(setFireIce(0, 0));
     } else {
@@ -200,7 +160,9 @@ const fire: CombatAction = createCombatAction({
 
 const blizzard: CombatAction = createCombatAction({
   id: ActionId.Blizzard,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Blizzard, context, { potency: 180 }));
+
     if (astralFire(getState()) > 0) {
       dispatch(setFireIce(0, 0));
     } else {
@@ -215,6 +177,8 @@ const blizzard: CombatAction = createCombatAction({
 const fire3: CombatAction = createCombatAction({
   id: ActionId.FireIII,
   execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.FireIII, context, { potency: 260 }));
+
     dispatch(setFireIce(3, 0));
     dispatch(removeBuff(StatusId.Firestarter));
 
@@ -229,7 +193,9 @@ const fire3: CombatAction = createCombatAction({
 
 const fire4: CombatAction = createCombatAction({
   id: ActionId.FireIV,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.FireIV, context, { potency: 310 }));
+
     if (umbralHeart(getState())) {
       dispatch(removeUmbralHeart(1));
     }
@@ -241,7 +207,9 @@ const fire4: CombatAction = createCombatAction({
 
 const blizzard3: CombatAction = createCombatAction({
   id: ActionId.BlizzardIII,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BlizzardIII, context, { potency: 260 }));
+
     dispatch(setFireIce(0, 3));
   },
   cost: (state, baseCost) => cost(state, baseCost, 'ice'),
@@ -250,7 +218,9 @@ const blizzard3: CombatAction = createCombatAction({
 
 const blizzard4: CombatAction = createCombatAction({
   id: ActionId.BlizzardIV,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BlizzardIV, context, { potency: 310 }));
+
     dispatch(addUmbralHeart(3));
   },
   cost: (state, baseCost) => cost(state, baseCost, 'ice'),
@@ -260,7 +230,9 @@ const blizzard4: CombatAction = createCombatAction({
 
 const paradox1: CombatAction = createCombatAction({
   id: ActionId.Paradox,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Paradox, context, { potency: 500 }));
+
     dispatch(setParadox(0));
 
     const fire = astralFire(getState());
@@ -285,7 +257,9 @@ const paradox1: CombatAction = createCombatAction({
 
 const xenoglossy: CombatAction = createCombatAction({
   id: ActionId.Xenoglossy,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Xenoglossy, context, { potency: 800 }));
+  },
   isGlowing: (state) => polyglot(state) > 0,
   reducedBySpellSpeed: true,
 });
@@ -299,8 +273,18 @@ const thunder: CombatAction = createCombatAction({
 
 const thunder3: CombatAction = createCombatAction({
   id: ActionId.ThunderIII,
-  execute: (dispatch, getState) => {
-    dispatch(debuff(StatusId.ThunderIII, 30));
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.ThunderIII, context, { potency: 50 }));
+    dispatch(
+      debuff(StatusId.ThunderIII, 30, {
+        periodicEffect: () => {
+          dispatch(dmgEvent(0, context, { potency: 35 }));
+          if (rng(10)) {
+            dispatch(buff(StatusId.Thundercloud, 30));
+          }
+        },
+      })
+    );
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeBuff(StatusId.ThunderIV));
 
@@ -384,7 +368,9 @@ const manafont: CombatAction = createCombatAction({
 
 const despair: CombatAction = createCombatAction({
   id: ActionId.Despair,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Despair, context, { potency: 340 }));
+
     dispatch(setFireIce(3, 0));
   },
   cost: (state) => mana(state),
@@ -404,7 +390,8 @@ const umbralSoul: CombatAction = createCombatAction({
 
 const scathe: CombatAction = createCombatAction({
   id: ActionId.Scathe,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Scathe, context, { potency: hasBuff(getState(), StatusId.Sharpcast) || rng(20) ? 100 : 200 }));
     dispatch(removeBuff(StatusId.Sharpcast));
   },
   reducedBySpellSpeed: true,
@@ -443,6 +430,8 @@ const fire2: CombatAction = createCombatAction({
 const highFire2: CombatAction = createCombatAction({
   id: ActionId.HighFireII,
   execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.HighFireII, context, { potency: 140 }));
+
     dispatch(setFireIce(3, 0));
     dispatch(buff(StatusId.EnhancedFlare, null));
 
@@ -463,7 +452,9 @@ const blizzard2: CombatAction = createCombatAction({
 
 const highBlizzard2: CombatAction = createCombatAction({
   id: ActionId.HighBlizzardII,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.HighBlizzardII, context, { potency: 140 }));
+
     dispatch(setFireIce(0, 3));
   },
   cost: (state, baseCost) => cost(state, baseCost, 'ice'),
@@ -472,7 +463,9 @@ const highBlizzard2: CombatAction = createCombatAction({
 
 const freeze: CombatAction = createCombatAction({
   id: ActionId.Freeze,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Freeze, context, { potency: 120 }));
+
     dispatch(addUmbralHeart(3));
   },
   cost: (state, baseCost) => cost(state, baseCost, 'ice'),
@@ -482,7 +475,9 @@ const freeze: CombatAction = createCombatAction({
 
 const flare: CombatAction = createCombatAction({
   id: ActionId.Flare,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Flare, context, { potency: 220 }));
+
     dispatch(setFireIce(3, 0));
     dispatch(removeBuff(StatusId.EnhancedFlare));
 
@@ -504,8 +499,21 @@ const thunder2: CombatAction = createCombatAction({
 
 const thunder4: CombatAction = createCombatAction({
   id: ActionId.ThunderIV,
-  execute: (dispatch, getState) => {
-    dispatch(debuff(StatusId.ThunderIV, 30));
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.ThunderIV, context, { potency: 50 }));
+    dispatch(
+      debuff(StatusId.ThunderIV, 30, {
+        periodicEffect: () => {
+          dispatch(dmgEvent(0, context, { potency: 20 }));
+          for (let i = 0; i < 5 /* targets */; i++) {
+            if (rng(3)) {
+              dispatch(buff(StatusId.Thundercloud, 30));
+              break;
+            }
+          }
+        },
+      })
+    );
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeBuff(StatusId.ThunderIII));
 
@@ -522,7 +530,9 @@ const thunder4: CombatAction = createCombatAction({
 
 const foul: CombatAction = createCombatAction({
   id: ActionId.Foul,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Foul, context, { potency: 600 }));
+  },
   isGlowing: (state) => polyglot(state) > 0,
   reducedBySpellSpeed: true,
 });
@@ -561,4 +571,4 @@ export const blm: CombatAction[] = [
   foul,
 ];
 
-export const blmEpics = combineEpics(enochianEpic, thunder3TickEpic, thunder4TickEpic);
+export const blmEpics = combineEpics(enochianEpic);

@@ -10,12 +10,14 @@ import {
   addChakra,
   buff,
   debuff,
+  dmgEvent,
   executeAction,
   gcd,
   hasBuff,
   inCombat,
   ogcdLock,
   removeBuff,
+  removeBuffAction,
   removeBuffStack,
   resource,
   selectBeastChakra,
@@ -135,7 +137,7 @@ const anatmapStopEpic: Epic<any, any, RootState> = (action$, state$) =>
         first(
           (aa) =>
             (aa.type === executeAction.type && aa.payload.id !== ActionId.Anatman) ||
-            (aa.type === removeBuff.type && aa.payload === StatusId.Anatman)
+            (aa.type === removeBuffAction.type && aa.payload === StatusId.Anatman)
         )
       )
     ),
@@ -199,7 +201,10 @@ export const setForm =
 
 const bootshine: CombatAction = createCombatAction({
   id: ActionId.Bootshine,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.Bootshine, context, { potency: 210, enhancedPotency: 310, isEnhanced: hasBuff(getState(), StatusId.LeadenFist) })
+    );
     dispatch(removeBuff(StatusId.LeadenFist));
     dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
   },
@@ -209,7 +214,8 @@ const bootshine: CombatAction = createCombatAction({
 
 const trueStrike: CombatAction = createCombatAction({
   id: ActionId.TrueStrike,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.TrueStrike, context, { potency: 300 }));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
@@ -219,7 +225,8 @@ const trueStrike: CombatAction = createCombatAction({
 
 const snapPunch: CombatAction = createCombatAction({
   id: ActionId.SnapPunch,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SnapPunch, context, { potency: 250, flankPotency: 310 }));
     dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -229,7 +236,9 @@ const snapPunch: CombatAction = createCombatAction({
 
 const dragonKick: CombatAction = createCombatAction({
   id: ActionId.DragonKick,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.DragonKick, context, { potency: 320 }));
+
     if (hasForm(getState(), StatusId.OpoopoForm)) {
       dispatch(buff(StatusId.LeadenFist, 30));
     }
@@ -242,7 +251,8 @@ const dragonKick: CombatAction = createCombatAction({
 
 const twinSnakes: CombatAction = createCombatAction({
   id: ActionId.TwinSnakes,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.TwinSnakes, context, { potency: 280 }));
     dispatch(buff(StatusId.DisciplinedFist, 15));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
@@ -253,8 +263,9 @@ const twinSnakes: CombatAction = createCombatAction({
 
 const demolish: CombatAction = createCombatAction({
   id: ActionId.Demolish,
-  execute: (dispatch) => {
-    dispatch(debuff(StatusId.Demolish, 18));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Demolish, context, { potency: 70, rearPotency: 130 }));
+    dispatch(debuff(StatusId.Demolish, 18, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 70 })) }));
     dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -289,7 +300,8 @@ const steelPeak: CombatAction = createCombatAction({
 
 const theForbiddenChakra: CombatAction = createCombatAction({
   id: ActionId.TheForbiddenChakra,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.TheForbiddenChakra, context, { potency: 340 }));
     dispatch(ogcdLock());
   },
   isUsable: (state) => inCombat(state),
@@ -303,7 +315,8 @@ const howlingFist: CombatAction = createCombatAction({
 
 const enlightenment: CombatAction = createCombatAction({
   id: ActionId.Enlightenment,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Enlightenment, context, { potency: 170 }));
     dispatch(ogcdLock());
   },
   isUsable: (state) => inCombat(state) && chakra(state) === 5,
@@ -359,7 +372,8 @@ const masterfulBlitz: CombatAction = createCombatAction({
 
 const elixirField: CombatAction = createCombatAction({
   id: ActionId.ElixirField,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ElixirField, context, { potency: 600 }));
     dispatch(setBeastChakra(0));
     dispatch(setLunarNadi(1));
     dispatch(setForm(StatusId.FormlessFist));
@@ -370,7 +384,8 @@ const elixirField: CombatAction = createCombatAction({
 
 const risingPhoenix: CombatAction = createCombatAction({
   id: ActionId.RisingPhoenix,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RisingPhoenix, context, { potency: 700 }));
     dispatch(setBeastChakra(0));
     dispatch(setSolarNadi(1));
     dispatch(setForm(StatusId.FormlessFist));
@@ -381,7 +396,8 @@ const risingPhoenix: CombatAction = createCombatAction({
 
 const celestialRevolution: CombatAction = createCombatAction({
   id: ActionId.CelestialRevolution,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.CelestialRevolution, context, { potency: 450 }));
     dispatch(setBeastChakra(0));
     if (lunarNadi(getState())) {
       dispatch(setSolarNadi(1));
@@ -396,7 +412,8 @@ const celestialRevolution: CombatAction = createCombatAction({
 
 const phantomRush: CombatAction = createCombatAction({
   id: ActionId.PhantomRush,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.PhantomRush, context, { potency: 1150 }));
     dispatch(setBeastChakra(0));
     dispatch(setSolarNadi(0));
     dispatch(setLunarNadi(0));
@@ -478,7 +495,8 @@ const brotherhood: CombatAction = createCombatAction({
 
 const sixsidedStar: CombatAction = createCombatAction({
   id: ActionId.SixsidedStar,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SixsidedStar, context, { potency: 550 }));
     dispatch(buff(StatusId.SixsidedStar, 5));
   },
   reducedBySkillSpeed: true,
@@ -493,7 +511,8 @@ const armOfTheDestroyer: CombatAction = createCombatAction({
 
 const shadowOfTheDestroyer: CombatAction = createCombatAction({
   id: ActionId.ShadowoftheDestroyer,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ShadowoftheDestroyer, context, { potency: 110 }));
     dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
   },
   reducedBySkillSpeed: true,
@@ -501,7 +520,8 @@ const shadowOfTheDestroyer: CombatAction = createCombatAction({
 
 const fourPointFury: CombatAction = createCombatAction({
   id: ActionId.FourpointFury,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.FourpointFury, context, { potency: 120 }));
     dispatch(buff(StatusId.DisciplinedFist, 15));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
@@ -512,7 +532,8 @@ const fourPointFury: CombatAction = createCombatAction({
 
 const rockbreaker: CombatAction = createCombatAction({
   id: ActionId.Rockbreaker,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Rockbreaker, context, { potency: 130 }));
     dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),

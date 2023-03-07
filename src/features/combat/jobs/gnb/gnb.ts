@@ -18,6 +18,8 @@ import {
   debuff,
   addCartridge,
   gcd,
+  event,
+  dmgEvent,
 } from '../../combatSlice';
 
 function cartridge(state: RootState) {
@@ -70,7 +72,8 @@ const removeBlastContinuationEpic: Epic<any, any, RootState> = (action$, state$)
 
 const keenEdge: CombatAction = createCombatAction({
   id: ActionId.KeenEdge,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.KeenEdge, context, { potency: 170 }));
     dispatch(combo(ActionId.KeenEdge));
   },
   reducedBySkillSpeed: true,
@@ -79,6 +82,8 @@ const keenEdge: CombatAction = createCombatAction({
 const brutalShell: CombatAction = createCombatAction({
   id: ActionId.BrutalShell,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BrutalShell, context, { potency: 130, comboPotency: 270, comboHealthPotency: 200 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.BrutalShell));
       dispatch(buff(StatusId.BrutalShell, 30));
@@ -91,6 +96,8 @@ const brutalShell: CombatAction = createCombatAction({
 const solidBarrel: CombatAction = createCombatAction({
   id: ActionId.SolidBarrel,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SolidBarrel, context, { potency: 140, comboPotency: 360 }));
+
     if (context.comboed) {
       dispatch(addCartridge(1));
     }
@@ -129,7 +136,8 @@ const releaseRoyalGuard: CombatAction = createCombatAction({
 
 const burstStrike: CombatAction = createCombatAction({
   id: ActionId.BurstStrike,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BurstStrike, context, { potency: 380 }));
     dispatch(buff(StatusId.ReadytoBlast, 10));
   },
   reducedBySkillSpeed: true,
@@ -172,7 +180,8 @@ const continuation: CombatAction = createCombatAction({
 
 const hypervelocity: CombatAction = createCombatAction({
   id: ActionId.Hypervelocity,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Hypervelocity, context, { potency: 180 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ReadytoBlast));
   },
@@ -181,7 +190,8 @@ const hypervelocity: CombatAction = createCombatAction({
 
 const jugularRip: CombatAction = createCombatAction({
   id: ActionId.JugularRip,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.JugularRip, context, { potency: 200 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ReadytoRip));
   },
@@ -190,7 +200,8 @@ const jugularRip: CombatAction = createCombatAction({
 
 const abdomenTear: CombatAction = createCombatAction({
   id: ActionId.AbdomenTear,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.AbdomenTear, context, { potency: 240 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ReadytoTear));
   },
@@ -199,7 +210,8 @@ const abdomenTear: CombatAction = createCombatAction({
 
 const eyeGouge: CombatAction = createCombatAction({
   id: ActionId.EyeGouge,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.EyeGouge, context, { potency: 280 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ReadytoGouge));
   },
@@ -208,7 +220,8 @@ const eyeGouge: CombatAction = createCombatAction({
 
 const gnashingFang: CombatAction = createCombatAction({
   id: ActionId.GnashingFang,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.GnashingFang, context, { potency: 380 }));
     dispatch(combo(ActionId.GnashingFang));
     dispatch(buff(StatusId.ReadytoRip, 10));
     dispatch(gcd({ reducedBySkillSpeed: true }));
@@ -226,6 +239,8 @@ const gnashingFang: CombatAction = createCombatAction({
 const savageClaw: CombatAction = createCombatAction({
   id: ActionId.SavageClaw,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SavageClaw, context, { comboPotency: 460 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.SavageClaw));
       dispatch(buff(StatusId.ReadytoTear, 10));
@@ -238,6 +253,8 @@ const savageClaw: CombatAction = createCombatAction({
 const wickedTalon: CombatAction = createCombatAction({
   id: ActionId.WickedTalon,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.WickedTalon, context, { comboPotency: 540 }));
+
     if (context.comboed) {
       dispatch(buff(StatusId.ReadytoGouge, 10));
     }
@@ -248,7 +265,8 @@ const wickedTalon: CombatAction = createCombatAction({
 
 const doubleDown: CombatAction = createCombatAction({
   id: ActionId.DoubleDown,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DoubleDown, context, { potency: 1200 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   isGlowing: (state) => cartridge(state) >= 2,
@@ -257,7 +275,9 @@ const doubleDown: CombatAction = createCombatAction({
 
 const lightningShot: CombatAction = createCombatAction({
   id: ActionId.LightningShot,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.LightningShot, context, { potency: 150 }));
+  },
   reducedBySkillSpeed: true,
 });
 
@@ -270,14 +290,16 @@ const dangerZone: CombatAction = createCombatAction({
 
 const blastingZone: CombatAction = createCombatAction({
   id: ActionId.BlastingZone,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BlastingZone, context, { potency: 720 }));
     dispatch(ogcdLock());
   },
 });
 
 const roughDivide: CombatAction = createCombatAction({
   id: ActionId.RoughDivide,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RoughDivide, context, { potency: 150 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 2,
@@ -289,17 +311,19 @@ const roughDivide: CombatAction = createCombatAction({
 
 const bowShock: CombatAction = createCombatAction({
   id: ActionId.BowShock,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BowShock, context, { potency: 150 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.BowShock, 15));
+    dispatch(debuff(StatusId.BowShock, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 60 })) }));
   },
 });
 
 const sonicBreak: CombatAction = createCombatAction({
   id: ActionId.SonicBreak,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SonicBreak, context, { potency: 300 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(debuff(StatusId.SonicBreak, 30));
+    dispatch(debuff(StatusId.SonicBreak, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 60 })) }));
   },
   reducedBySkillSpeed: true,
 });
@@ -326,7 +350,7 @@ const aurora: CombatAction = createCombatAction({
   id: ActionId.Aurora,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Aurora, 18));
+    dispatch(buff(StatusId.Aurora, 18, { periodicEffect: () => dispatch(event(0, { healthPotency: 200 })) }));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -373,7 +397,8 @@ const heartOfCorundum: CombatAction = createCombatAction({
 
 const demonSlice: CombatAction = createCombatAction({
   id: ActionId.DemonSlice,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DemonSlice, context, { potency: 100 }));
     dispatch(combo(ActionId.DemonSlice));
   },
   reducedBySkillSpeed: true,
@@ -382,6 +407,8 @@ const demonSlice: CombatAction = createCombatAction({
 const demonSlaughter: CombatAction = createCombatAction({
   id: ActionId.DemonSlaughter,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DemonSlaughter, context, { potency: 100, comboPotency: 160 }));
+
     if (context.comboed) {
       dispatch(addCartridge(1));
     }
@@ -392,7 +419,9 @@ const demonSlaughter: CombatAction = createCombatAction({
 
 const fatedCircle: CombatAction = createCombatAction({
   id: ActionId.FatedCircle,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.FatedCircle, context, { potency: 300 }));
+  },
   reducedBySkillSpeed: true,
   isGlowing: (state) => cartridge(state) > 0,
 });

@@ -10,6 +10,7 @@ module.exports = {
         'xiv-orange': '#EE7318',
         'xiv-ui': '#E8E1CE',
         'xiv-offensive': '#F8D5BB',
+        'xiv-dot': '#CB7870',
         'xiv-heal': '#C6D4BB',
         'pull-timer': '#D4A900',
       },

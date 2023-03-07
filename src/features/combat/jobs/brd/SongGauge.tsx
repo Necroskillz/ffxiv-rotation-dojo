@@ -88,7 +88,7 @@ export const SongGauge = () => {
             current={songTime || 0}
             max={45000}
             texture={wanderersMinuet ? wanderersMinuetTexture : magesBallad ? magesBalladTexture : armysPaeonTexture}
-            animate={songTime ? songTime >= 1 : true}
+            animate={false}
           />
           <div className="grid grid-flow-col h-[25px]">
             <div className="grid grid-flow-col auto-cols-max gap-1.5 ml-1.5">
@@ -108,7 +108,7 @@ export const SongGauge = () => {
                 </React.Fragment>
               )}
             </div>
-            {songRemainingTime && <GaugeNumber className="-mt-[7px] mr-4 place-self-end" number={songRemainingTime} />}
+            {songRemainingTime != null && <GaugeNumber className="-mt-[7px] mr-4 place-self-end" number={songRemainingTime} />}
           </div>
           <GaugeBar current={soulVoice} max={100} texture={soulVoice >= 20 ? soulVoiceTexture : lowSoulVoiceTexture} />
           <div className="grid place-items-end">

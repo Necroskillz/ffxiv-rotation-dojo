@@ -1,11 +1,12 @@
-import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { interval, startWith, Subscription, switchMap, timer } from 'rxjs';
 import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { selectJob, selectLevel, selectSkillSpeed, selectSpellSpeed } from '../player/playerSlice';
 import { actions } from './actions';
-import { CombatAction } from './combat-action';
+import { CombatAction, CombatActionExecuteContext } from './combat-action';
 import { OGCDLockDuration } from './enums';
 
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
@@ -142,6 +143,7 @@ const initialState: CombatState = {
     bahamut: 0,
     heat: 0,
     battery: 0,
+    wildfire: 0,
     beast: 0,
     soulVoice: 0,
     wandererCoda: 0,
@@ -200,11 +202,20 @@ export interface ModifyResourceActionPayload {
   amount: number;
 }
 
+export enum DamageType {
+  None,
+  Physical,
+  Magical,
+  Darkness,
+}
+
 export interface EventPayload {
   potency: number;
   healthPotency: number;
+  healthPercent: number;
   mana: number;
   actionId: ActionId;
+  type: DamageType;
   statuses: StatusId[];
 }
 
@@ -229,8 +240,9 @@ function removeStatus(state: CombatState, statusId: number, isHarm: boolean) {
   const collection = isHarm ? state.debuffs : state.buffs;
 
   const status = collection.find((b) => b.id === statusId)!;
-  if (status && status.timeoutId) {
-    clearTimeout(status.timeoutId);
+  if (status) {
+    status.timeoutId && clearTimeout(status.timeoutId);
+    periodicSubscriptions.get(statusId)?.unsubscribe();
   }
 
   const newCollection = collection.filter((b) => b.id !== statusId);
@@ -344,9 +356,7 @@ export const {
   removeCooldown,
   setResource,
   addBuff,
-  removeBuff,
   addDebuff,
-  removeDebuff,
   queueAction,
   removeQueuedAction,
   addOgcdLock,
@@ -359,6 +369,8 @@ export const {
   setCast,
   setPet,
   addEvent,
+  removeDebuff: removeDebuffAction,
+  removeBuff: removeBuffAction,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
@@ -458,16 +470,11 @@ export const combo =
     );
   };
 
+const periodicSubscriptions: Map<number, Subscription> = new Map();
+
 export const status =
-  (
-    id: StatusId,
-    duration: number | null,
-    stacks: number | null,
-    isHarm: boolean,
-    isVisible: boolean,
-    expireCallback: (() => void) | null
-  ): AppThunk =>
-  (dispatch) => {
+  (id: StatusId, duration: number | null, isHarm: boolean, options: StatusOptions): AppThunk =>
+  (dispatch, getState) => {
     const status: StatusState = {
       id,
       timeoutId: duration
@@ -478,14 +485,27 @@ export const status =
               dispatch(removeBuff(id));
             }
 
-            expireCallback && expireCallback();
+            options.expireCallback && options.expireCallback();
           }, duration * 1000)
         : null,
       duration,
       timestamp: Date.now(),
-      stacks: stacks || null,
-      visible: isVisible,
+      stacks: options.stacks || null,
+      visible: options?.isVisible === undefined ? true : options.isVisible,
     };
+
+    if (options.periodicEffect) {
+      if (hasBuff(getState(), id) || hasDebuff(getState(), id)) {
+        periodicSubscriptions.get(id)?.unsubscribe();
+      }
+
+      periodicSubscriptions.set(
+        id,
+        timer(options.periodicEffectDelay || 1000)
+          .pipe(switchMap(() => interval(options.periodicEffectInterval || 3000).pipe(startWith(0))))
+          .subscribe(() => options.periodicEffect!(dispatch))
+      );
+    }
 
     if (isHarm) {
       dispatch(addDebuff(status));
@@ -498,27 +518,37 @@ export interface StatusOptions {
   stacks?: number;
   isVisible?: boolean;
   expireCallback?: () => void;
+  periodicEffect?: (dispatch: ThunkDispatch<RootState, any, any>) => void;
+  periodicEffectInterval?: number;
+  periodicEffectDelay?: number;
 }
 
 export const buff =
   (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
   (dispatch) => {
-    dispatch(
-      status(
-        id,
-        duration,
-        options?.stacks || null,
-        false,
-        options?.isVisible === undefined ? true : options.isVisible,
-        options?.expireCallback || null
-      )
-    );
+    dispatch(status(id, duration, false, options || {}));
   };
 
 export const debuff =
-  (id: StatusId, duration: number | null, stacks?: number): AppThunk =>
+  (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
   (dispatch) => {
-    dispatch(status(id, duration, stacks || null, true, true, null));
+    dispatch(status(id, duration, true, options || {}));
+  };
+
+export const removeBuff =
+  (id: StatusId): AppThunk =>
+  (dispatch, getState) => {
+    if (hasBuff(getState(), id)) {
+      dispatch(combatSlice.actions.removeBuff(id));
+    }
+  };
+
+export const removeDebuff =
+  (id: StatusId): AppThunk =>
+  (dispatch, getState) => {
+    if (hasDebuff(getState(), id)) {
+      dispatch(combatSlice.actions.removeDebuff(id));
+    }
   };
 
 export const extendableDebuff =
@@ -707,10 +737,12 @@ interface EventOptions {
   potency?: number;
   mana?: number;
   healthPotency?: number;
+  healthPercent?: number;
+  type?: DamageType;
 }
 
 export const event =
-  (actionId: ActionId, options?: EventOptions): AppThunk =>
+  (actionId: ActionId, options: EventOptions): AppThunk =>
   (dispatch) => {
     if (options?.mana) {
       dispatch(addMana(options.mana));
@@ -720,11 +752,62 @@ export const event =
       addEvent({
         actionId,
         healthPotency: options?.healthPotency || 0,
+        healthPercent: options?.healthPercent || 0,
         mana: options?.mana || 0,
         potency: options?.potency || 0,
+        type: options?.type || DamageType.None,
         statuses: [],
       })
     );
+  };
+
+interface DmgEventOptions extends EventOptions {
+  comboPotency?: number;
+  rearPotency?: number;
+  flankPotency?: number;
+  rearComboPotency?: number;
+  flankComboPotency?: number;
+  enhancedPotency?: number;
+  rearEnhancedPotency?: number;
+  flankEnhancedPotency?: number;
+  isEnhanced?: boolean;
+  comboMana?: number;
+  comboHealthPotency?: number;
+}
+
+export const dmgEvent =
+  (actionId: ActionId, context: CombatActionExecuteContext, options: DmgEventOptions): AppThunk =>
+  (dispatch, getState) => {
+    let { mana, healthPotency, type } = options;
+    let potency = options.rearPotency || options.flankPotency || options.potency;
+
+    if (options.isEnhanced) {
+      potency = options.rearEnhancedPotency || options.flankEnhancedPotency || options.enhancedPotency || potency;
+    } else {
+      const comboPotency = options.rearComboPotency || options.flankComboPotency || options.comboPotency;
+      if (context.comboed) {
+        potency = comboPotency || potency;
+        mana = options.comboMana;
+        healthPotency = options.comboHealthPotency;
+      }
+    }
+
+    if (!type && actionId) {
+      const action = getActionById(actionId);
+      if (action.type === 'Weaponskill') {
+        type = DamageType.Physical;
+      } else if (action.type === 'Spell') {
+        type = DamageType.Magical;
+      } else {
+        if (['RDM', 'SMN', 'BLM'].includes(selectJob(getState()))) {
+          type = DamageType.Magical;
+        } else {
+          type = DamageType.Physical;
+        }
+      }
+    }
+
+    dispatch(event(actionId, { ...options, potency, mana, healthPotency, type }));
   };
 
 export const addResourceFactory =
@@ -772,6 +855,8 @@ export const removeGaruda = removeResourceFactory('emerald');
 export const setBahamut = setResourceFactory('bahamut');
 export const addHeat = addResourceFactory('heat', 100);
 export const addBattery = addResourceFactory('battery', 100);
+export const addWildfire = addResourceFactory('wildfire', 6);
+export const setWildfire = setResourceFactory('wildfire');
 export const addBeast = addResourceFactory('beast', 100);
 export const addSoulVoice = addResourceFactory('soulVoice', 100);
 export const addWandererRepertiore = addResourceFactory('wandererRepertoire', 3);

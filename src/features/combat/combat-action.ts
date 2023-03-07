@@ -64,6 +64,7 @@ export interface ExtraCooldownOptions {
 export interface CombatActionExecuteContext {
   comboed: boolean;
   cost: number;
+  consumedStatuses: StatusId[];
 }
 
 export interface CombatActionOptions {
@@ -96,7 +97,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
   const combatAction: CombatAction = {
     id: options.id,
     execute: (): AppThunk => (dispatch, getState) => {
-      const context: CombatActionExecuteContext = { comboed: false, cost: 0 };
+      const context: CombatActionExecuteContext = { comboed: false, cost: 0, consumedStatuses: [] };
       const castTime = combatAction.castTime(getState());
 
       if (action.comboAction) {
@@ -155,7 +156,6 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         options.execute(dispatch as any, getState, context);
 
         dispatch(executeAction({ id: options.id }));
-        dispatch(drainQueue());
       }
 
       if (castTime === 0) {
@@ -164,17 +164,22 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
             hasBuff(getState(), StatusId.Acceleration) &&
             [ActionId.VerthunderIII, ActionId.VeraeroIII, ActionId.Impact].includes(action.id)
           ) {
+            context.consumedStatuses.push(StatusId.Acceleration);
             dispatch(removeBuff(StatusId.Acceleration));
           } else if (hasBuff(getState(), StatusId.Dualcast)) {
+            context.consumedStatuses.push(StatusId.Dualcast);
             dispatch(removeBuff(StatusId.Dualcast));
           } else if (hasBuff(getState(), StatusId.Triplecast)) {
+            context.consumedStatuses.push(StatusId.Triplecast);
             dispatch(removeBuffStack(StatusId.Triplecast));
           } else if (hasBuff(getState(), StatusId.Swiftcast)) {
+            context.consumedStatuses.push(StatusId.Swiftcast);
             dispatch(removeBuff(StatusId.Swiftcast));
           }
         }
 
         resolve();
+        dispatch(drainQueue());
       } else {
         const resolveTimer = setTimeout(() => {
           dispatch(setCast(null));
@@ -184,6 +189,8 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
           if (selectJob(getState()) === 'RDM') {
             dispatch(buff(StatusId.Dualcast, 15));
           }
+
+          dispatch(drainQueue());
         }, castTime);
         dispatch(setCast({ castTime, timeoutId: resolveTimer, timestamp: Date.now(), actionId: action.id }));
       }

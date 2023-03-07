@@ -4,7 +4,7 @@ import { RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { CombatAction, createCombatAction } from './combat-action';
-import { addBuff, addMana, buff, debuff, hasBuff, inCombat, ogcdLock, removeBuff, setCombat } from './combatSlice';
+import { addBuff, addMana, buff, debuff, event, hasBuff, inCombat, ogcdLock, removeBuff, setCombat } from './combatSlice';
 
 const pelotonCombatEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
@@ -38,6 +38,7 @@ const secondWind: CombatAction = createCombatAction({
   id: ActionId.SecondWind,
   execute: (dispatch) => {
     dispatch(ogcdLock());
+    dispatch(event(ActionId.SecondWind, { healthPotency: 500 }));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,

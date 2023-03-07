@@ -1,5 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, map, withLatestFrom } from 'rxjs/operators';
+import { from, of, Subject } from 'rxjs';
+import { concatMap, delay, filter, map, mergeMap, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -23,6 +24,14 @@ import {
   modifyCooldown,
   hasDebuff,
   removeDebuff,
+  dmgEvent,
+  addWildfire,
+  setWildfire,
+  recastTime,
+  addBuff,
+  selectBuff,
+  event,
+  DamageType,
 } from '../../combatSlice';
 
 function heat(state: RootState) {
@@ -31,6 +40,15 @@ function heat(state: RootState) {
 
 function battery(state: RootState) {
   return resource(state, 'battery');
+}
+
+function wildfireStacks(state: RootState) {
+  return resource(state, 'wildfire');
+}
+
+// A function that adds 20 to supplied potency if Overheated buff is active
+function adjustedPotency(state: RootState, potency: number) {
+  return hasBuff(state, StatusId.Overheated) ? potency + 20 : potency;
 }
 
 const removeReassembleEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -51,6 +69,73 @@ const removeFlamethrowerEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(() => removeBuff(StatusId.Flamethrower))
   );
 
+const removeOverheatedEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill'),
+    withLatestFrom(state$),
+    map(([, state]) => state),
+    filter((state) => hasBuff(state, StatusId.Overheated)),
+    map(() => removeBuffStack(StatusId.Overheated))
+  );
+
+const stackWildfireEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill'),
+    withLatestFrom(state$),
+    map(([, state]) => state),
+    filter((state) => hasBuff(state, StatusId.WildfireBuff)),
+    map(() => addWildfire(1))
+  );
+
+const stopQueen = new Subject<void>();
+
+const queenEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.AutomatonQueenActive),
+    withLatestFrom(state$),
+    switchMap(([, state]) => {
+      const potencyModifier = 1 + selectBuff(state, StatusId.AutomatonQueenActive)!.stacks! * 0.02;
+
+      return of([
+        { actionId: ActionId.RollerDash, delay: 5500, potency: Math.round(240 * potencyModifier) },
+        { actionId: ActionId.ArmPunch, delay: recastTime(state, 3000, 'Weaponskill'), potency: Math.round(120 * potencyModifier) },
+        { actionId: ActionId.ArmPunch, delay: 1500, potency: Math.round(120 * potencyModifier) },
+        { actionId: ActionId.ArmPunch, delay: 1500, potency: Math.round(120 * potencyModifier) },
+        { actionId: ActionId.PileBunker, delay: 2000, potency: Math.round(340 * potencyModifier) },
+        { actionId: ActionId.CrownedCollider, delay: 3000, potency: Math.round(390 * potencyModifier) },
+      ]).pipe(
+        mergeMap((a) => from(a)),
+        concatMap((a) => of(a).pipe(delay(a.delay))),
+        takeUntil(stopQueen),
+        map((a) => event(a.actionId, { potency: a.potency, type: DamageType.Physical }))
+      );
+    })
+  );
+
+const queenOverdriveEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && a.payload.id === ActionId.QueenOverdrive),
+    withLatestFrom(state$),
+    map(([, state]) => state),
+    filter((state) => Date.now() - selectBuff(state, StatusId.AutomatonQueenActive)!.timestamp > 7.5),
+    tap(() => stopQueen.next()),
+    switchMap((state) => {
+      const potencyModifier = 1 + selectBuff(state, StatusId.AutomatonQueenActive)!.stacks! * 0.02;
+
+      return of([
+        { actionId: ActionId.PileBunker, delay: 500, potency: Math.round(340 * potencyModifier) },
+        { actionId: ActionId.CrownedCollider, delay: 3000, potency: Math.round(390 * potencyModifier) },
+        { actionId: 0, delay: 4000, potency: 0 },
+      ]).pipe(
+        mergeMap((a) => from(a)),
+        concatMap((a) => of(a).pipe(delay(a.delay))),
+        map((a) =>
+          a.actionId ? event(a.actionId, { potency: a.potency, type: DamageType.Physical }) : removeBuff(StatusId.AutomatonQueenActive)
+        )
+      );
+    })
+  );
+
 const splitShot: CombatAction = createCombatAction({
   id: ActionId.SplitShot,
   execute: () => {},
@@ -60,7 +145,8 @@ const splitShot: CombatAction = createCombatAction({
 
 const heatedSplitShot: CombatAction = createCombatAction({
   id: ActionId.HeatedSplitShot,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.HeatedSplitShot, context, { potency: adjustedPotency(getState(), 200) }));
     dispatch(combo(ActionId.SplitShot));
     dispatch(addHeat(5));
   },
@@ -76,7 +162,13 @@ const slugShot: CombatAction = createCombatAction({
 
 const heatedSlugShot: CombatAction = createCombatAction({
   id: ActionId.HeatedSlugShot,
-  execute: (dispatch, _, context) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.HeatedSlugShot, context, {
+        potency: adjustedPotency(getState(), 120),
+        comboPotency: adjustedPotency(getState(), 300),
+      })
+    );
     if (context.comboed) {
       dispatch(combo(ActionId.SlugShot));
       dispatch(addHeat(5));
@@ -95,7 +187,14 @@ const cleanShot: CombatAction = createCombatAction({
 
 const heatedCleanShot: CombatAction = createCombatAction({
   id: ActionId.HeatedCleanShot,
-  execute: (dispatch, _, context) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.HeatedCleanShot, context, {
+        potency: adjustedPotency(getState(), 120),
+        comboPotency: adjustedPotency(getState(), 380),
+      })
+    );
+
     if (context.comboed) {
       dispatch(addHeat(5));
       dispatch(addBattery(10));
@@ -107,7 +206,8 @@ const heatedCleanShot: CombatAction = createCombatAction({
 
 const drill: CombatAction = createCombatAction({
   id: ActionId.Drill,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   reducedBySkillSpeed: true,
@@ -122,16 +222,18 @@ const hotShot: CombatAction = createCombatAction({
 
 const airAnchor: CombatAction = createCombatAction({
   id: ActionId.AirAnchor,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(addBattery(20));
+    dispatch(addBattery(50));
   },
   reducedBySkillSpeed: true,
 });
 
 const chainsaw: CombatAction = createCombatAction({
   id: ActionId.ChainSaw,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
   },
@@ -150,7 +252,8 @@ const reassemble: CombatAction = createCombatAction({
 
 const ricochet: CombatAction = createCombatAction({
   id: ActionId.Ricochet,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Ricochet, context, { potency: adjustedPotency(getState(), 130) }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -162,7 +265,8 @@ const ricochet: CombatAction = createCombatAction({
 
 const gaussRound: CombatAction = createCombatAction({
   id: ActionId.GaussRound,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.GaussRound, context, { potency: adjustedPotency(getState(), 130) }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -183,17 +287,27 @@ const barrelStabilizer: CombatAction = createCombatAction({
 
 const wildfire: CombatAction = createCombatAction({
   id: ActionId.Wildfire,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.Wildfire, 10));
+    dispatch(buff(StatusId.WildfireBuff, 10));
+    dispatch(
+      debuff(StatusId.Wildfire, 10, {
+        expireCallback: () => {
+          dispatch(dmgEvent(ActionId.Wildfire, context, { potency: wildfireStacks(getState()) * 240 }));
+          dispatch(setWildfire(0));
+        },
+      })
+    );
   },
   redirect: (state) => (hasDebuff(state, StatusId.Wildfire) ? ActionId.Detonator : ActionId.Wildfire),
 });
 
 const detonator: CombatAction = createCombatAction({
   id: ActionId.Detonator,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Wildfire, context, { potency: wildfireStacks(getState()) * 240 }));
+    dispatch(setWildfire(0));
     dispatch(removeDebuff(StatusId.Wildfire));
   },
 });
@@ -211,12 +325,13 @@ const hypercharge: CombatAction = createCombatAction({
 
 const heatBlast: CombatAction = createCombatAction({
   id: ActionId.HeatBlast,
-  execute: (dispatch) => {
-    dispatch(removeBuffStack(StatusId.Overheated));
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.HeatBlast, context, { potency: adjustedPotency(getState(), 200) }));
     dispatch(modifyCooldown(10, -15000));
     dispatch(modifyCooldown(11, -15000));
   },
   isUsable: (state) => hasBuff(state, StatusId.Overheated),
+  isGlowing: (state) => hasBuff(state, StatusId.Overheated),
 });
 
 const rookAutoturret: CombatAction = createCombatAction({
@@ -227,12 +342,12 @@ const rookAutoturret: CombatAction = createCombatAction({
 
 const automatonQueen: CombatAction = createCombatAction({
   id: ActionId.AutomatonQueen,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.AutomatonQueenActive, 20, { isVisible: false }));
+    dispatch(buff(StatusId.AutomatonQueenActive, 20, { isVisible: false, stacks: context.cost - 50 }));
   },
-  isUsable: (state) => battery(state) >= 50,
-  isGlowing: (state) => battery(state) >= 50,
+  cost: (state) => battery(state),
+  isUsable: (state) => battery(state) >= 50 && !hasBuff(state, StatusId.AutomatonQueenActive),
 });
 
 const rookOverdrive: CombatAction = createCombatAction({
@@ -275,7 +390,9 @@ const spreadShot: CombatAction = createCombatAction({
 
 const scattergun: CombatAction = createCombatAction({
   id: ActionId.Scattergun,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: adjustedPotency(getState(), 150) }));
+
     dispatch(addHeat(10));
   },
   reducedBySkillSpeed: true,
@@ -283,17 +400,25 @@ const scattergun: CombatAction = createCombatAction({
 
 const bioblaster: CombatAction = createCombatAction({
   id: ActionId.Bioblaster,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Bioblaster, context, { potency: adjustedPotency(getState(), 50) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(debuff(StatusId.Bioblaster, 15));
+    dispatch(debuff(StatusId.Bioblaster, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 50 })) }));
   },
   reducedBySkillSpeed: true,
 });
 
 const flamethrower: CombatAction = createCombatAction({
   id: ActionId.Flamethrower,
-  execute: (dispatch) => {
-    dispatch(buff(StatusId.Flamethrower, 10));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(0, context, { potency: 100 }));
+    dispatch(
+      buff(StatusId.Flamethrower, 10, {
+        periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 100 })),
+        periodicEffectDelay: 900,
+        periodicEffectInterval: 1000,
+      })
+    );
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   isGcdAction: true,
@@ -301,7 +426,8 @@ const flamethrower: CombatAction = createCombatAction({
 
 const autoCrossbow: CombatAction = createCombatAction({
   id: ActionId.AutoCrossbow,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.AutoCrossbow, context, { potency: adjustedPotency(getState(), 140) }));
     dispatch(removeBuffStack(StatusId.Overheated));
   },
   isUsable: (state) => hasBuff(state, StatusId.Overheated),
@@ -369,4 +495,11 @@ export const mch: CombatAction[] = [
   autoCrossbow,
 ];
 
-export const mchEpics = combineEpics(removeReassembleEpic, removeFlamethrowerEpic);
+export const mchEpics = combineEpics(
+  removeReassembleEpic,
+  removeFlamethrowerEpic,
+  removeOverheatedEpic,
+  stackWildfireEpic,
+  queenEpic,
+  queenOverdriveEpic
+);

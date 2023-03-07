@@ -25,6 +25,7 @@ import {
   hasDebuff,
   extendableDebuff,
   addSoulVoice,
+  dmgEvent,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -175,7 +176,9 @@ const heavyShot: CombatAction = createCombatAction({
 
 const burstShot: CombatAction = createCombatAction({
   id: ActionId.BurstShot,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BurstShot, context, { potency: 220 }));
+
     if (rng(35)) {
       dispatch(buff(StatusId.StraightShotReady, 30));
     }
@@ -192,7 +195,9 @@ const straightShot: CombatAction = createCombatAction({
 
 const refulgentArrow: CombatAction = createCombatAction({
   id: ActionId.RefulgentArrow,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RefulgentArrow, context, { potency: 280 }));
+
     dispatch(removeBuff(StatusId.StraightShotReady));
   },
   reducedBySkillSpeed: true,
@@ -209,12 +214,14 @@ const windbite: CombatAction = createCombatAction({
 
 const stormbite: CombatAction = createCombatAction({
   id: ActionId.Stormbite,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Stormbite, context, { potency: 100 }));
+
     if (rng(35)) {
       dispatch(buff(StatusId.StraightShotReady, 30));
     }
 
-    dispatch(debuff(StatusId.Stormbite, 30));
+    dispatch(debuff(StatusId.Stormbite, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 25 })) }));
   },
   reducedBySkillSpeed: true,
 });
@@ -228,12 +235,14 @@ const venomousBite: CombatAction = createCombatAction({
 
 const causticBite: CombatAction = createCombatAction({
   id: ActionId.CausticBite,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.CausticBite, context, { potency: 150 }));
+
     if (rng(35)) {
       dispatch(buff(StatusId.StraightShotReady, 30));
     }
 
-    dispatch(debuff(StatusId.CausticBite, 30));
+    dispatch(debuff(StatusId.CausticBite, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 20 })) }));
   },
   reducedBySkillSpeed: true,
 });
@@ -268,7 +277,9 @@ const barrage: CombatAction = createCombatAction({
 
 const wanderersMinuet: CombatAction = createCombatAction({
   id: ActionId.TheWanderersMinuet,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.TheWanderersMinuet, context, { potency: 100 }));
+
     const ethos = hasBuff(getState(), StatusId.ArmysEthos);
     if (ethos || hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       if (armyRepertoire(getState())) {
@@ -301,7 +312,9 @@ const wanderersMinuet: CombatAction = createCombatAction({
 
 const magesBallad: CombatAction = createCombatAction({
   id: ActionId.MagesBallad,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.MagesBallad, context, { potency: 100 }));
+
     const ethos = hasBuff(getState(), StatusId.ArmysEthos);
     if (ethos || hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       if (armyRepertoire(getState())) {
@@ -332,7 +345,9 @@ const magesBallad: CombatAction = createCombatAction({
 
 const armysPaeon: CombatAction = createCombatAction({
   id: ActionId.ArmysPaeon,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.ArmysPaeon, context, { potency: 100 }));
+
     dispatch(setArmyCoda(1));
     dispatch(setArmyRepertiore(0));
 
@@ -356,9 +371,16 @@ const armysPaeon: CombatAction = createCombatAction({
   },
 });
 
+const pitchPerfectPotency: Record<number, number> = {
+  1: 100,
+  2: 220,
+  3: 360,
+};
+
 const pitchPerfect: CombatAction = createCombatAction({
   id: ActionId.PitchPerfect,
-  execute: (dispatch) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.PitchPerfect, context, { potency: pitchPerfectPotency[wandererRepertoire(getState())] }));
     dispatch(ogcdLock());
     dispatch(setWandererRepertiore(0));
   },
@@ -368,7 +390,9 @@ const pitchPerfect: CombatAction = createCombatAction({
 
 const bloodletter: CombatAction = createCombatAction({
   id: ActionId.Bloodletter,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Bloodletter, context, { potency: 110 }));
+
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -377,14 +401,17 @@ const bloodletter: CombatAction = createCombatAction({
 
 const sidewinder: CombatAction = createCombatAction({
   id: ActionId.Sidewinder,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Sidewinder, context, { potency: 300 }));
+
     dispatch(ogcdLock());
   },
 });
 
 const empyrealArrow: CombatAction = createCombatAction({
   id: ActionId.EmpyrealArrow,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.EmpyrealArrow, context, { potency: 230 }));
     dispatch(ogcdLock());
 
     if (hasBuff(getState(), StatusId.WanderersMinuetActive)) {
@@ -402,7 +429,8 @@ const empyrealArrow: CombatAction = createCombatAction({
 
 const ironJaws: CombatAction = createCombatAction({
   id: ActionId.IronJaws,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.IronJaws, context, { potency: 100 }));
     if (rng(35)) {
       dispatch(buff(StatusId.StraightShotReady, 30));
     }
@@ -421,6 +449,7 @@ const ironJaws: CombatAction = createCombatAction({
 const apexArrow: CombatAction = createCombatAction({
   id: ActionId.ApexArrow,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 400 + 100 }));
     if (context.cost >= 80) {
       dispatch(buff(StatusId.BlastArrowReady, 10));
     }
@@ -434,7 +463,8 @@ const apexArrow: CombatAction = createCombatAction({
 
 const blastArrow: CombatAction = createCombatAction({
   id: ActionId.BlastArrow,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BlastArrow, context, { potency: 600 }));
     dispatch(removeBuff(StatusId.BlastArrowReady));
   },
   isGlowing: () => true,
@@ -492,7 +522,8 @@ const quickNock: CombatAction = createCombatAction({
 
 const ladonsbite: CombatAction = createCombatAction({
   id: ActionId.Ladonsbite,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Ladonsbite, context, { potency: 130 }));
     if (rng(35)) {
       dispatch(buff(StatusId.ShadowbiteReady, 30));
     }
@@ -502,7 +533,8 @@ const ladonsbite: CombatAction = createCombatAction({
 
 const shadowbite: CombatAction = createCombatAction({
   id: ActionId.Shadowbite,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Shadowbite, context, { potency: 170 }));
     dispatch(removeBuff(StatusId.ShadowbiteReady));
   },
   reducedBySkillSpeed: true,
@@ -519,7 +551,8 @@ const repellingShot: CombatAction = createCombatAction({
 
 const raidOfDeath: CombatAction = createCombatAction({
   id: ActionId.RainofDeath,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RainofDeath, context, { potency: 100 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,

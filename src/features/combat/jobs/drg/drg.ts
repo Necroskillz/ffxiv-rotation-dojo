@@ -12,11 +12,13 @@ import {
   buff,
   combo,
   debuff,
+  dmgEvent,
   executeAction,
   hasBuff,
   hasCombo,
   ogcdLock,
   removeBuff,
+  removeBuffAction,
   resource,
   setEyeOfTheDragon,
   setThrust,
@@ -41,7 +43,7 @@ const consumeLifeSurgeEpic: Epic<any, any, RootState> = (action$) =>
     switchMap(() =>
       action$.pipe(
         filter((aa) => aa.type === executeAction.type && getActionById(aa.payload.id).type === 'Weaponskill'),
-        takeUntil(action$.pipe(first((a) => a.type === removeBuff.type && a.payload === StatusId.LifeSurge)))
+        takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === StatusId.LifeSurge)))
       )
     ),
     map(() => removeBuff(StatusId.LifeSurge))
@@ -80,7 +82,8 @@ const removeThrustBuffsEpic: Epic<any, any, RootState> = (action$, state$) =>
 
 const trueThrust: CombatAction = createCombatAction({
   id: ActionId.TrueThrust,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.TrueThrust, context, { potency: 230 }));
     dispatch(combo(ActionId.TrueThrust));
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.RaidenThrust : ActionId.TrueThrust),
@@ -90,6 +93,8 @@ const trueThrust: CombatAction = createCombatAction({
 const disembowel: CombatAction = createCombatAction({
   id: ActionId.Disembowel,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Disembowel, context, { potency: 140 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.Disembowel));
       dispatch(buff(StatusId.PowerSurge, 30));
@@ -109,8 +114,10 @@ const chaosThrust: CombatAction = createCombatAction({
 const chaoticSpring: CombatAction = createCombatAction({
   id: ActionId.ChaoticSpring,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ChaoticSpring, context, { potency: 100, comboPotency: 260, rearComboPotency: 300 }));
+
     if (context.comboed) {
-      dispatch(debuff(StatusId.ChaoticSpring, 24));
+      dispatch(debuff(StatusId.ChaoticSpring, 24, { periodicEffect: () => dmgEvent(0, context, { potency: 45 }) }));
       dispatch(buff(StatusId.WheelinMotion, 30));
       dispatch(setThrust(0));
     } else {
@@ -124,7 +131,8 @@ const chaoticSpring: CombatAction = createCombatAction({
 
 const wheelingThrust: CombatAction = createCombatAction({
   id: ActionId.WheelingThrust,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.WheelingThrust, context, { potency: 260, rearPotency: 300 }));
     dispatch(removeBuff(StatusId.WheelinMotion));
 
     if (thrust(getState()) === 1) {
@@ -141,7 +149,8 @@ const wheelingThrust: CombatAction = createCombatAction({
 
 const fangAndClaw: CombatAction = createCombatAction({
   id: ActionId.FangandClaw,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.FangandClaw, context, { potency: 260, flankPotency: 300 }));
     dispatch(removeBuff(StatusId.FangandClawBared));
 
     if (thrust(getState()) === 1) {
@@ -158,7 +167,8 @@ const fangAndClaw: CombatAction = createCombatAction({
 
 const raidenThrust: CombatAction = createCombatAction({
   id: ActionId.RaidenThrust,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RaidenThrust, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.DraconianFire));
     dispatch(combo(ActionId.TrueThrust));
     dispatch(addFirstmindsFocus(1));
@@ -170,6 +180,8 @@ const raidenThrust: CombatAction = createCombatAction({
 const vorpalThrust: CombatAction = createCombatAction({
   id: ActionId.VorpalThrust,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.VorpalThrust, context, { potency: 130, comboPotency: 280 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.VorpalThrust));
     }
@@ -188,6 +200,8 @@ const fullThrust: CombatAction = createCombatAction({
 const heavensThrust: CombatAction = createCombatAction({
   id: ActionId.HeavensThrust,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.HeavensThrust, context, { potency: 100, comboPotency: 480 }));
+
     if (context.comboed) {
       dispatch(buff(StatusId.FangandClawBared, 30));
       dispatch(setThrust(0));
@@ -245,16 +259,18 @@ const jump: CombatAction = createCombatAction({
 
 const highJump: CombatAction = createCombatAction({
   id: ActionId.HighJump,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.HighJump, context, { potency: 400 }));
     dispatch(buff(StatusId.DiveReady, 30));
   },
 });
 
 const mirageDive: CombatAction = createCombatAction({
   id: ActionId.MirageDive,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.MirageDive, context, { potency: 200 }));
     dispatch(removeBuff(StatusId.DiveReady));
     dispatch(addEyeOfTheDragon(1));
   },
@@ -264,8 +280,9 @@ const mirageDive: CombatAction = createCombatAction({
 
 const geirskogul: CombatAction = createCombatAction({
   id: ActionId.Geirskogul,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Geirskogul, context, { potency: 260 }));
 
     if (eyeOfTheDragon(getState()) === 2) {
       dispatch(buff(StatusId.LifeoftheDragonActive, 30, { isVisible: false }));
@@ -278,15 +295,17 @@ const geirskogul: CombatAction = createCombatAction({
 
 const nastrond: CombatAction = createCombatAction({
   id: ActionId.Nastrond,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Nastrond, context, { potency: 360 }));
   },
 });
 
 const stardiver: CombatAction = createCombatAction({
   id: ActionId.Stardiver,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 620 }));
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
   animationLock: OGCDLockDuration.Long,
@@ -294,8 +313,9 @@ const stardiver: CombatAction = createCombatAction({
 
 const spineshatterDive: CombatAction = createCombatAction({
   id: ActionId.SpineshatterDive,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.SpineshatterDive, context, { potency: 250 }));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -306,16 +326,18 @@ const spineshatterDive: CombatAction = createCombatAction({
 
 const dragonfireDive: CombatAction = createCombatAction({
   id: ActionId.DragonfireDive,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.DragonfireDive, context, { potency: 300 }));
   },
   animationLock: OGCDLockDuration.Long,
 });
 
 const wyrmwindThrust: CombatAction = createCombatAction({
   id: ActionId.WyrmwindThrust,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.WyrmwindThrust, context, { potency: 420 }));
   },
   isUsable: (state) => firstmindsFocus(state) === 2,
   isGlowing: (state) => firstmindsFocus(state) === 2,
@@ -323,13 +345,16 @@ const wyrmwindThrust: CombatAction = createCombatAction({
 
 const piercingTalong: CombatAction = createCombatAction({
   id: ActionId.PiercingTalon,
-  execute: () => {},
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.PiercingTalon, context, { potency: 150 }));
+  },
   reducedBySkillSpeed: true,
 });
 
 const doomSpike: CombatAction = createCombatAction({
   id: ActionId.DoomSpike,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DoomSpike, context, { potency: 110 }));
     dispatch(combo(ActionId.DoomSpike));
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.DraconianFury : ActionId.DoomSpike),
@@ -338,7 +363,8 @@ const doomSpike: CombatAction = createCombatAction({
 
 const draconianFury: CombatAction = createCombatAction({
   id: ActionId.DraconianFury,
-  execute: (dispatch) => {
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DraconianFury, context, { potency: 130 }));
     dispatch(removeBuff(StatusId.DraconianFire));
     dispatch(combo(ActionId.DoomSpike));
     dispatch(addFirstmindsFocus(1));
@@ -350,6 +376,8 @@ const draconianFury: CombatAction = createCombatAction({
 const sonicThrust: CombatAction = createCombatAction({
   id: ActionId.SonicThrust,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.SonicThrust, context, { potency: 100, comboPotency: 120 }));
+
     if (context.comboed) {
       dispatch(combo(ActionId.SonicThrust));
       dispatch(buff(StatusId.PowerSurge, 30));
@@ -362,6 +390,8 @@ const sonicThrust: CombatAction = createCombatAction({
 const coerthanTorment: CombatAction = createCombatAction({
   id: ActionId.CoerthanTorment,
   execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.CoerthanTorment, context, { potency: 100, comboPotency: 150 }));
+
     if (context.comboed) {
       dispatch(buff(StatusId.DraconianFire, 30));
     }
