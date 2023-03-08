@@ -10,7 +10,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { ActionId } from '../actions/action_enums';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { clsx } from 'clsx';
-import { selectLock } from '../hud/hudSlice';
+import { selectElement, selectLock } from '../hud/hudSlice';
 
 import css from './HotbarSlot.module.css';
 import { ActionTooltip } from '../actions/ActionTooltip';
@@ -40,6 +40,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const state = useAppSelector((state) => state);
   const slot = useAppSelector((state) => selectSlot(state, { hotbarId, slotId }));
   const keybind = useAppSelector((state) => selectKeybind(state, { hotbarId, slotId }));
+  const settings = useAppSelector((state) => selectElement(state, 'Settings'));
   const keybindingMode = useAppSelector(selectKeybindingMode);
   const hudLock = useAppSelector(selectLock);
   const hotbarLock = useAppSelector(selectHotbarLock);
@@ -160,7 +161,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
           event.preventDefault();
         }
       } else {
-        if (keybind.key === extractKey(event) && keybind.modifier === modifier) {
+        if (!settings.isVisible && keybind.key === extractKey(event) && keybind.modifier === modifier) {
           onClick();
 
           event.stopPropagation();
@@ -172,7 +173,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [keybind, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver]);
+  }, [keybind, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings]);
 
   return (
     <div ref={drop}>

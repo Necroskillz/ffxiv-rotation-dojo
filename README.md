@@ -2,6 +2,8 @@
 
 A web app that allows for trying out ffxiv job rotations at the max level.
 
+https://necroskillz.github.io/ffxiv-rotation-dojo
+
 ## Development
 
 In the project directory, you can run:

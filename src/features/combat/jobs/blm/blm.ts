@@ -21,6 +21,7 @@ import {
   event,
   removeBuffAction,
   dmgEvent,
+  removeDebuff,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -286,7 +287,7 @@ const thunder3: CombatAction = createCombatAction({
       })
     );
     dispatch(removeBuff(StatusId.Thundercloud));
-    dispatch(removeBuff(StatusId.ThunderIV));
+    dispatch(removeDebuff(StatusId.ThunderIV));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));
@@ -515,7 +516,7 @@ const thunder4: CombatAction = createCombatAction({
       })
     );
     dispatch(removeBuff(StatusId.Thundercloud));
-    dispatch(removeBuff(StatusId.ThunderIII));
+    dispatch(removeDebuff(StatusId.ThunderIII));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));

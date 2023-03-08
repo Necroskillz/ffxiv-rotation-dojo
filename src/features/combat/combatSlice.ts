@@ -8,6 +8,7 @@ import { selectJob, selectLevel, selectSkillSpeed, selectSpellSpeed } from '../p
 import { actions } from './actions';
 import { CombatAction, CombatActionExecuteContext } from './combat-action';
 import { OGCDLockDuration } from './enums';
+import { collectStatuses } from './event-status-collector';
 
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
   90: { SUB: 400, DIV: 1900 },
@@ -209,6 +210,11 @@ export enum DamageType {
   Darkness,
 }
 
+export interface EventStatus {
+  id: StatusId;
+  stacks: number | null;
+}
+
 export interface EventPayload {
   potency: number;
   healthPotency: number;
@@ -216,7 +222,8 @@ export interface EventPayload {
   mana: number;
   actionId: ActionId;
   type: DamageType;
-  statuses: StatusId[];
+  statuses: EventStatus[];
+  comboed: boolean;
 }
 
 function addStatus(state: CombatState, status: StatusState, isHarm: boolean) {
@@ -733,30 +740,25 @@ export const gcd =
     dispatch(cooldown(58, type ? recastTime(getState(), time, type) : time));
   };
 
-interface EventOptions {
-  potency?: number;
-  mana?: number;
-  healthPotency?: number;
-  healthPercent?: number;
-  type?: DamageType;
-}
+interface EventOptions extends Partial<Omit<EventPayload, 'actionId'>> {}
 
 export const event =
   (actionId: ActionId, options: EventOptions): AppThunk =>
   (dispatch) => {
-    if (options?.mana) {
+    if (options.mana) {
       dispatch(addMana(options.mana));
     }
 
     dispatch(
       addEvent({
         actionId,
-        healthPotency: options?.healthPotency || 0,
-        healthPercent: options?.healthPercent || 0,
-        mana: options?.mana || 0,
-        potency: options?.potency || 0,
-        type: options?.type || DamageType.None,
-        statuses: [],
+        healthPotency: options.healthPotency || 0,
+        healthPercent: options.healthPercent || 0,
+        mana: options.mana || 0,
+        potency: options.potency || 0,
+        type: options.type || DamageType.None,
+        statuses: options.statuses || [],
+        comboed: !!options.comboed,
       })
     );
   };
@@ -807,7 +809,20 @@ export const dmgEvent =
       }
     }
 
-    dispatch(event(actionId, { ...options, potency, mana, healthPotency, type }));
+    dispatch(
+      event(actionId, {
+        potency,
+        mana,
+        healthPotency,
+        type,
+        comboed: context.comboed,
+        statuses: [
+          ...collectStatuses(actionId, getState()),
+          ...context.consumedStatuses.map((s) => ({ id: s, stacks: buffStacks(getState(), s) + 1 })),
+        ],
+        healthPercent: options.healthPercent,
+      })
+    );
   };
 
 export const addResourceFactory =

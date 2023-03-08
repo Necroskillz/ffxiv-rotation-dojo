@@ -121,16 +121,16 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
               <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute">
                 {i.addedIcons.length > 0 && (
                   <React.Fragment>
-                    {i.addedIcons.map((icon) => (
-                      <img key={i.id + icon + '+'} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
+                    {i.addedIcons.map((icon, index) => (
+                      <img key={index} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
                     ))}
                     <span className={clsx('mx-1', this.props.addTextColor)}>{i.addedText}</span>
                   </React.Fragment>
                 )}
                 {i.removedIcons.length > 0 && (
                   <React.Fragment>
-                    {i.removedIcons.map((icon) => (
-                      <img key={i.id + icon + '-'} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
+                    {i.removedIcons.map((icon, index) => (
+                      <img key={index} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
                     ))}
                     <span className="ml-1 text-slate-300">{i.removedText}</span>
                   </React.Fragment>

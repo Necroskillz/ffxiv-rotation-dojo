@@ -7,10 +7,12 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
+import { getStatusById } from '../actions/status';
 import { HudItem } from '../hud/HudItem';
 import { selectLock } from '../hud/hudSlice';
-import { addEvent, DamageType } from './combatSlice';
+import { addEvent, DamageType, EventStatus } from './combatSlice';
 import { actionStream$ } from './general';
+import { statusIcon } from './utils';
 
 interface Item {
   id: number;
@@ -18,6 +20,7 @@ interface Item {
   abilityName: string;
   damage: number;
   type: DamageType;
+  icons: string[];
 }
 
 type DamageScrollingTextState = {
@@ -53,13 +56,14 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
           abilityName: getActionById(action.payload.actionId).name,
           damage: action.payload.potency,
           type: action.payload.type,
+          icons: action.payload.statuses.map((status: EventStatus) => statusIcon(getStatusById(status.id).icon, status.stacks)),
         };
 
         this.buffer.push(item);
 
         this.setState({ items: this.buffer });
 
-        setTimeout(() => this.removeItem(item), 2000);
+        setTimeout(() => this.removeItem(item), 20000);
       });
   }
 
@@ -80,15 +84,20 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
             <TransitionGroup>
               {this.state.items.map((i) => (
                 <CSSTransition key={i.id} nodeRef={i.ref} classNames={`scroll-up`} timeout={{ enter: 2000, exit: 0 }}>
-                  <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-end absolute text-xiv-offensive gap-1">
-                    <span className="text-lg">
-                      {i.damage}{' '}
-                      <FontAwesomeIcon
-                        color={i.type === DamageType.Magical ? '#E399FB' : '#CBFDFB'}
-                        icon={i.type === DamageType.Magical ? faMagicWandSparkles : faHammer}
-                      />{' '}
-                      {i.abilityName}
-                    </span>
+                  <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg">
+                    {i.damage}
+                    <FontAwesomeIcon
+                      color={i.type === DamageType.Magical ? '#E399FB' : '#CBFDFB'}
+                      icon={i.type === DamageType.Magical ? faMagicWandSparkles : faHammer}
+                    />
+                    {i.abilityName}
+                    {i.icons.length > 0 && (
+                      <div className="grid grid-flow-col auto-cols-max">
+                        {i.icons.map((i, id) => (
+                          <img className="w-7" key={id} src={'https://xivapi.com' + i} alt="" />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CSSTransition>
               ))}

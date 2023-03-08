@@ -142,19 +142,19 @@ const endIfritsFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const resetTopazEpic: Epic<any, any, RootState> = (action$, state$) =>
+const resetTopazEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.TitanActive),
     map(() => setTopaz(0))
   );
 
-const resetRubyEpic: Epic<any, any, RootState> = (action$, state$) =>
+const resetRubyEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.IfritActive),
     map(() => setRuby(0))
   );
 
-const resetEmeraldEpic: Epic<any, any, RootState> = (action$, state$) =>
+const resetEmeraldEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.GarudaActive),
     map(() => setEmerald(0))
@@ -227,8 +227,14 @@ const dreadwyrnTrance: CombatAction = createCombatAction({
 
 const summonBahamut: CombatAction = createCombatAction({
   id: ActionId.SummonBahamut,
-  execute: (dispatch) => {
-    dispatch(buff(StatusId.BahamutActive, 15, { isVisible: false }));
+  execute: (dispatch, _, context) => {
+    dispatch(
+      buff(StatusId.BahamutActive, 15, {
+        isVisible: false,
+        periodicEffect: () => dispatch(dmgEvent(ActionId.Wyrmwave, context, { potency: 150 })),
+        periodicEffectDelay: 5000,
+      })
+    );
     dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
     dispatch(setTopaz(9));
@@ -242,8 +248,14 @@ const summonBahamut: CombatAction = createCombatAction({
 
 const summonPhoenix: CombatAction = createCombatAction({
   id: ActionId.SummonPhoenix,
-  execute: (dispatch) => {
-    dispatch(buff(StatusId.PhoenixActive, 15, { isVisible: false }));
+  execute: (dispatch, _, context) => {
+    dispatch(
+      buff(StatusId.PhoenixActive, 15, {
+        isVisible: false,
+        periodicEffect: () => dispatch(dmgEvent(ActionId.ScarletFlame, context, { potency: 150 })),
+        periodicEffectDelay: 5000,
+      })
+    );
     dispatch(buff(StatusId.EverlastingFlight, 21));
     dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
@@ -419,7 +431,9 @@ const slipstream: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 430 }));
     dispatch(dmgEvent(0, context, { potency: 30 }));
-    dispatch(buff(StatusId.SlipstreamActive, 15, { isVisible: false, periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 30 })) }));
+    dispatch(
+      buff(StatusId.SlipstreamActive, 15, { isVisible: false, periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 30 })) })
+    );
 
     dispatch(removeBuff(StatusId.GarudasFavor));
   },

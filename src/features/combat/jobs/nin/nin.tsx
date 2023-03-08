@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, first, map, of, switchMap, takeWhile, withLatestFrom } from 'rxjs';
+import { delay, filter, first, map, of, switchMap, takeWhile, withLatestFrom } from 'rxjs';
 import { AppThunk, RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -7,6 +7,7 @@ import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
 import {
   addBuff,
+  addEvent,
   addNinki,
   buff,
   buffStacks,
@@ -14,6 +15,8 @@ import {
   DamageType,
   debuff,
   dmgEvent,
+  event,
+  EventStatus,
   executeAction,
   extendableBuff,
   gcd,
@@ -30,6 +33,7 @@ import {
   setCombat,
   setMudra,
 } from '../../combatSlice';
+import { collectStatuses } from '../../event-status-collector';
 
 function ninki(state: RootState) {
   return resource(state, 'ninki');
@@ -87,6 +91,45 @@ const consumeBunshinEpic: Epic<any, any, RootState> = (action$, state$) =>
       )
     ),
     switchMap(() => of(removeBuffStack(StatusId.Bunshin), addNinki(5)))
+  );
+
+const bunshinDamageEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Bunshin),
+    switchMap(() =>
+      action$.pipe(
+        filter(
+          (aa) =>
+            aa.type === addEvent.type &&
+            getActionById(aa.payload.actionId)?.type === 'Weaponskill' &&
+            aa.payload.actionId !== ActionId.PhantomKamaitachi &&
+            !aa.payload.statuses.some((s: EventStatus) => s.id === StatusId.Bunshin)
+        ),
+        withLatestFrom(state$),
+        takeWhile(([, state]) => hasBuff(state, StatusId.Bunshin))
+      )
+    ),
+    delay(500),
+    map(([a, state]) => addEvent({ ...a.payload, statuses: [ ...collectStatuses(a.payload.actionId, state), { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }] }))
+  );
+
+const hollowNozuchiEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Doton),
+    switchMap(() =>
+      action$.pipe(
+        filter(
+          (aa) =>
+            aa.type === addEvent.type &&
+            ([ActionId.Katon, ActionId.GokaMekkyaku, ActionId.PhantomKamaitachi].includes(aa.payload.actionId) ||
+              (aa.payload.actionId === ActionId.HakkeMujinsatsu && aa.payload.comboed))
+        ),
+        withLatestFrom(state$),
+        takeWhile(([, state]) => hasBuff(state, StatusId.Doton))
+      )
+    ),
+    delay(500),
+    map(() => event(ActionId.HollowNozuchi, { potency: 50, type: DamageType.Magical }))
   );
 
 const removeHideEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -557,6 +600,7 @@ const huton: CombatAction = createCombatAction({
 const doton: CombatAction = createCombatAction({
   id: ActionId.Doton,
   execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(0, context, { potency: 80, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
     dispatch(buff(StatusId.Doton, 18, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 80, type: DamageType.Magical })) }));
 
@@ -832,5 +876,7 @@ export const ninEpics = combineEpics(
   dotonHeavyEpic,
   removeDotonHeavyEpic,
   mudraFailByOtherActionEpic,
-  endTenChiJinEpic
+  endTenChiJinEpic,
+  bunshinDamageEpic,
+  hollowNozuchiEpic
 );

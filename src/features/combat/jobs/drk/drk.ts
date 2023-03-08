@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { of } from 'rxjs';
-import { delay, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { concatMap, delay, filter, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -59,6 +59,33 @@ const popTBNEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(([, state]) => state),
     filter((state) => inCombat(state)),
     switchMap(() => of(removeBuff(StatusId.BlackestNight), setDarkArts(1)))
+  );
+
+const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.SimulacrumActive),
+    switchMap(() => {
+      return of([
+        { actionId: ActionId.AbyssalDrain, type: DamageType.Magical, delay: 4500 },
+        { actionId: ActionId.Plunge, type: DamageType.Physical, delay: 2500 },
+        { actionId: ActionId.Quietus, type: DamageType.Physical, delay: 2500 },
+        { actionId: ActionId.FloodofShadow, type: DamageType.Magical, delay: 2500 },
+        { actionId: ActionId.EdgeofShadow, type: DamageType.Magical, delay: 2500 },
+        { actionId: ActionId.Bloodspiller, type: DamageType.Physical, delay: 2500 },
+        { actionId: ActionId.CarveandSpit, type: DamageType.Physical, delay: 2500 },
+      ]).pipe(
+        mergeMap((a) => from(a)),
+        concatMap((a) => of(a).pipe(delay(a.delay))),
+        withLatestFrom(state$),
+        map(([a, state]) =>
+          event(a.actionId, {
+            potency: 350,
+            type: a.type,
+            statuses: [{ id: StatusId.SimulacrumActive, stacks: null }],
+          })
+        )
+      );
+    })
   );
 
 const hardSlash: CombatAction = createCombatAction({
@@ -218,7 +245,9 @@ const saltedEarth: CombatAction = createCombatAction({
   id: ActionId.SaltedEarth,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SaltedEarth, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 50, type: DamageType.Magical })) }));
+    dispatch(
+      buff(StatusId.SaltedEarth, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 50, type: DamageType.Magical })) })
+    );
   },
   redirect: (state) => (hasBuff(state, StatusId.SaltedEarth) ? ActionId.SaltandDarkness : ActionId.SaltedEarth),
 });
@@ -342,7 +371,7 @@ const floodOfShadow: CombatAction = createCombatAction({
   id: ActionId.FloodofShadow,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FloodofDarkness, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.FloodofShadow, context, { potency: 160, type: DamageType.Magical }));
     dispatch(extendableBuff(StatusId.DarksideActive, 30, 60, { isVisible: false }));
     dispatch(setDarkArts(0));
   },
@@ -382,4 +411,4 @@ export const drk: CombatAction[] = [
   floodOfShadow,
 ];
 
-export const drkEpics = combineEpics(consumeBloodWeaponEpic, consumeDeliriumEpic, popTBNEpic);
+export const drkEpics = combineEpics(consumeBloodWeaponEpic, consumeDeliriumEpic, popTBNEpic, livingShadowEpic);
