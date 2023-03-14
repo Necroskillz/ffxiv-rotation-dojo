@@ -4,6 +4,7 @@ import { RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -60,6 +61,105 @@ function oath(state: RootState) {
   return resource(state, 'oath');
 }
 
+const divineMightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DivineMight,
+  duration: 30,
+  isHarmful: false,
+});
+
+const swordOathStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SwordOath,
+  duration: 30,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const requiescatStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Requiescat,
+  duration: 30,
+  isHarmful: false,
+  initialStacks: 4,
+});
+
+const confiteorReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ConfiteorReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const circleOfScornStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CircleofScorn,
+  duration: 15,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 30 })),
+});
+
+const ironWillStatus: CombatStatus = createCombatStatus({
+  id: StatusId.IronWill,
+  duration: null,
+  isHarmful: false,
+});
+
+const holySheltronStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HolySheltron,
+  duration: 8,
+  isHarmful: false,
+});
+
+const knightsResolveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KnightsResolve,
+  duration: 4,
+  isHarmful: false,
+});
+
+const knightsBenedictionStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KnightsBenediction,
+  duration: 12,
+  isHarmful: false,
+});
+
+const sentinelStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Sentinel,
+  duration: 15,
+  isHarmful: false,
+});
+
+const coverStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Cover,
+  duration: 15,
+  isHarmful: false,
+});
+
+const hallowedGroundStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HallowedGround,
+  duration: 10,
+  isHarmful: false,
+});
+
+const bulwarkStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Bulwark,
+  duration: 10,
+  isHarmful: false,
+});
+
+const divineVeilStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DivineVeil,
+  duration: 30,
+  isHarmful: false,
+});
+
+const passageOfArmsStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PassageofArms,
+  duration: 18,
+  isHarmful: false,
+});
+
+const fightOrFlightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FightorFlight,
+  duration: 20,
+  isHarmful: false,
+});
+
 const fastBlade: CombatAction = createCombatAction({
   id: ActionId.FastBlade,
   execute: (dispatch, _, context) => {
@@ -95,8 +195,8 @@ const royalAuthority: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 120, comboPotency: 380 }));
 
     if (context.comboed) {
-      dispatch(buff(StatusId.SwordOath, 30, { stacks: 3 }));
-      dispatch(buff(StatusId.DivineMight, 30));
+      dispatch(buff(StatusId.SwordOath));
+      dispatch(buff(StatusId.DivineMight));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.RoyalAuthority),
@@ -131,8 +231,8 @@ const requiescat: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Requiescat, context, { potency: 300, type: DamageType.Magical }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Requiescat, 30, { stacks: 4 }));
-    dispatch(buff(StatusId.ConfiteorReady, 30));
+    dispatch(buff(StatusId.Requiescat));
+    dispatch(buff(StatusId.ConfiteorReady));
   },
 });
 
@@ -245,7 +345,7 @@ const fightOrFlight: CombatAction = createCombatAction({
   id: ActionId.FightorFlight,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.FightorFlight, 20));
+    dispatch(buff(StatusId.FightorFlight));
   },
   entersCombat: false,
 });
@@ -290,7 +390,7 @@ const circleOfScorn: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.CircleofScorn, context, { potency: 100 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.CircleofScorn, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 30 })) }));
+    dispatch(debuff(StatusId.CircleofScorn));
   },
 });
 
@@ -298,7 +398,7 @@ const ironWill: CombatAction = createCombatAction({
   id: ActionId.IronWill,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.IronWill, null));
+    dispatch(buff(StatusId.IronWill));
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.IronWill) ? ActionId.ReleaseIronWill : ActionId.IronWill),
@@ -325,7 +425,7 @@ const shieldBash: CombatAction = createCombatAction({
   id: ActionId.ShieldBash,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.ShieldBash, context, { potency: 100 }));
-    dispatch(debuff(StatusId.Stun, 6));
+    dispatch(debuff(StatusId.Stun, { duration: 6 }));
   },
   reducedBySkillSpeed: true,
 });
@@ -345,7 +445,7 @@ const prominence: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Prominence, context, { potency: 100, comboPotency: 170, comboMana: 1000 }));
 
     if (context.comboed) {
-      dispatch(buff(StatusId.DivineMight, 30));
+      dispatch(buff(StatusId.DivineMight));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Prominence),
@@ -385,9 +485,9 @@ const holySheltron: CombatAction = createCombatAction({
   id: ActionId.HolySheltron,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.HolySheltron, 8));
-    dispatch(buff(StatusId.KnightsResolve, 4));
-    dispatch(buff(StatusId.KnightsBenediction, 12));
+    dispatch(buff(StatusId.HolySheltron));
+    dispatch(buff(StatusId.KnightsResolve));
+    dispatch(buff(StatusId.KnightsBenediction));
   },
   isGlowing: (state) => oath(state) >= 50,
   entersCombat: false,
@@ -406,7 +506,7 @@ const sentinel: CombatAction = createCombatAction({
   id: ActionId.Sentinel,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Sentinel, 15));
+    dispatch(buff(StatusId.Sentinel));
   },
   entersCombat: false,
 });
@@ -415,7 +515,7 @@ const cover: CombatAction = createCombatAction({
   id: ActionId.Cover,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Cover, 15));
+    dispatch(buff(StatusId.Cover));
   },
   isGlowing: (state) => oath(state) >= 50,
   entersCombat: false,
@@ -425,7 +525,7 @@ const hallowedGround: CombatAction = createCombatAction({
   id: ActionId.HallowedGround,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.HallowedGround, 10));
+    dispatch(buff(StatusId.HallowedGround));
   },
   entersCombat: false,
 });
@@ -434,7 +534,7 @@ const bulwark: CombatAction = createCombatAction({
   id: ActionId.Bulwark,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Bulwark, 10));
+    dispatch(buff(StatusId.Bulwark));
   },
   entersCombat: false,
 });
@@ -443,7 +543,8 @@ const divineVeil: CombatAction = createCombatAction({
   id: ActionId.DivineVeil,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.DivineVeil, 30));
+    dispatch(event(ActionId.DivineVeil, { healthPotency: 400 }));
+    dispatch(buff(StatusId.DivineVeil));
   },
   entersCombat: false,
 });
@@ -462,10 +563,29 @@ const passageOfArms: CombatAction = createCombatAction({
   id: ActionId.PassageofArms,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.PassageofArms, 18));
+    dispatch(buff(StatusId.PassageofArms));
   },
   entersCombat: false,
 });
+
+export const pldStatuses: CombatStatus[] = [
+  divineMightStatus,
+  requiescatStatus,
+  holySheltronStatus,
+  knightsResolveStatus,
+  knightsBenedictionStatus,
+  sentinelStatus,
+  coverStatus,
+  hallowedGroundStatus,
+  bulwarkStatus,
+  divineVeilStatus,
+  passageOfArmsStatus,
+  ironWillStatus,
+  fightOrFlightStatus,
+  swordOathStatus,
+  confiteorReadyStatus,
+  circleOfScornStatus,
+];
 
 export const pld: CombatAction[] = [
   fastBlade,

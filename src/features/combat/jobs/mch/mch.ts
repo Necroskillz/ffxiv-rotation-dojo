@@ -6,6 +6,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -136,6 +137,71 @@ const queenOverdriveEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
+const reassembledStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Reassembled,
+  duration: 5,
+  isHarmful: false,
+});
+
+const wildfireBuffStatus: CombatStatus = createCombatStatus({
+  id: StatusId.WildfireBuff,
+  duration: 10,
+  isHarmful: false,
+});
+
+const wildfireStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Wildfire,
+  duration: 10,
+  isHarmful: true,
+  onExpire: (dispatch, getState) => {
+    dispatch(event(ActionId.Wildfire, { potency: wildfireStacks(getState()) * 240 }));
+    dispatch(setWildfire(0));
+  },
+});
+
+const overheatedStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Overheated,
+  duration: 10,
+  isHarmful: false,
+  initialStacks: 5,
+});
+
+const automatonQueenActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.AutomatonQueenActive,
+  duration: 20,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const tacticianStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Tactician,
+  duration: 15,
+  isHarmful: false,
+});
+
+const dismantledStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Dismantled,
+  duration: 10,
+  isHarmful: true,
+});
+
+const bioblasterStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Bioblaster,
+  duration: 15,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 50 })),
+});
+
+const flamethrowerStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Flamethrower,
+  duration: 10,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { potency: 100 })),
+  ticksImmediately: true,
+  initialDelay: 900,
+  interval: 1000,
+});
+
 const splitShot: CombatAction = createCombatAction({
   id: ActionId.SplitShot,
   execute: () => {},
@@ -244,7 +310,7 @@ const reassemble: CombatAction = createCombatAction({
   id: ActionId.Reassemble,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Reassembled, 5));
+    dispatch(buff(StatusId.Reassembled));
   },
   maxCharges: () => 2,
   entersCombat: false,
@@ -287,17 +353,10 @@ const barrelStabilizer: CombatAction = createCombatAction({
 
 const wildfire: CombatAction = createCombatAction({
   id: ActionId.Wildfire,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.WildfireBuff, 10));
-    dispatch(
-      debuff(StatusId.Wildfire, 10, {
-        expireCallback: () => {
-          dispatch(dmgEvent(ActionId.Wildfire, context, { potency: wildfireStacks(getState()) * 240 }));
-          dispatch(setWildfire(0));
-        },
-      })
-    );
+    dispatch(buff(StatusId.WildfireBuff));
+    dispatch(debuff(StatusId.Wildfire));
   },
   redirect: (state) => (hasDebuff(state, StatusId.Wildfire) ? ActionId.Detonator : ActionId.Wildfire),
 });
@@ -316,7 +375,7 @@ const hypercharge: CombatAction = createCombatAction({
   id: ActionId.Hypercharge,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Overheated, 10, { stacks: 5 }));
+    dispatch(buff(StatusId.Overheated));
   },
   isUsable: (state) => heat(state) >= 50,
   isGlowing: (state) => heat(state) >= 50,
@@ -344,7 +403,7 @@ const automatonQueen: CombatAction = createCombatAction({
   id: ActionId.AutomatonQueen,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.AutomatonQueenActive, 20, { isVisible: false, stacks: context.cost - 50 }));
+    dispatch(buff(StatusId.AutomatonQueenActive, { stacks: context.cost - 50 }));
   },
   cost: (state) => battery(state),
   isUsable: (state) => battery(state) >= 50 && !hasBuff(state, StatusId.AutomatonQueenActive),
@@ -368,7 +427,7 @@ const tactician: CombatAction = createCombatAction({
   id: ActionId.Tactician,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Tactician, 15));
+    dispatch(buff(StatusId.Tactician));
   },
   entersCombat: false,
 });
@@ -377,7 +436,7 @@ const dismantle: CombatAction = createCombatAction({
   id: ActionId.Dismantle,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.Dismantled, 10));
+    dispatch(debuff(StatusId.Dismantled));
   },
 });
 
@@ -403,7 +462,7 @@ const bioblaster: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Bioblaster, context, { potency: adjustedPotency(getState(), 50) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(debuff(StatusId.Bioblaster, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 50 })) }));
+    dispatch(debuff(StatusId.Bioblaster));
   },
   reducedBySkillSpeed: true,
 });
@@ -411,14 +470,7 @@ const bioblaster: CombatAction = createCombatAction({
 const flamethrower: CombatAction = createCombatAction({
   id: ActionId.Flamethrower,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(0, context, { potency: 100 }));
-    dispatch(
-      buff(StatusId.Flamethrower, 10, {
-        periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 100 })),
-        periodicEffectDelay: 900,
-        periodicEffectInterval: 1000,
-      })
-    );
+    dispatch(buff(StatusId.Flamethrower));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   isGcdAction: true,
@@ -457,6 +509,18 @@ const crownedCollider: CombatAction = createCombatAction({
   id: ActionId.CrownedCollider,
   execute: () => {},
 });
+
+export const mchStatuses: CombatStatus[] = [
+  reassembledStatus,
+  overheatedStatus,
+  automatonQueenActiveStatus,
+  tacticianStatus,
+  dismantledStatus,
+  bioblasterStatus,
+  flamethrowerStatus,
+  wildfireBuffStatus,
+  wildfireStatus,
+];
 
 export const mch: CombatAction[] = [
   splitShot,

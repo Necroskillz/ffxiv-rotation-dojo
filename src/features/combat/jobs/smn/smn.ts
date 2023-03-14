@@ -4,6 +4,7 @@ import { AppThunk, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   buff,
@@ -28,6 +29,8 @@ import {
   event,
   removeBuffAction,
   dmgEvent,
+  DamageType,
+  debuff,
 } from '../../combatSlice';
 
 function topaz(state: RootState) {
@@ -173,6 +176,109 @@ const endGarudasFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(() => removeBuff(StatusId.GarudasFavor))
   );
 
+const radiantAegisStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RadiantAegis,
+  duration: 30,
+  isHarmful: false,
+});
+
+const bahamutActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BahamutActive,
+  duration: 15,
+  isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => dispatch(event(ActionId.Wyrmwave, { potency: 150, type: DamageType.Magical })),
+  initialDelay: 5000,
+});
+
+const phoenixActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PhoenixActive,
+  duration: 15,
+  isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => dispatch(event(ActionId.ScarletFlame, { potency: 150, type: DamageType.Magical })),
+  initialDelay: 5000,
+});
+
+const everlastingFlightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EverlastingFlight,
+  duration: 21,
+  isHarmful: false,
+});
+
+const titanActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TitanActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const titansFavorStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TitansFavor,
+  duration: null,
+  isHarmful: false,
+});
+
+const ifritActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.IfritActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const ifritsFavorStatus: CombatStatus = createCombatStatus({
+  id: StatusId.IfritsFavor,
+  duration: null,
+  isHarmful: false,
+});
+
+const garudaActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.GarudaActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const garudasFavorStatus: CombatStatus = createCombatStatus({
+  id: StatusId.GarudasFavor,
+  duration: null,
+  isHarmful: false,
+});
+
+const slipstreamActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SlipstreamActive,
+  duration: 15,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 30 })),
+  ticksImmediately: true,
+});
+
+const rekindleStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Rekindle,
+  duration: 30,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 200 })),
+});
+
+const aetherflowStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Aetherflow,
+  duration: null,
+  isHarmful: false,
+  initialStacks: 2,
+});
+
+const furtherRuinStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FurtherRuin,
+  duration: 60,
+  isHarmful: false,
+});
+
+const searingLightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SearingLight,
+  duration: 30,
+  isHarmful: false,
+});
+
 function ruinRedirect(state: RootState) {
   return hasBuff(state, StatusId.BahamutActive)
     ? ActionId.AstralImpulse
@@ -201,7 +307,7 @@ const summonCarbuncle: CombatAction = createCombatAction({
 const radiantAegis: CombatAction = createCombatAction({
   id: ActionId.RadiantAegis,
   execute: (dispatch) => {
-    dispatch(buff(StatusId.RadiantAegis, 30));
+    dispatch(buff(StatusId.RadiantAegis));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -227,14 +333,8 @@ const dreadwyrnTrance: CombatAction = createCombatAction({
 
 const summonBahamut: CombatAction = createCombatAction({
   id: ActionId.SummonBahamut,
-  execute: (dispatch, _, context) => {
-    dispatch(
-      buff(StatusId.BahamutActive, 15, {
-        isVisible: false,
-        periodicEffect: () => dispatch(dmgEvent(ActionId.Wyrmwave, context, { potency: 150 })),
-        periodicEffectDelay: 5000,
-      })
-    );
+  execute: (dispatch) => {
+    dispatch(buff(StatusId.BahamutActive));
     dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
     dispatch(setTopaz(9));
@@ -248,15 +348,9 @@ const summonBahamut: CombatAction = createCombatAction({
 
 const summonPhoenix: CombatAction = createCombatAction({
   id: ActionId.SummonPhoenix,
-  execute: (dispatch, _, context) => {
-    dispatch(
-      buff(StatusId.PhoenixActive, 15, {
-        isVisible: false,
-        periodicEffect: () => dispatch(dmgEvent(ActionId.ScarletFlame, context, { potency: 150 })),
-        periodicEffectDelay: 5000,
-      })
-    );
-    dispatch(buff(StatusId.EverlastingFlight, 21));
+  execute: (dispatch) => {
+    dispatch(buff(StatusId.PhoenixActive));
+    dispatch(buff(StatusId.EverlastingFlight));
     dispatch(gcd({ reducedBySpellSpeed: true }));
     dispatch(petAfk());
     dispatch(setTopaz(9));
@@ -324,7 +418,7 @@ const summonTitan2: CombatAction = createCombatAction({
   id: ActionId.SummonTitanII,
   execute: (dispatch, _, context) => {
     setTimeout(() => dispatch(dmgEvent(ActionId.EarthenFury, context, { potency: 750 })), 4000);
-    dispatch(buff(StatusId.TitanActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.TitanActive));
     dispatch(setTopaz(4));
     dispatch(petAfk());
   },
@@ -353,9 +447,9 @@ const summonIfrit2: CombatAction = createCombatAction({
   id: ActionId.SummonIfritII,
   execute: (dispatch, _, context) => {
     setTimeout(() => dispatch(dmgEvent(ActionId.Inferno, context, { potency: 750 })), 4000);
-    dispatch(buff(StatusId.IfritActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.IfritActive));
     dispatch(setRuby(2));
-    dispatch(buff(StatusId.IfritsFavor, null));
+    dispatch(buff(StatusId.IfritsFavor));
     dispatch(petAfk());
   },
   isUsable: (state) =>
@@ -383,9 +477,9 @@ const summonGaruda2: CombatAction = createCombatAction({
   id: ActionId.SummonGarudaII,
   execute: (dispatch, _, context) => {
     setTimeout(() => dispatch(dmgEvent(ActionId.AerialBlast, context, { potency: 750 })), 4000);
-    dispatch(buff(StatusId.GarudaActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.GarudaActive));
     dispatch(setEmerald(4));
-    dispatch(buff(StatusId.GarudasFavor, null));
+    dispatch(buff(StatusId.GarudasFavor));
     dispatch(petAfk());
   },
   isUsable: (state) =>
@@ -400,7 +494,7 @@ const topazRite: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.TopazRite, context, { potency: 330 }));
 
-    dispatch(buff(StatusId.TitansFavor, null));
+    dispatch(buff(StatusId.TitansFavor));
     dispatch(removeTitan(1));
   },
   reducedBySpellSpeed: true,
@@ -431,9 +525,7 @@ const slipstream: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 430 }));
     dispatch(dmgEvent(0, context, { potency: 30 }));
-    dispatch(
-      buff(StatusId.SlipstreamActive, 15, { isVisible: false, periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 30 })) })
-    );
+    dispatch(debuff(StatusId.SlipstreamActive));
 
     dispatch(removeBuff(StatusId.GarudasFavor));
   },
@@ -518,7 +610,7 @@ const deathflare: CombatAction = createCombatAction({
 const rekindle: CombatAction = createCombatAction({
   id: ActionId.Rekindle,
   execute: (dispatch) => {
-    dispatch(buff(StatusId.Rekindle, 30, { periodicEffect: () => dispatch(event(0, { healthPotency: 200 })) }));
+    dispatch(buff(StatusId.Rekindle));
   },
   isGlowing: () => true,
   entersCombat: false,
@@ -544,8 +636,8 @@ const energyDrain: CombatAction = createCombatAction({
   id: ActionId.EnergyDrain,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnergyDrain, context, { potency: 200 }));
-    dispatch(buff(StatusId.Aetherflow, null, { stacks: 2 }));
-    dispatch(buff(StatusId.FurtherRuin, 60));
+    dispatch(buff(StatusId.Aetherflow));
+    dispatch(buff(StatusId.FurtherRuin));
   },
 });
 
@@ -572,7 +664,7 @@ const fester: CombatAction = createCombatAction({
 const searingLight: CombatAction = createCombatAction({
   id: ActionId.SearingLight,
   execute: (dispatch) => {
-    dispatch(buff(StatusId.SearingLight, 30));
+    dispatch(buff(StatusId.SearingLight));
   },
   entersCombat: false,
 });
@@ -669,7 +761,7 @@ const topazCatastrophe: CombatAction = createCombatAction({
   id: ActionId.TopazCatastrophe,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.TopazCatastrophe, context, { potency: 140 }));
-    dispatch(buff(StatusId.TitansFavor, null));
+    dispatch(buff(StatusId.TitansFavor));
     dispatch(removeTitan(1));
   },
   reducedBySpellSpeed: true,
@@ -697,8 +789,8 @@ const energySiphon: CombatAction = createCombatAction({
   id: ActionId.EnergySiphon,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnergySiphon, context, { potency: 100 }));
-    dispatch(buff(StatusId.Aetherflow, null, { stacks: 2 }));
-    dispatch(buff(StatusId.FurtherRuin, 60));
+    dispatch(buff(StatusId.Aetherflow));
+    dispatch(buff(StatusId.FurtherRuin));
   },
 });
 
@@ -710,6 +802,24 @@ const painflare: CombatAction = createCombatAction({
   },
   isUsable: (state) => hasBuff(state, StatusId.Aetherflow),
 });
+
+export const smnStatuses: CombatStatus[] = [
+  radiantAegisStatus,
+  bahamutActiveStatus,
+  phoenixActiveStatus,
+  titanActiveStatus,
+  titansFavorStatus,
+  ifritActiveStatus,
+  ifritsFavorStatus,
+  garudaActiveStatus,
+  garudasFavorStatus,
+  aetherflowStatus,
+  furtherRuinStatus,
+  everlastingFlightStatus,
+  slipstreamActiveStatus,
+  rekindleStatus,
+  searingLightStatus,
+];
 
 export const smn: CombatAction[] = [
   summonCarbuncle,

@@ -4,6 +4,7 @@ import { AppThunk, RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   hasBuff,
@@ -66,40 +67,23 @@ const setFireIce =
       dispatch(setParadox(1));
     }
 
-    function drop() {
-      dispatch(removeBuff(StatusId.EnochianActive));
-      dispatch(removeUmbralHeart(umbralHeart(getState())));
-    }
-
     if (fire === 0) {
       dispatch(removeBuff(StatusId.AstralFireActive));
       dispatch(removeBuff(StatusId.EnhancedFlare));
     } else {
-      dispatch(
-        buff(StatusId.AstralFireActive, 15, {
-          stacks: fire,
-          isVisible: false,
-          expireCallback: () => drop(),
-        })
-      );
+      dispatch(buff(StatusId.AstralFireActive, { stacks: fire }));
     }
 
     if (ice === 0) {
       dispatch(removeBuff(StatusId.UmbralIceActive));
     } else {
-      dispatch(
-        buff(StatusId.UmbralIceActive, 15, {
-          stacks: ice,
-          isVisible: false,
-          expireCallback: () => drop(),
-        })
-      );
+      dispatch(buff(StatusId.UmbralIceActive, { stacks: ice }));
     }
 
     if (fire === 0 && ice === 0) {
       dispatch(removeBuff(StatusId.EnochianActive));
     } else if (!hasBuff(getState(), StatusId.EnochianActive)) {
-      dispatch(buff(StatusId.EnochianActive, null, { isVisible: false }));
+      dispatch(buff(StatusId.EnochianActive));
     }
   };
 
@@ -134,6 +118,115 @@ function cost(state: RootState, baseCost: number, aspect: 'fire' | 'ice') {
   }
 }
 
+const enochianActive: CombatStatus = createCombatStatus({
+  id: StatusId.EnochianActive,
+  duration: null,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const astralFireActive: CombatStatus = createCombatStatus({
+  id: StatusId.AstralFireActive,
+  duration: 15,
+  isHarmful: false,
+  isVisible: false,
+  onExpire: (dispatch, getState) => {
+    dispatch(removeBuff(StatusId.EnochianActive));
+    dispatch(removeUmbralHeart(umbralHeart(getState())));
+  },
+});
+
+const umbralIceActive: CombatStatus = createCombatStatus({
+  id: StatusId.UmbralIceActive,
+  duration: 15,
+  isHarmful: false,
+  isVisible: false,
+  onExpire: (dispatch, getState) => {
+    dispatch(removeBuff(StatusId.EnochianActive));
+    dispatch(removeUmbralHeart(umbralHeart(getState())));
+  },
+});
+
+const firestarterStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Firestarter,
+  duration: 30,
+  isHarmful: false,
+});
+
+const thundercloudStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Thundercloud,
+  duration: 40,
+  isHarmful: false,
+});
+
+const thunder3Status: CombatStatus = createCombatStatus({
+  id: StatusId.ThunderIII,
+  duration: 30,
+  isHarmful: true,
+  tick: (dispatch) => {
+    dispatch(event(0, { potency: 35 }));
+
+    if (rng(10)) {
+      dispatch(buff(StatusId.Thundercloud));
+    }
+  },
+});
+
+const manawardStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Manaward,
+  duration: 20,
+  isHarmful: false,
+});
+
+const thunder4Status: CombatStatus = createCombatStatus({
+  id: StatusId.ThunderIV,
+  duration: 30,
+  isHarmful: true,
+  tick: (dispatch) => {
+    dispatch(event(0, { potency: 20 }));
+    for (let i = 0; i < 5 /* targets */; i++) {
+      if (rng(3)) {
+        dispatch(buff(StatusId.Thundercloud));
+        break;
+      }
+    }
+  },
+});
+
+const sharpcastStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Sharpcast,
+  duration: 30,
+  isHarmful: false,
+});
+
+const leyLinesStatus: CombatStatus = createCombatStatus({
+  id: StatusId.LeyLines,
+  duration: 30,
+  isHarmful: false,
+  onExpire: (dispatch) => {
+    dispatch(removeBuff(StatusId.CircleofPower));
+  },
+});
+
+const circleOfPowerStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CircleofPower,
+  duration: null,
+  isHarmful: false,
+});
+
+const triplecastStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Triplecast,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const enhancedFlareStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedFlare,
+  duration: null,
+  isHarmful: false,
+});
+
 const fire: CombatAction = createCombatAction({
   id: ActionId.Fire,
   execute: (dispatch, getState, context) => {
@@ -147,7 +240,7 @@ const fire: CombatAction = createCombatAction({
 
     if (rng(40) || hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));
-      dispatch(buff(StatusId.Firestarter, 30));
+      dispatch(buff(StatusId.Firestarter));
     }
 
     if (context.cost && umbralHeart(getState())) {
@@ -243,7 +336,7 @@ const paradox1: CombatAction = createCombatAction({
       dispatch(setFireIce(fire + 1, 0));
       if (rng(40) || hasBuff(getState(), StatusId.Sharpcast)) {
         dispatch(removeBuff(StatusId.Sharpcast));
-        dispatch(buff(StatusId.Firestarter, 30));
+        dispatch(buff(StatusId.Firestarter));
       }
     } else if (ice) {
       dispatch(setFireIce(0, ice + 1));
@@ -276,22 +369,13 @@ const thunder3: CombatAction = createCombatAction({
   id: ActionId.ThunderIII,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.ThunderIII, context, { potency: 50 }));
-    dispatch(
-      debuff(StatusId.ThunderIII, 30, {
-        periodicEffect: () => {
-          dispatch(dmgEvent(0, context, { potency: 35 }));
-          if (rng(10)) {
-            dispatch(buff(StatusId.Thundercloud, 30));
-          }
-        },
-      })
-    );
+    dispatch(debuff(StatusId.ThunderIII));
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeDebuff(StatusId.ThunderIV));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));
-      dispatch(buff(StatusId.Thundercloud, 40));
+      dispatch(buff(StatusId.Thundercloud));
     }
   },
   isGlowing: (state) => hasBuff(state, StatusId.Thundercloud),
@@ -317,7 +401,7 @@ const sharpcast: CombatAction = createCombatAction({
   id: ActionId.Sharpcast,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Sharpcast, 30));
+    dispatch(buff(StatusId.Sharpcast));
   },
   cooldown: () => 30,
   maxCharges: () => 2,
@@ -331,8 +415,8 @@ const leyLines: CombatAction = createCombatAction({
   id: ActionId.LeyLines,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.LeyLines, 30, { expireCallback: () => dispatch(removeBuff(StatusId.CircleofPower)) }));
-    dispatch(buff(StatusId.CircleofPower, null));
+    dispatch(buff(StatusId.LeyLines));
+    dispatch(buff(StatusId.CircleofPower));
   },
 });
 
@@ -340,7 +424,7 @@ const triplecast: CombatAction = createCombatAction({
   id: ActionId.Triplecast,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Triplecast, 15, { stacks: 3 }));
+    dispatch(buff(StatusId.Triplecast));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -402,7 +486,7 @@ const manaward: CombatAction = createCombatAction({
   id: ActionId.Manaward,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Manaward, 20));
+    dispatch(buff(StatusId.Manaward));
   },
 });
 
@@ -434,7 +518,7 @@ const highFire2: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.HighFireII, context, { potency: 140 }));
 
     dispatch(setFireIce(3, 0));
-    dispatch(buff(StatusId.EnhancedFlare, null));
+    dispatch(buff(StatusId.EnhancedFlare));
 
     if (context.cost && umbralHeart(getState())) {
       dispatch(removeUmbralHeart(1));
@@ -502,25 +586,13 @@ const thunder4: CombatAction = createCombatAction({
   id: ActionId.ThunderIV,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.ThunderIV, context, { potency: 50 }));
-    dispatch(
-      debuff(StatusId.ThunderIV, 30, {
-        periodicEffect: () => {
-          dispatch(dmgEvent(0, context, { potency: 20 }));
-          for (let i = 0; i < 5 /* targets */; i++) {
-            if (rng(3)) {
-              dispatch(buff(StatusId.Thundercloud, 30));
-              break;
-            }
-          }
-        },
-      })
-    );
+    dispatch(debuff(StatusId.ThunderIV));
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeDebuff(StatusId.ThunderIII));
 
     if (hasBuff(getState(), StatusId.Sharpcast)) {
       dispatch(removeBuff(StatusId.Sharpcast));
-      dispatch(buff(StatusId.Thundercloud, 40));
+      dispatch(buff(StatusId.Thundercloud));
     }
   },
   isGlowing: (state) => hasBuff(state, StatusId.Thundercloud),
@@ -537,6 +609,22 @@ const foul: CombatAction = createCombatAction({
   isGlowing: (state) => polyglot(state) > 0,
   reducedBySpellSpeed: true,
 });
+
+export const blmStatuses = [
+  enochianActive,
+  astralFireActive,
+  umbralIceActive,
+  thunder3Status,
+  thunder4Status,
+  thundercloudStatus,
+  firestarterStatus,
+  enhancedFlareStatus,
+  triplecastStatus,
+  manawardStatus,
+  sharpcastStatus,
+  leyLinesStatus,
+  circleOfPowerStatus,
+];
 
 export const blm: CombatAction[] = [
   fire,

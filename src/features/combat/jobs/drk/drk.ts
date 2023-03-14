@@ -6,6 +6,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -88,6 +89,48 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
+const bloodWeaponStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BloodWeapon,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 5,
+});
+
+const deliriumStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Delirium,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const gritStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Grit,
+  duration: null,
+  isHarmful: false,
+});
+
+const darksideActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DarksideActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+  maxDuration: 60,
+});
+
+const simulacrumActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SimulacrumActive,
+  duration: 20,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const saltedEarthStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SaltedEarth,
+  duration: 15,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { potency: 50 })),
+});
+
 const hardSlash: CombatAction = createCombatAction({
   id: ActionId.HardSlash,
   execute: (dispatch, _, context) => {
@@ -95,6 +138,42 @@ const hardSlash: CombatAction = createCombatAction({
     dispatch(combo(ActionId.HardSlash));
   },
   reducedBySkillSpeed: true,
+});
+
+const shadowWallStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShadowWall,
+  duration: 15,
+  isHarmful: false,
+});
+
+const darkMindStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DarkMind,
+  duration: 10,
+  isHarmful: false,
+});
+
+const theBlackestNightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BlackestNight,
+  duration: 7,
+  isHarmful: false,
+});
+
+const oblationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Oblation,
+  duration: 10,
+  isHarmful: false,
+});
+
+const livingDeadStatus: CombatStatus = createCombatStatus({
+  id: StatusId.LivingDead,
+  duration: 10,
+  isHarmful: false,
+});
+
+const darkMissionaryStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DarkMissionary,
+  duration: 15,
+  isHarmful: false,
 });
 
 const syphonStrike: CombatAction = createCombatAction({
@@ -127,7 +206,7 @@ const bloodWeapon: CombatAction = createCombatAction({
   id: ActionId.BloodWeapon,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.BloodWeapon, 15, { stacks: 5 }));
+    dispatch(buff(StatusId.BloodWeapon));
   },
   entersCombat: false,
 });
@@ -147,7 +226,7 @@ const grit: CombatAction = createCombatAction({
   id: ActionId.Grit,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Grit, null));
+    dispatch(buff(StatusId.Grit));
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.Grit) ? ActionId.ReleaseGrit : ActionId.Grit),
@@ -166,7 +245,7 @@ const delirium: CombatAction = createCombatAction({
   id: ActionId.Delirium,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Delirium, 15, { stacks: 3 }));
+    dispatch(buff(StatusId.Delirium));
   },
   entersCombat: false,
 });
@@ -182,7 +261,7 @@ const edgeOfShadow: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.EdgeofShadow, context, { potency: 460, type: DamageType.Magical }));
-    dispatch(extendableBuff(StatusId.DarksideActive, 30, 60, { isVisible: false }));
+    dispatch(extendableBuff(StatusId.DarksideActive));
     dispatch(setDarkArts(0));
   },
   cost: (state) => (darkArts(state) ? 0 : 3000),
@@ -214,7 +293,7 @@ const livingShadow: CombatAction = createCombatAction({
   id: ActionId.LivingShadow,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SimulacrumActive, 20, { isVisible: false }));
+    dispatch(buff(StatusId.SimulacrumActive));
   },
 });
 
@@ -243,11 +322,9 @@ const unmend: CombatAction = createCombatAction({
 
 const saltedEarth: CombatAction = createCombatAction({
   id: ActionId.SaltedEarth,
-  execute: (dispatch, _, context) => {
+  execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(
-      buff(StatusId.SaltedEarth, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 50, type: DamageType.Magical })) })
-    );
+    dispatch(buff(StatusId.SaltedEarth));
   },
   redirect: (state) => (hasBuff(state, StatusId.SaltedEarth) ? ActionId.SaltandDarkness : ActionId.SaltedEarth),
 });
@@ -265,7 +342,7 @@ const shadowWall: CombatAction = createCombatAction({
   id: ActionId.ShadowWall,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ShadowWall, 15));
+    dispatch(buff(StatusId.ShadowWall));
   },
   entersCombat: false,
 });
@@ -274,7 +351,7 @@ const darkMind: CombatAction = createCombatAction({
   id: ActionId.DarkMind,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.DarkMind, 10));
+    dispatch(buff(StatusId.DarkMind));
   },
   entersCombat: false,
 });
@@ -283,7 +360,7 @@ const theBlackestNight: CombatAction = createCombatAction({
   id: ActionId.TheBlackestNight,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.BlackestNight, 7));
+    dispatch(buff(StatusId.BlackestNight));
   },
   entersCombat: false,
 });
@@ -292,7 +369,7 @@ const oblation: CombatAction = createCombatAction({
   id: ActionId.Oblation,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Oblation, 10));
+    dispatch(buff(StatusId.Oblation));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -306,7 +383,7 @@ const darkMissionary: CombatAction = createCombatAction({
   id: ActionId.DarkMissionary,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.DarkMissionary, 15));
+    dispatch(buff(StatusId.DarkMissionary));
   },
   entersCombat: false,
 });
@@ -315,7 +392,7 @@ const livingDead: CombatAction = createCombatAction({
   id: ActionId.LivingDead,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.LivingDead, 10));
+    dispatch(buff(StatusId.LivingDead));
   },
   entersCombat: false,
 });
@@ -372,12 +449,27 @@ const floodOfShadow: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.FloodofShadow, context, { potency: 160, type: DamageType.Magical }));
-    dispatch(extendableBuff(StatusId.DarksideActive, 30, 60, { isVisible: false }));
+    dispatch(extendableBuff(StatusId.DarksideActive));
     dispatch(setDarkArts(0));
   },
   cost: (state) => (darkArts(state) ? 0 : 3000),
   isGlowing: (state) => darkArts(state) > 0,
 });
+
+export const drkStatuses: CombatStatus[] = [
+  bloodWeaponStatus,
+  deliriumStatus,
+  darksideActiveStatus,
+  simulacrumActiveStatus,
+  gritStatus,
+  saltedEarthStatus,
+  shadowWallStatus,
+  darkMindStatus,
+  theBlackestNightStatus,
+  oblationStatus,
+  darkMissionaryStatus,
+  livingDeadStatus,
+];
 
 export const drk: CombatAction[] = [
   hardSlash,

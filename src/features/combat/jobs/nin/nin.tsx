@@ -5,8 +5,10 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
+  addBuffStack,
   addEvent,
   addNinki,
   buff,
@@ -110,7 +112,12 @@ const bunshinDamageEpic: Epic<any, any, RootState> = (action$, state$) =>
       )
     ),
     delay(500),
-    map(([a, state]) => addEvent({ ...a.payload, statuses: [ ...collectStatuses(a.payload.actionId, state), { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }] }))
+    map(([a, state]) =>
+      addEvent({
+        ...a.payload,
+        statuses: [...collectStatuses(a.payload.actionId, state), { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }],
+      })
+    )
   );
 
 const hollowNozuchiEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -167,7 +174,7 @@ const dotonHeavyEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(([, state]) => state),
     takeWhile((state) => hasBuff(state, StatusId.Doton)),
     switchMap(() => action$.pipe(first((aa) => aa.type === setCombat.type && aa.payload))),
-    map(() => debuff(StatusId.DotonHeavy, null))
+    map(() => debuff(StatusId.DotonHeavy))
   );
 
 const removeDotonHeavyEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -191,6 +198,102 @@ const mudraFailByOtherActionEpic: Epic<any, any, RootState> = (action$, state$) 
     ),
     map(() => addMudra(ActionId.RabbitMedium))
   );
+
+const dotonHeavyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DotonHeavy,
+  duration: null,
+  isHarmful: true,
+});
+
+const hutonActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HutonActive,
+  duration: 60,
+  isHarmful: false,
+  isVisible: false,
+  maxDuration: 60,
+});
+
+const vulnerabilityUpStatus: CombatStatus = createCombatStatus({
+  id: StatusId.VulnerabilityUp,
+  duration: 20,
+  isHarmful: true,
+});
+
+const kassatsuStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Kassatsu,
+  duration: 15,
+  isHarmful: false,
+});
+
+const bunshinStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Bunshin,
+  duration: 32,
+  isHarmful: false,
+  initialStacks: 5,
+});
+
+const phantomKamaitachiReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PhantomKamaitachiReady,
+  duration: 45,
+  isHarmful: false,
+});
+
+const mudraStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Mudra,
+  duration: 6,
+  isHarmful: false,
+});
+
+const raijuReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RaijuReady,
+  duration: 30,
+  isHarmful: false,
+  maxStacks: 3,
+});
+
+const dotonStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Doton,
+  duration: 18,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 80 })),
+  ticksImmediately: true,
+});
+
+const suitonStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Suiton,
+  duration: 20,
+  isHarmful: false,
+});
+
+const hiddenStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Hidden,
+  duration: null,
+  isHarmful: false,
+});
+
+const trickAttackStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TrickAttack,
+  duration: 15,
+  isHarmful: true,
+});
+
+const meisuiStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Meisui,
+  duration: 30,
+  isHarmful: false,
+});
+
+const tenChiJinStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TenChiJin,
+  duration: 6,
+  isHarmful: false,
+});
+
+const shadeShiftStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShadeShift,
+  duration: 20,
+  isHarmful: false,
+});
 
 const spinningEdge: CombatAction = createCombatAction({
   id: ActionId.SpinningEdge,
@@ -242,7 +345,7 @@ const armorCrush: CombatAction = createCombatAction({
       dispatch(addNinki(15));
 
       if (hasBuff(getState(), StatusId.HutonActive)) {
-        dispatch(extendableBuff(StatusId.HutonActive, 30, 60));
+        dispatch(extendableBuff(StatusId.HutonActive, 30));
       }
     }
   },
@@ -256,7 +359,7 @@ const mug: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Mug, context, { potency: 150 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.VulnerabilityUp, 20));
+    dispatch(debuff(StatusId.VulnerabilityUp));
     dispatch(addNinki(40));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -266,7 +369,7 @@ const kassatsu: CombatAction = createCombatAction({
   id: ActionId.Kassatsu,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Kassatsu, 15));
+    dispatch(buff(StatusId.Kassatsu));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
@@ -276,8 +379,8 @@ const bunshin: CombatAction = createCombatAction({
   id: ActionId.Bunshin,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Bunshin, 30, { stacks: 5 }));
-    dispatch(buff(StatusId.PhantomKamaitachiReady, 45));
+    dispatch(buff(StatusId.Bunshin));
+    dispatch(buff(StatusId.PhantomKamaitachiReady));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGlowing: (state) => ninki(state) >= 50,
@@ -292,7 +395,7 @@ const phantomKamaitachi: CombatAction = createCombatAction({
     dispatch(removeBuff(StatusId.PhantomKamaitachiReady));
     dispatch(addNinki(10));
     if (hasBuff(getState(), StatusId.HutonActive)) {
-      dispatch(extendableBuff(StatusId.HutonActive, 10, 60));
+      dispatch(extendableBuff(StatusId.HutonActive, 10));
     }
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -305,7 +408,7 @@ const ten: CombatAction = createCombatAction({
     dispatch(addMudra(ActionId.Ten));
 
     if (!hasBuff(getState(), StatusId.Mudra)) {
-      dispatch(buff(StatusId.Mudra, 6));
+      dispatch(buff(StatusId.Mudra));
       dispatch(gcd({ time: 500 }));
     }
   },
@@ -340,7 +443,7 @@ const chi: CombatAction = createCombatAction({
     dispatch(addMudra(ActionId.Chi));
 
     if (!hasBuff(getState(), StatusId.Mudra)) {
-      dispatch(buff(StatusId.Mudra, 6));
+      dispatch(buff(StatusId.Mudra));
       dispatch(gcd({ time: 500 }));
     }
   },
@@ -375,7 +478,7 @@ const jin: CombatAction = createCombatAction({
     dispatch(addMudra(ActionId.Jin));
 
     if (!hasBuff(getState(), StatusId.Mudra)) {
-      dispatch(buff(StatusId.Mudra, 6));
+      dispatch(buff(StatusId.Mudra));
       dispatch(gcd({ time: 500 }));
     }
   },
@@ -528,7 +631,7 @@ const raiton: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Raiton, context, { potency: 650, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.RaijuReady, 30, { stacks: Math.min(buffStacks(getState(), StatusId.RaijuReady) + 1, 3) }));
+    dispatch(addBuffStack(StatusId.RaijuReady));
 
     if (hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(addMudra(ActionId.Chi));
@@ -584,7 +687,7 @@ const huton: CombatAction = createCombatAction({
   id: ActionId.Huton,
   execute: (dispatch, getState) => {
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.HutonActive, 60, { isVisible: false }));
+    dispatch(buff(StatusId.HutonActive));
 
     if (!hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(removeBuff(StatusId.Mudra));
@@ -600,12 +703,11 @@ const huton: CombatAction = createCombatAction({
 const doton: CombatAction = createCombatAction({
   id: ActionId.Doton,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(0, context, { potency: 80, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.Doton, 18, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 80, type: DamageType.Magical })) }));
+    dispatch(buff(StatusId.Doton));
 
     if (inCombat(getState())) {
-      dispatch(debuff(StatusId.DotonHeavy, null));
+      dispatch(debuff(StatusId.DotonHeavy));
     }
 
     if (!hasBuff(getState(), StatusId.TenChiJin)) {
@@ -624,7 +726,7 @@ const suiton: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Suiton, context, { potency: 500, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.Suiton, 20));
+    dispatch(buff(StatusId.Suiton));
 
     if (!hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(removeBuff(StatusId.Mudra));
@@ -664,7 +766,7 @@ const hide: CombatAction = createCombatAction({
   id: ActionId.Hide,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Hidden, null));
+    dispatch(buff(StatusId.Hidden));
     dispatch(removeBuff(StatusId.Doton));
     dispatch(modifyCooldown(9, -40000));
   },
@@ -677,7 +779,7 @@ const trickAttack: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.TrickAttack, context, { potency: 300, rearPotency: 400 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.TrickAttack, 15));
+    dispatch(debuff(StatusId.TrickAttack));
     dispatch(removeBuff(StatusId.Suiton));
   },
   isUsable: (state) => (hasBuff(state, StatusId.Hidden) || hasBuff(state, StatusId.Suiton)) && !hasBuff(state, StatusId.TenChiJin),
@@ -687,7 +789,7 @@ const tenChiJin: CombatAction = createCombatAction({
   id: ActionId.TenChiJin,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.TenChiJin, 6));
+    dispatch(buff(StatusId.TenChiJin));
     dispatch(setMudra(0));
     dispatch(removeBuff(StatusId.Mudra));
   },
@@ -699,7 +801,7 @@ const meisui: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.Suiton));
-    dispatch(buff(StatusId.Meisui, 30));
+    dispatch(buff(StatusId.Meisui));
     dispatch(addNinki(50));
   },
   isUsable: (state) => hasBuff(state, StatusId.Suiton) && !hasBuff(state, StatusId.TenChiJin),
@@ -753,7 +855,7 @@ const shadeShift: CombatAction = createCombatAction({
   id: ActionId.ShadeShift,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ShadeShift, 20));
+    dispatch(buff(StatusId.ShadeShift));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
 });
@@ -791,7 +893,7 @@ const hakkeMujinsatsu: CombatAction = createCombatAction({
     if (context.comboed) {
       dispatch(addNinki(5));
       if (hasBuff(getState(), StatusId.HutonActive)) {
-        dispatch(extendableBuff(StatusId.HutonActive, 10, 60));
+        dispatch(extendableBuff(StatusId.HutonActive, 10));
       }
     }
   },
@@ -805,7 +907,7 @@ const hurajin: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Huraijin, context, { potency: 200 }));
     dispatch(addNinki(5));
-    dispatch(buff(StatusId.HutonActive, 60, { isVisible: false }));
+    dispatch(buff(StatusId.HutonActive));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
@@ -825,6 +927,24 @@ const hollowNozuchi: CombatAction = createCombatAction({
   id: ActionId.HollowNozuchi,
   execute: () => {},
 });
+
+export const ninStatuses: CombatStatus[] = [
+  dotonHeavyStatus,
+  hutonActiveStatus,
+  vulnerabilityUpStatus,
+  kassatsuStatus,
+  tenChiJinStatus,
+  suitonStatus,
+  meisuiStatus,
+  trickAttackStatus,
+  shadeShiftStatus,
+  bunshinStatus,
+  phantomKamaitachiReadyStatus,
+  mudraStatus,
+  raijuReadyStatus,
+  dotonStatus,
+  hiddenStatus,
+];
 
 export const nin: CombatAction[] = [
   spinningEdge,

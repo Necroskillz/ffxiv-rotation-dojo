@@ -6,13 +6,13 @@ import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { selectPartySize, setPartySize } from '../../../player/playerSlice';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   addCooldown,
   addEsprit,
   addFans,
   buff,
-  buffStacks,
   StatusState,
   combo,
   cooldown,
@@ -31,6 +31,7 @@ import {
   event,
   removeBuffAction,
   dmgEvent,
+  addBuffStack,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -166,12 +167,7 @@ const risingRythmEpic: Epic<any, any, RootState> = (action$, state$) =>
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, a.payload.id)),
         takeUntil(action$.pipe(first((aa) => aa.type === addCooldown.type))),
-        switchMap((state) =>
-          of(
-            buff(StatusId.ImprovisationRegen, 15, { periodicEffect: (dispatch) => dispatch(event(0, { healthPotency: 100 })) }),
-            buff(StatusId.RisingRhythm, 30, { stacks: buffStacks(state, StatusId.RisingRhythm) + 1 })
-          )
-        )
+        switchMap(() => of(buff(StatusId.ImprovisationRegen), addBuffStack(StatusId.RisingRhythm)))
       )
     )
   );
@@ -182,34 +178,148 @@ const soloPartySizeEpic: Epic<any, any, RootState> = (action$) =>
     map(() => removeBuff(StatusId.ClosedPosition))
   );
 
-const improvisationStopEpic: Epic<any, any, RootState> = (action$, state$) =>
+const improvisationStopByExpiryEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Improvisation),
+    switchMap(() => action$.pipe(first((aa) => aa.type === removeBuffAction.type && aa.payload === StatusId.Improvisation))),
+    switchMap(() => of(removeBuff(StatusId.Improvisation), removeBuff(StatusId.RisingRhythm), buff(StatusId.ImprovisationRegen)))
+  );
+
+const improvisationStopByFinishEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Improvisation),
     switchMap(() =>
       action$.pipe(
         first(
-          (aa) =>
-            (aa.type === executeAction.type && aa.payload.id !== ActionId.ImprovisedFinish && aa.payload.id !== ActionId.Improvisation) ||
-            (aa.type === removeBuffAction.type && aa.payload === StatusId.Improvisation)
+          (aa) => aa.type === executeAction.type && aa.payload.id !== ActionId.ImprovisedFinish && aa.payload.id !== ActionId.Improvisation
         )
       )
     ),
-    withLatestFrom(state$),
-    map(([, state]) => state),
-    switchMap((state) => {
-      const actions: any[] = [];
-
-      if (hasBuff(state, StatusId.RisingRhythm)) {
-        actions.push(removeBuff(StatusId.RisingRhythm));
-      }
-
-      if (hasBuff(state, StatusId.Improvisation)) {
-        actions.push(removeBuff(StatusId.Improvisation));
-      }
-
-      return of(...actions);
-    })
+    switchMap(() => of(removeBuff(StatusId.Improvisation), removeBuff(StatusId.RisingRhythm)))
   );
+
+const improvisationRegenStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ImprovisationRegen,
+  duration: 15,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 100 })),
+  initialDelay: 2900,
+  interval: 3025,
+});
+
+const risingRhythmStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RisingRhythm,
+  duration: 30,
+  isHarmful: false,
+});
+
+const silkenSymmetryStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SilkenSymmetry,
+  duration: 30,
+  isHarmful: false,
+});
+
+const silkenFlowStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SilkenFlow,
+  duration: 30,
+  isHarmful: false,
+});
+
+const standardStepStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StandardStep,
+  duration: 15,
+  isHarmful: false,
+});
+
+const standardFinishStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StandardFinish,
+  duration: 60,
+  isHarmful: false,
+});
+
+const espritStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Esprit,
+  duration: 60,
+  isHarmful: false,
+});
+
+const devilmentStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Devilment,
+  duration: 20,
+  isHarmful: false,
+});
+
+const flourishingStarfallStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FlourishingStarfall,
+  duration: 20,
+  isHarmful: false,
+});
+
+const threefoldFanDanceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ThreefoldFanDance,
+  duration: 30,
+  isHarmful: false,
+});
+
+const technicalStepStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TechnicalStep,
+  duration: 15,
+  isHarmful: false,
+});
+
+const technicalFinishStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TechnicalFinish,
+  duration: 20,
+  isHarmful: false,
+});
+
+const flourishingFinishStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FlourishingFinish,
+  duration: 30,
+  isHarmful: false,
+});
+
+const technicalEspritStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TechnicalEsprit,
+  duration: 20,
+  isHarmful: false,
+});
+
+const flourishingSymmetryStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FlourishingSymmetry,
+  duration: 30,
+  isHarmful: false,
+});
+
+const flourishingFlowStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FlourishingFlow,
+  duration: 30,
+  isHarmful: false,
+});
+
+const fourfoldFanDanceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FourfoldFanDance,
+  duration: 30,
+  isHarmful: false,
+});
+
+const closedPositionStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ClosedPosition,
+  duration: null,
+  isHarmful: false,
+});
+
+const shieldSambaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShieldSamba,
+  duration: 15,
+  isHarmful: false,
+});
+
+const improvisationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Improvisation,
+  duration: 15,
+  isHarmful: false,
+});
 
 const cascade: CombatAction = createCombatAction({
   id: ActionId.Cascade,
@@ -221,7 +331,7 @@ const cascade: CombatAction = createCombatAction({
       dispatch(addEsprit(5));
     }
     if (rng(50)) {
-      dispatch(buff(StatusId.SilkenSymmetry, 30));
+      dispatch(buff(StatusId.SilkenSymmetry));
     }
   },
   isUsable: (state) => !isDancing(state),
@@ -239,7 +349,7 @@ const fountain: CombatAction = createCombatAction({
         dispatch(addEsprit(5));
       }
       if (rng(50)) {
-        dispatch(buff(StatusId.SilkenFlow, 30));
+        dispatch(buff(StatusId.SilkenFlow));
       }
     }
   },
@@ -297,7 +407,7 @@ const standardStep: CombatAction = createCombatAction({
   id: ActionId.StandardStep,
   execute: (dispatch) => {
     dispatch(dance(2));
-    dispatch(buff(StatusId.StandardStep, 15));
+    dispatch(buff(StatusId.StandardStep));
     dispatch(gcd({ time: 1500 }));
   },
   isUsable: (state) => !isDancing(state),
@@ -373,8 +483,8 @@ const standardFinish: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.TechnicalEsprit));
     }
 
-    dispatch(buff(StatusId.StandardFinish, 60));
-    dispatch(buff(StatusId.Esprit, 60));
+    dispatch(buff(StatusId.StandardFinish));
+    dispatch(buff(StatusId.Esprit));
   },
   isUsable: (state) => hasBuff(state, StatusId.StandardStep),
   isGlowing: (state) => isDanceComplete(state),
@@ -384,8 +494,8 @@ const devilment: CombatAction = createCombatAction({
   id: ActionId.Devilment,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Devilment, 20));
-    dispatch(buff(StatusId.FlourishingStarfall, 20));
+    dispatch(buff(StatusId.Devilment));
+    dispatch(buff(StatusId.FlourishingStarfall));
   },
   isUsable: (state) => !isDancing(state),
   entersCombat: false,
@@ -398,7 +508,7 @@ const fanDance: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.FanDance, context, { potency: 150 }));
 
     if (rng(50)) {
-      dispatch(buff(StatusId.ThreefoldFanDance, 30));
+      dispatch(buff(StatusId.ThreefoldFanDance));
     }
   },
   isUsable: (state) => !isDancing(state) && fans(state) > 0,
@@ -412,7 +522,7 @@ const fanDanceII: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.FanDanceII, context, { potency: 100 }));
 
     if (rng(50)) {
-      dispatch(buff(StatusId.ThreefoldFanDance, 30));
+      dispatch(buff(StatusId.ThreefoldFanDance));
     }
   },
   isUsable: (state) => !isDancing(state) && fans(state) > 0,
@@ -445,7 +555,7 @@ const technicalStep: CombatAction = createCombatAction({
   id: ActionId.TechnicalStep,
   execute: (dispatch) => {
     dispatch(dance(4));
-    dispatch(buff(StatusId.TechnicalStep, 15));
+    dispatch(buff(StatusId.TechnicalStep));
     dispatch(cooldown(58, 1500));
   },
   isUsable: (state) => !isDancing(state),
@@ -494,11 +604,11 @@ const technicalFinish: CombatAction = createCombatAction({
     dispatch(dmgEvent(actionId, context, { potency }));
 
     dispatch(removeBuff(StatusId.TechnicalStep));
-    dispatch(buff(StatusId.TechnicalFinish, 20));
-    dispatch(buff(StatusId.FlourishingFinish, 30));
+    dispatch(buff(StatusId.TechnicalFinish));
+    dispatch(buff(StatusId.FlourishingFinish));
 
     if (!hasBuff(getState(), StatusId.Esprit)) {
-      dispatch(buff(StatusId.TechnicalEsprit, 20));
+      dispatch(buff(StatusId.TechnicalEsprit));
     }
   },
   isUsable: (state) => hasBuff(state, StatusId.TechnicalStep),
@@ -519,10 +629,10 @@ const flourish: CombatAction = createCombatAction({
   id: ActionId.Flourish,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.FlourishingFlow, 30));
-    dispatch(buff(StatusId.FlourishingSymmetry, 30));
-    dispatch(buff(StatusId.ThreefoldFanDance, 30));
-    dispatch(buff(StatusId.FourfoldFanDance, 30));
+    dispatch(buff(StatusId.FlourishingFlow));
+    dispatch(buff(StatusId.FlourishingSymmetry));
+    dispatch(buff(StatusId.ThreefoldFanDance));
+    dispatch(buff(StatusId.FourfoldFanDance));
   },
   isUsable: (state) => !isDancing(state) && inCombat(state),
   entersCombat: false,
@@ -552,7 +662,7 @@ const closedPosition: CombatAction = createCombatAction({
   id: ActionId.ClosedPosition,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ClosedPosition, null));
+    dispatch(buff(StatusId.ClosedPosition));
   },
   isUsable: (state) => !isDancing(state) && selectPartySize(state) > 1,
   redirect: (state) => (hasBuff(state, StatusId.ClosedPosition) ? ActionId.Ending : ActionId.ClosedPosition),
@@ -573,8 +683,8 @@ const improvisation: CombatAction = createCombatAction({
   id: ActionId.Improvisation,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Improvisation, 15));
-    dispatch(buff(StatusId.ImprovisationRegen, 15, { periodicEffect: () => dispatch(event(0, { healthPotency: 100 })) }));
+    dispatch(buff(StatusId.Improvisation));
+    dispatch(buff(StatusId.ImprovisationRegen));
   },
   isUsable: (state) => !isDancing(state),
   redirect: (state) => (hasBuff(state, StatusId.Improvisation) ? ActionId.ImprovisedFinish : ActionId.Improvisation),
@@ -590,7 +700,7 @@ const improvisedFinish: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.RisingRhythm));
     }
 
-    dispatch(buff(StatusId.ImprovisedFinish, 30));
+    dispatch(buff(StatusId.ImprovisedFinish));
   },
   isUsable: (state) => hasBuff(state, StatusId.Improvisation),
   isGlowing: (state) => hasBuff(state, StatusId.Improvisation),
@@ -601,7 +711,7 @@ const shieldSamba: CombatAction = createCombatAction({
   id: ActionId.ShieldSamba,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ShieldSamba, 15));
+    dispatch(buff(StatusId.ShieldSamba));
   },
   cooldown: () => 90,
   entersCombat: false,
@@ -639,7 +749,7 @@ const windmill: CombatAction = createCombatAction({
       dispatch(addEsprit(5));
     }
     if (rng(50)) {
-      dispatch(buff(StatusId.SilkenSymmetry, 30));
+      dispatch(buff(StatusId.SilkenSymmetry));
     }
   },
   isUsable: (state) => !isDancing(state),
@@ -657,7 +767,7 @@ const bladeshower: CombatAction = createCombatAction({
       dispatch(addEsprit(5));
     }
     if (rng(50)) {
-      dispatch(buff(StatusId.SilkenFlow, 30));
+      dispatch(buff(StatusId.SilkenFlow));
     }
   },
   isUsable: (state) => !isDancing(state),
@@ -710,6 +820,30 @@ const bloodshower: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
 });
 
+export const dncStatuses: CombatStatus[] = [
+  silkenFlowStatus,
+  silkenSymmetryStatus,
+  improvisationStatus,
+  shieldSambaStatus,
+  standardStepStatus,
+  technicalStepStatus,
+  devilmentStatus,
+  espritStatus,
+  shieldSambaStatus,
+  threefoldFanDanceStatus,
+  fourfoldFanDanceStatus,
+  improvisationRegenStatus,
+  technicalEspritStatus,
+  technicalFinishStatus,
+  standardFinishStatus,
+  flourishingStarfallStatus,
+  flourishingSymmetryStatus,
+  flourishingFlowStatus,
+  flourishingFinishStatus,
+  closedPositionStatus,
+  risingRhythmStatus,
+];
+
 export const dnc: CombatAction[] = [
   cascade,
   fountain,
@@ -750,6 +884,7 @@ export const dncEpics = combineEpics(
   technicalFinishEspritEpic,
   standardFinishEspritEpic,
   risingRythmEpic,
-  improvisationStopEpic,
+  improvisationStopByExpiryEpic,
+  improvisationStopByFinishEpic,
   soloPartySizeEpic
 );

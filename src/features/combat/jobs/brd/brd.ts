@@ -5,6 +5,7 @@ import { RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   buff,
@@ -26,6 +27,7 @@ import {
   extendableDebuff,
   addSoulVoice,
   dmgEvent,
+  event,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -167,6 +169,170 @@ const armysPaeonEpic: Epic<any, any, RootState> = (action$, state$) =>
     )
   );
 
+const straightShotReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StraightShotReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const barrageStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Barrage,
+  duration: 10,
+  isHarmful: false,
+});
+
+const stormbiteStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Stormbite,
+  duration: 45,
+  isHarmful: true,
+  tick: (dispatch) => {
+    dispatch(event(ActionId.Stormbite, { potency: 25 }));
+  },
+});
+
+const causticBiteStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CausticBite,
+  duration: 45,
+  isHarmful: true,
+  tick: (dispatch) => {
+    dispatch(event(ActionId.CausticBite, { potency: 20 }));
+  },
+});
+
+const ragingStrikesStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RagingStrikes,
+  duration: 20,
+  isHarmful: false,
+});
+
+const battleVoiceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BattleVoice,
+  duration: 15,
+  isHarmful: false,
+});
+
+const armysMuseStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ArmysMuse,
+  duration: 10,
+  isHarmful: false,
+});
+
+const wanderersMinuetActive: CombatStatus = createCombatStatus({
+  id: StatusId.WanderersMinuetActive,
+  duration: 45,
+  isHarmful: false,
+  onExpire: (dispatch, getState) => {
+    setTimeout(() => {
+      if (hasBuff(getState(), StatusId.TheWanderersMinuet)) {
+        dispatch(removeBuff(StatusId.TheWanderersMinuet));
+      }
+    }, 3000);
+  },
+});
+
+const theWanderersMinuetStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TheWanderersMinuet,
+  duration: null,
+  isHarmful: false,
+});
+
+const magesBalladActive: CombatStatus = createCombatStatus({
+  id: StatusId.MagesBalladActive,
+  duration: 45,
+  isHarmful: false,
+  onExpire: (dispatch, getState) => {
+    setTimeout(() => {
+      if (hasBuff(getState(), StatusId.MagesBallad)) {
+        dispatch(removeBuff(StatusId.MagesBallad));
+      }
+    }, 3000);
+  },
+});
+
+const magesBalladStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MagesBallad,
+  duration: null,
+  isHarmful: false,
+});
+
+const armysEthosStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ArmysEthos,
+  duration: 30,
+  isHarmful: false,
+});
+
+const armysPaeonActive: CombatStatus = createCombatStatus({
+  id: StatusId.ArmysPaeonActive,
+  duration: 45,
+  isHarmful: false,
+  onExpire: (dispatch, getState) => {
+    if (armyRepertoire(getState())) {
+      dispatch(buff(StatusId.ArmysEthos));
+    }
+
+    setTimeout(() => {
+      if (hasBuff(getState(), StatusId.ArmysPaeon)) {
+        dispatch(removeBuff(StatusId.ArmysPaeon));
+      }
+    }, 3000);
+  },
+});
+
+const armysPaeonStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ArmysPaeon,
+  duration: null,
+  isHarmful: false,
+});
+
+const blastArrowReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BlastArrowReady,
+  duration: 10,
+  isHarmful: false,
+});
+
+const radiantFinaleStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RadiantFinale,
+  duration: 15,
+  isHarmful: false,
+});
+
+const playingRadiantFinale: CombatStatus = createCombatStatus({
+  id: StatusId.PlayingRadiantFinale,
+  duration: 15,
+  isHarmful: false,
+});
+
+const troubadourStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Troubadour,
+  duration: 15,
+  isHarmful: false,
+});
+
+const naturesMinneStatus: CombatStatus = createCombatStatus({
+  id: StatusId.NaturesMinne,
+  duration: 15,
+  isHarmful: false,
+});
+
+const wardensPaeanStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TheWardensPaean,
+  duration: 30,
+  isHarmful: false,
+});
+
+const shadowbiteReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShadowbiteReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const straightShot: CombatAction = createCombatAction({
+  id: ActionId.StraightShot,
+  execute: () => {},
+  redirect: () => ActionId.RefulgentArrow,
+  reducedBySkillSpeed: true,
+});
+
 const heavyShot: CombatAction = createCombatAction({
   id: ActionId.HeavyShot,
   execute: () => {},
@@ -180,16 +346,9 @@ const burstShot: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.BurstShot, context, { potency: 220 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady, 30));
+      dispatch(buff(StatusId.StraightShotReady));
     }
   },
-  reducedBySkillSpeed: true,
-});
-
-const straightShot: CombatAction = createCombatAction({
-  id: ActionId.StraightShot,
-  execute: () => {},
-  redirect: () => ActionId.RefulgentArrow,
   reducedBySkillSpeed: true,
 });
 
@@ -218,10 +377,10 @@ const stormbite: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Stormbite, context, { potency: 100 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady, 30));
+      dispatch(buff(StatusId.StraightShotReady));
     }
 
-    dispatch(debuff(StatusId.Stormbite, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 25 })) }));
+    dispatch(debuff(StatusId.Stormbite));
   },
   reducedBySkillSpeed: true,
 });
@@ -239,10 +398,10 @@ const causticBite: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.CausticBite, context, { potency: 150 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady, 30));
+      dispatch(buff(StatusId.StraightShotReady));
     }
 
-    dispatch(debuff(StatusId.CausticBite, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 20 })) }));
+    dispatch(debuff(StatusId.CausticBite));
   },
   reducedBySkillSpeed: true,
 });
@@ -251,7 +410,7 @@ const ragingStrikes: CombatAction = createCombatAction({
   id: ActionId.RagingStrikes,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.RagingStrikes, 20));
+    dispatch(buff(StatusId.RagingStrikes));
   },
   entersCombat: false,
 });
@@ -260,7 +419,7 @@ const battleVoice: CombatAction = createCombatAction({
   id: ActionId.BattleVoice,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.BattleVoice, 15));
+    dispatch(buff(StatusId.BattleVoice));
   },
   entersCombat: false,
 });
@@ -269,8 +428,8 @@ const barrage: CombatAction = createCombatAction({
   id: ActionId.Barrage,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Barrage, 10));
-    dispatch(buff(StatusId.StraightShotReady, 30));
+    dispatch(buff(StatusId.Barrage));
+    dispatch(buff(StatusId.StraightShotReady));
   },
   entersCombat: false,
 });
@@ -283,7 +442,7 @@ const wanderersMinuet: CombatAction = createCombatAction({
     const ethos = hasBuff(getState(), StatusId.ArmysEthos);
     if (ethos || hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       if (armyRepertoire(getState())) {
-        dispatch(buff(StatusId.ArmysMuse, 10));
+        dispatch(buff(StatusId.ArmysMuse));
       }
     }
 
@@ -294,18 +453,8 @@ const wanderersMinuet: CombatAction = createCombatAction({
     dispatch(setWandererCoda(1));
     dispatch(setWandererRepertiore(0));
 
-    dispatch(buff(StatusId.TheWanderersMinuet, null));
-    dispatch(
-      buff(StatusId.WanderersMinuetActive, 45, {
-        isVisible: false,
-        expireCallback: () =>
-          setTimeout(() => {
-            if (hasBuff(getState(), StatusId.TheWanderersMinuet)) {
-              dispatch(removeBuff(StatusId.TheWanderersMinuet));
-            }
-          }, 3000),
-      })
-    );
+    dispatch(buff(StatusId.TheWanderersMinuet));
+    dispatch(buff(StatusId.WanderersMinuetActive));
   },
   redirect: (state) => (hasBuff(state, StatusId.WanderersMinuetActive) ? ActionId.PitchPerfect : ActionId.TheWanderersMinuet),
 });
@@ -318,7 +467,7 @@ const magesBallad: CombatAction = createCombatAction({
     const ethos = hasBuff(getState(), StatusId.ArmysEthos);
     if (ethos || hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       if (armyRepertoire(getState())) {
-        dispatch(buff(StatusId.ArmysMuse, 10));
+        dispatch(buff(StatusId.ArmysMuse));
       }
     }
 
@@ -328,18 +477,8 @@ const magesBallad: CombatAction = createCombatAction({
 
     dispatch(setMageCoda(1));
 
-    dispatch(buff(StatusId.MagesBallad, null));
-    dispatch(
-      buff(StatusId.MagesBalladActive, 45, {
-        isVisible: false,
-        expireCallback: () =>
-          setTimeout(() => {
-            if (hasBuff(getState(), StatusId.MagesBallad)) {
-              dispatch(removeBuff(StatusId.MagesBallad));
-            }
-          }, 3000),
-      })
-    );
+    dispatch(buff(StatusId.MagesBallad));
+    dispatch(buff(StatusId.MagesBalladActive));
   },
 });
 
@@ -351,23 +490,8 @@ const armysPaeon: CombatAction = createCombatAction({
     dispatch(setArmyCoda(1));
     dispatch(setArmyRepertiore(0));
 
-    dispatch(buff(StatusId.ArmysPaeon, null));
-    dispatch(
-      buff(StatusId.ArmysPaeonActive, 45, {
-        isVisible: false,
-        expireCallback: () => {
-          if (armyRepertoire(getState())) {
-            dispatch(buff(StatusId.ArmysEthos, 30));
-          }
-
-          setTimeout(() => {
-            if (hasBuff(getState(), StatusId.ArmysPaeon)) {
-              dispatch(removeBuff(StatusId.ArmysPaeon));
-            }
-          }, 3000);
-        },
-      })
-    );
+    dispatch(buff(StatusId.ArmysPaeon));
+    dispatch(buff(StatusId.ArmysPaeonActive));
   },
 });
 
@@ -432,15 +556,15 @@ const ironJaws: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.IronJaws, context, { potency: 100 }));
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady, 30));
+      dispatch(buff(StatusId.StraightShotReady));
     }
 
     if (hasDebuff(getState(), StatusId.Stormbite)) {
-      dispatch(extendableDebuff(StatusId.Stormbite, 30, 30));
+      dispatch(debuff(StatusId.Stormbite));
     }
 
     if (hasDebuff(getState(), StatusId.CausticBite)) {
-      dispatch(extendableDebuff(StatusId.CausticBite, 30, 30));
+      dispatch(debuff(StatusId.CausticBite));
     }
   },
   reducedBySkillSpeed: true,
@@ -451,7 +575,7 @@ const apexArrow: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 400 + 100 }));
     if (context.cost >= 80) {
-      dispatch(buff(StatusId.BlastArrowReady, 10));
+      dispatch(buff(StatusId.BlastArrowReady));
     }
   },
   isUsable: (state) => soulVoice(state) >= 20,
@@ -478,8 +602,8 @@ const radiantFinale: CombatAction = createCombatAction({
     dispatch(setArmyCoda(0));
     dispatch(setMageCoda(0));
     dispatch(setWandererCoda(0));
-    dispatch(buff(StatusId.RadiantFinale, 15));
-    dispatch(buff(StatusId.PlayingRadiantFinale, 15));
+    dispatch(buff(StatusId.RadiantFinale));
+    dispatch(buff(StatusId.PlayingRadiantFinale));
   },
   isUsable: (state) => hasCoda(state),
   isGlowing: (state) => hasCoda(state),
@@ -490,7 +614,7 @@ const troubadour: CombatAction = createCombatAction({
   id: ActionId.Troubadour,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Troubadour, 15));
+    dispatch(buff(StatusId.Troubadour));
   },
   entersCombat: false,
 });
@@ -499,7 +623,7 @@ const theWardensPaean: CombatAction = createCombatAction({
   id: ActionId.TheWardensPaean,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.TheWardensPaean, 30));
+    dispatch(buff(StatusId.TheWardensPaean));
   },
   entersCombat: false,
 });
@@ -508,7 +632,7 @@ const naturesMinne: CombatAction = createCombatAction({
   id: ActionId.NaturesMinne,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.NaturesMinne, 15));
+    dispatch(buff(StatusId.NaturesMinne));
   },
   entersCombat: false,
 });
@@ -525,7 +649,7 @@ const ladonsbite: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Ladonsbite, context, { potency: 130 }));
     if (rng(35)) {
-      dispatch(buff(StatusId.ShadowbiteReady, 30));
+      dispatch(buff(StatusId.ShadowbiteReady));
     }
   },
   reducedBySkillSpeed: true,
@@ -558,6 +682,30 @@ const raidOfDeath: CombatAction = createCombatAction({
   maxCharges: () => 3,
   extraCooldown: () => ({ cooldownGroup: 1000, duration: 1 }),
 });
+
+export const brdStatuses = [
+  straightShotReadyStatus,
+  causticBiteStatus,
+  stormbiteStatus,
+  barrageStatus,
+  radiantFinaleStatus,
+  playingRadiantFinale,
+  ragingStrikesStatus,
+  battleVoiceStatus,
+  magesBalladStatus,
+  armysPaeonStatus,
+  theWanderersMinuetStatus,
+  wardensPaeanStatus,
+  armysPaeonActive,
+  magesBalladActive,
+  wanderersMinuetActive,
+  naturesMinneStatus,
+  shadowbiteReadyStatus,
+  troubadourStatus,
+  armysMuseStatus,
+  armysEthosStatus,
+  blastArrowReadyStatus,
+];
 
 export const brd: CombatAction[] = [
   heavyShot,

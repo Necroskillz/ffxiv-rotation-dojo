@@ -5,6 +5,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -44,6 +45,118 @@ const bloodwhettingEpic: Epic<any, any, RootState> = (action$, state$) =>
     filter(([, state]) => hasBuff(state, StatusId.Bloodwhetting)),
     map(([action]) => event(action.payload.id, { healthPotency: 400 }))
   );
+
+const surgingTempestStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SurgingTempest,
+  duration: 30,
+  isHarmful: false,
+  maxDuration: 60,
+});
+
+const nascentChaosStatus: CombatStatus = createCombatStatus({
+  id: StatusId.NascentChaos,
+  duration: 30,
+  isHarmful: false,
+});
+
+const defianceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Defiance,
+  duration: null,
+  isHarmful: false,
+});
+
+const innerReleaseStatus: CombatStatus = createCombatStatus({
+  id: StatusId.InnerRelease,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const primalRendReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PrimalRendReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const innerStrengthStatus: CombatStatus = createCombatStatus({
+  id: StatusId.InnerStrength,
+  duration: 15,
+  isHarmful: false,
+});
+
+const thrillofBattleStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ThrillofBattle,
+  duration: 10,
+  isHarmful: false,
+});
+
+const vulnerabilityDownStatus: CombatStatus = createCombatStatus({
+  id: StatusId.VulnerabilityDown,
+  duration: 15,
+  isHarmful: false,
+});
+
+const vengeanceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Vengeance,
+  duration: 15,
+  isHarmful: false,
+});
+
+const holmgangStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Holmgang,
+  duration: 10,
+  isHarmful: false,
+});
+
+const holmgangDebuffStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HolmgangDebuff,
+  duration: 10,
+  isHarmful: true,
+});
+
+const nascentFlashStatus: CombatStatus = createCombatStatus({
+  id: StatusId.NascentFlash,
+  duration: 8,
+  isHarmful: false,
+});
+
+const stemtheFlowStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StemtheFlow,
+  duration: 4,
+  isHarmful: false,
+});
+
+const stemtheTideStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StemtheTide,
+  duration: 20,
+  isHarmful: false,
+});
+
+const bloodwhettingStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Bloodwhetting,
+  duration: 8,
+  isHarmful: false,
+});
+
+const equilibriumStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Equilibrium,
+  duration: 15,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 200 })),
+});
+
+const shakeItOffStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShakeItOff,
+  duration: 15,
+  isHarmful: false,
+});
+
+const shakeItOffOverTimeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShakeItOffOverTime,
+  duration: 15,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 100 })),
+});
 
 const heavySwing: CombatAction = createCombatAction({
   id: ActionId.HeavySwing,
@@ -88,7 +201,7 @@ const stormsEye: CombatAction = createCombatAction({
 
     if (context.comboed) {
       dispatch(addBeast(10));
-      dispatch(extendableBuff(StatusId.SurgingTempest, 30, 60));
+      dispatch(extendableBuff(StatusId.SurgingTempest));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.StormsEye),
@@ -121,7 +234,7 @@ const infuriate: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(addBeast(50));
-    dispatch(buff(StatusId.NascentChaos, 30));
+    dispatch(buff(StatusId.NascentChaos));
   },
   isUsable: (state) => inCombat(state),
   maxCharges: () => 2,
@@ -147,7 +260,7 @@ const defiance: CombatAction = createCombatAction({
   id: ActionId.Defiance,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Defiance, null));
+    dispatch(buff(StatusId.Defiance));
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.Defiance) ? ActionId.ReleaseDefiance : ActionId.Defiance),
@@ -172,12 +285,12 @@ const innerRelease: CombatAction = createCombatAction({
   id: ActionId.InnerRelease,
   execute: (dispatch, getState) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.InnerRelease, 15, { stacks: 3 }));
-    dispatch(buff(StatusId.PrimalRendReady, 30));
-    dispatch(buff(StatusId.InnerStrength, 15));
+    dispatch(buff(StatusId.InnerRelease));
+    dispatch(buff(StatusId.PrimalRendReady));
+    dispatch(buff(StatusId.InnerStrength));
 
     if (hasBuff(getState(), StatusId.SurgingTempest)) {
-      dispatch(extendableBuff(StatusId.SurgingTempest, 10, 60));
+      dispatch(extendableBuff(StatusId.SurgingTempest, 10));
     }
   },
   entersCombat: false,
@@ -242,7 +355,7 @@ const mythrilTempest: CombatAction = createCombatAction({
 
     if (context.comboed) {
       dispatch(addBeast(20));
-      dispatch(extendableBuff(StatusId.SurgingTempest, 30, 60));
+      dispatch(extendableBuff(StatusId.SurgingTempest));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.MythrilTempest),
@@ -293,7 +406,7 @@ const thrillofBattle: CombatAction = createCombatAction({
   id: ActionId.ThrillofBattle,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ThrillofBattle, 10));
+    dispatch(buff(StatusId.ThrillofBattle));
     dispatch(event(ActionId.ThrillofBattle, { healthPercent: 20 }));
   },
   entersCombat: false,
@@ -303,8 +416,8 @@ const vengeance: CombatAction = createCombatAction({
   id: ActionId.Vengeance,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Vengeance, 15));
-    dispatch(buff(StatusId.VulnerabilityDown, 15));
+    dispatch(buff(StatusId.Vengeance));
+    dispatch(buff(StatusId.VulnerabilityDown));
   },
   entersCombat: false,
 });
@@ -313,9 +426,9 @@ const holmgang: CombatAction = createCombatAction({
   id: ActionId.Holmgang,
   execute: (dispatch, getState) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Holmgang, 15));
+    dispatch(buff(StatusId.Holmgang));
     if (inCombat(getState())) {
-      dispatch(debuff(StatusId.HolmgangDebuff, 15));
+      dispatch(debuff(StatusId.HolmgangDebuff));
     }
   },
   entersCombat: false,
@@ -331,9 +444,9 @@ const nascentFlash: CombatAction = createCombatAction({
   id: ActionId.NascentFlash,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.NascentFlash, 8));
-    dispatch(buff(StatusId.StemtheFlow, 4));
-    dispatch(buff(StatusId.StemtheTide, 20));
+    dispatch(buff(StatusId.NascentFlash));
+    dispatch(buff(StatusId.StemtheFlow));
+    dispatch(buff(StatusId.StemtheTide));
   },
   entersCombat: false,
 });
@@ -342,9 +455,9 @@ const bloodwhetting: CombatAction = createCombatAction({
   id: ActionId.Bloodwhetting,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Bloodwhetting, 8));
-    dispatch(buff(StatusId.StemtheFlow, 4));
-    dispatch(buff(StatusId.StemtheTide, 20));
+    dispatch(buff(StatusId.Bloodwhetting));
+    dispatch(buff(StatusId.StemtheFlow));
+    dispatch(buff(StatusId.StemtheTide));
   },
   entersCombat: false,
 });
@@ -354,7 +467,7 @@ const equilibrium: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(event(ActionId.Equilibrium, { healthPotency: 1200 }));
-    dispatch(buff(StatusId.Equilibrium, 15, { periodicEffect: () => dispatch(event(0, { healthPotency: 200 })) }));
+    dispatch(buff(StatusId.Equilibrium));
   },
   entersCombat: false,
 });
@@ -364,8 +477,8 @@ const shakeItOff: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(event(ActionId.ShakeItOff, { healthPotency: 300 }));
-    dispatch(buff(StatusId.ShakeItOff, 30));
-    dispatch(buff(StatusId.ShakeItOffOverTime, 15, { periodicEffect: () => dispatch(event(0, { healthPotency: 100 })) }));
+    dispatch(buff(StatusId.ShakeItOff));
+    dispatch(buff(StatusId.ShakeItOffOverTime));
     dispatch(removeBuff(StatusId.ThrillofBattle));
     dispatch(removeBuff(StatusId.Vengeance));
     dispatch(removeBuff(StatusId.VulnerabilityDown));
@@ -373,6 +486,27 @@ const shakeItOff: CombatAction = createCombatAction({
   },
   entersCombat: false,
 });
+
+export const warStatuses: CombatStatus[] = [
+  surgingTempestStatus,
+  innerReleaseStatus,
+  nascentChaosStatus,
+  nascentFlashStatus,
+  bloodwhettingStatus,
+  equilibriumStatus,
+  shakeItOffStatus,
+  shakeItOffOverTimeStatus,
+  holmgangStatus,
+  holmgangDebuffStatus,
+  thrillofBattleStatus,
+  vengeanceStatus,
+  vulnerabilityDownStatus,
+  stemtheFlowStatus,
+  stemtheTideStatus,
+  defianceStatus,
+  primalRendReadyStatus,
+  innerStrengthStatus,
+];
 
 export const war: CombatAction[] = [
   heavySwing,

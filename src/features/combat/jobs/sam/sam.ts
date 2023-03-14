@@ -5,6 +5,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   addKenki,
@@ -13,6 +14,7 @@ import {
   combo,
   debuff,
   dmgEvent,
+  event,
   executeAction,
   gcd,
   hasBuff,
@@ -173,6 +175,84 @@ const meditateStopEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
+const fukaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Fuka,
+  duration: 40,
+  isHarmful: false,
+});
+
+const fugetsuStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Fugetsu,
+  duration: 40,
+  isHarmful: false,
+});
+
+const higenbanaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Higanbana,
+  duration: 60,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 45 })),
+});
+
+const kaeshiHigenbanaActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KaeshiHigenbanaActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const kaeshiGokenActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KaeshiGokenActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const kaeshiSetsugekkaActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KaeshiSetsugekkaActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const meikyoShisuiStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MeikyoShisui,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const ogiNamikiriReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.OgiNamikiriReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const enhancedEnpiStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedEnpi,
+  duration: 15,
+  isHarmful: false,
+});
+
+const kaeshiNamikiriActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KaeshiNamikiriActive,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
+});
+
+const meditateStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Meditate,
+  duration: 15,
+  isHarmful: false,
+});
+
+const thirdEyeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ThirdEye,
+  duration: 4,
+  isHarmful: false,
+});
+
 const hakaze: CombatAction = createCombatAction({
   id: ActionId.Hakaze,
   execute: (dispatch, _, context) => {
@@ -192,7 +272,7 @@ const shifu: CombatAction = createCombatAction({
     if (context.comboed || hasBuff(getState(), StatusId.MeikyoShisui)) {
       dispatch(combo(ActionId.Shifu));
       dispatch(addKenki(5));
-      dispatch(buff(StatusId.Fuka, 40));
+      dispatch(buff(StatusId.Fuka));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Shifu) || hasBuff(state, StatusId.MeikyoShisui),
@@ -212,7 +292,7 @@ const kasha: CombatAction = createCombatAction({
     }
 
     if (meikyo) {
-      dispatch(buff(StatusId.Fuka, 40));
+      dispatch(buff(StatusId.Fuka));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Kasha) || hasBuff(state, StatusId.MeikyoShisui),
@@ -227,7 +307,7 @@ const jinpu: CombatAction = createCombatAction({
     if (context.comboed || hasBuff(getState(), StatusId.MeikyoShisui)) {
       dispatch(combo(ActionId.Jinpu));
       dispatch(addKenki(5));
-      dispatch(buff(StatusId.Fugetsu, 40));
+      dispatch(buff(StatusId.Fugetsu));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Jinpu) || hasBuff(state, StatusId.MeikyoShisui),
@@ -247,7 +327,7 @@ const gekko: CombatAction = createCombatAction({
     }
 
     if (meikyo) {
-      dispatch(buff(StatusId.Fugetsu, 40));
+      dispatch(buff(StatusId.Fugetsu));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Gekko) || hasBuff(state, StatusId.MeikyoShisui),
@@ -295,10 +375,10 @@ const higenbana: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Higanbana, context, { potency: 200 }));
 
-    dispatch(debuff(StatusId.Higanbana, 60, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 45 })) }));
+    dispatch(debuff(StatusId.Higanbana));
     dispatch(setSen(0));
     dispatch(addMeditation(1));
-    dispatch(buff(StatusId.KaeshiHigenbanaActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.KaeshiHigenbanaActive));
   },
   reducedBySkillSpeed: true,
   castTime: () => 1.3,
@@ -311,7 +391,7 @@ const tenkaGoken: CombatAction = createCombatAction({
 
     dispatch(setSen(0));
     dispatch(addMeditation(1));
-    dispatch(buff(StatusId.KaeshiGokenActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.KaeshiGokenActive));
   },
   reducedBySkillSpeed: true,
   castTime: () => 1.3,
@@ -324,7 +404,7 @@ const midareSetsugekka: CombatAction = createCombatAction({
 
     dispatch(setSen(0));
     dispatch(addMeditation(1));
-    dispatch(buff(StatusId.KaeshiSetsugekkaActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.KaeshiSetsugekkaActive));
   },
   reducedBySkillSpeed: true,
   castTime: () => 1.3,
@@ -334,7 +414,7 @@ const meikyoShisui: CombatAction = createCombatAction({
   id: ActionId.MeikyoShisui,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.MeikyoShisui, 15, { stacks: 3 }));
+    dispatch(buff(StatusId.MeikyoShisui));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -377,7 +457,7 @@ const kaeshiHigenbana: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.KaeshiHiganbana, context, { potency: 200 }));
 
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(debuff(StatusId.Higanbana, 60, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 45 })) }));
+    dispatch(debuff(StatusId.Higanbana));
     dispatch(removeBuff(StatusId.KaeshiHigenbanaActive));
   },
   reducedBySkillSpeed: true,
@@ -441,7 +521,7 @@ const ikishoten: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(addKenki(50));
-    dispatch(buff(StatusId.OgiNamikiriReady, 30));
+    dispatch(buff(StatusId.OgiNamikiriReady));
   },
   isUsable: (state) => inCombat(state),
 });
@@ -469,7 +549,7 @@ const hissatsuYaten: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.HissatsuYaten, context, { potency: 100 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.EnhancedEnpi, 15));
+    dispatch(buff(StatusId.EnhancedEnpi));
   },
   isGlowing: (state) => kenki(state) >= 10,
 });
@@ -489,7 +569,7 @@ const ogiNamikiri: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.OgiNamikiri, context, { potency: 800 }));
 
     dispatch(addMeditation(1));
-    dispatch(buff(StatusId.KaeshiNamikiriActive, 30, { isVisible: false }));
+    dispatch(buff(StatusId.KaeshiNamikiriActive));
     dispatch(removeBuff(StatusId.OgiNamikiriReady));
   },
   redirect: (state) => (hasBuff(state, StatusId.KaeshiNamikiriActive) ? ActionId.KaeshiNamikiri : ActionId.OgiNamikiri),
@@ -531,7 +611,7 @@ const meditate: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(buff(StatusId.Meditate, 15));
+    dispatch(buff(StatusId.Meditate));
   },
   entersCombat: false,
 });
@@ -550,7 +630,7 @@ const thirdEye: CombatAction = createCombatAction({
   id: ActionId.ThirdEye,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ThirdEye, 4));
+    dispatch(buff(StatusId.ThirdEye));
   },
 });
 
@@ -582,7 +662,7 @@ const oka: CombatAction = createCombatAction({
     if (context.comboed || meikyo) {
       dispatch(addKenki(10));
       dispatch(addSen(ActionId.Oka));
-      dispatch(buff(StatusId.Fuka, 40));
+      dispatch(buff(StatusId.Fuka));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Oka) || hasBuff(state, StatusId.MeikyoShisui),
@@ -599,7 +679,7 @@ const mangetsu: CombatAction = createCombatAction({
     if (context.comboed || meikyo) {
       dispatch(addKenki(10));
       dispatch(addSen(ActionId.Mangetsu));
-      dispatch(buff(StatusId.Fugetsu, 40));
+      dispatch(buff(StatusId.Fugetsu));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Mangetsu) || hasBuff(state, StatusId.MeikyoShisui),
@@ -633,6 +713,21 @@ const shoha2: CombatAction = createCombatAction({
   isUsable: (state) => meditation(state) === 3,
   isGlowing: (state) => meditation(state) === 3,
 });
+
+export const samStatuses: CombatStatus[] = [
+  fukaStatus,
+  fugetsuStatus,
+  higenbanaStatus,
+  kaeshiHigenbanaActiveStatus,
+  kaeshiGokenActiveStatus,
+  kaeshiSetsugekkaActiveStatus,
+  kaeshiNamikiriActiveStatus,
+  meikyoShisuiStatus,
+  meditateStatus,
+  thirdEyeStatus,
+  ogiNamikiriReadyStatus,
+  enhancedEnpiStatus,
+];
 
 export const sam: CombatAction[] = [
   hakaze,

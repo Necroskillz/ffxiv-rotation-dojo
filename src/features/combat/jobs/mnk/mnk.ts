@@ -5,12 +5,14 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   addChakra,
   buff,
   debuff,
   dmgEvent,
+  event,
   executeAction,
   gcd,
   hasBuff,
@@ -108,19 +110,19 @@ const anatmanEpic: Epic<any, any, RootState> = (action$, state$) =>
           const actions = [];
 
           if (hasBuff(state, StatusId.DisciplinedFist)) {
-            actions.push(buff(StatusId.DisciplinedFist, 15));
+            actions.push(buff(StatusId.DisciplinedFist));
           }
 
           if (hasBuff(state, StatusId.OpoopoForm)) {
-            actions.push(buff(StatusId.OpoopoForm, 30));
+            actions.push(buff(StatusId.OpoopoForm));
           }
 
           if (hasBuff(state, StatusId.RaptorForm)) {
-            actions.push(buff(StatusId.RaptorForm, 30));
+            actions.push(buff(StatusId.RaptorForm));
           }
 
           if (hasBuff(state, StatusId.CoeurlForm)) {
-            actions.push(buff(StatusId.CoeurlForm, 30));
+            actions.push(buff(StatusId.CoeurlForm));
           }
 
           return of(...actions);
@@ -183,9 +185,9 @@ export const setForm =
       clear();
 
       if (form === StatusId.PerfectBalance) {
-        dispatch(buff(StatusId.PerfectBalance, 20, { stacks: 3 }));
+        dispatch(buff(StatusId.PerfectBalance));
       } else {
-        dispatch(buff(StatusId.FormlessFist, 30));
+        dispatch(buff(StatusId.FormlessFist));
       }
     } else {
       if (hasBuff(getState(), StatusId.PerfectBalance)) {
@@ -194,10 +196,108 @@ export const setForm =
       } else {
         clear();
 
-        dispatch(buff(form, 30));
+        dispatch(buff(form));
       }
     }
   };
+
+const perfectBalanceStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PerfectBalance,
+  duration: 20,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const formlessFistStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FormlessFist,
+  duration: 30,
+  isHarmful: false,
+});
+
+const raptorFormStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RaptorForm,
+  duration: 30,
+  isHarmful: false,
+});
+
+const coeurlFormStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CoeurlForm,
+  duration: 30,
+  isHarmful: false,
+});
+
+const opoopoFormStatus: CombatStatus = createCombatStatus({
+  id: StatusId.OpoopoForm,
+  duration: 30,
+  isHarmful: false,
+});
+
+const leadenFistStatus: CombatStatus = createCombatStatus({
+  id: StatusId.LeadenFist,
+  duration: 30,
+  isHarmful: false,
+});
+
+const disciplinedFistStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DisciplinedFist,
+  duration: 15,
+  isHarmful: false,
+});
+
+const demolishStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Demolish,
+  duration: 18,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 70 })),
+});
+
+const mantraStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Mantra,
+  duration: 15,
+  isHarmful: false,
+});
+
+const riddleOfFireStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RiddleofFire,
+  duration: 20,
+  isHarmful: false,
+});
+
+const riddleOfEarthStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RiddleofEarth,
+  duration: 15,
+  isHarmful: false,
+});
+
+const riddleOfWindStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RiddleofWind,
+  duration: 15,
+  isHarmful: false,
+});
+
+const brotherhoodStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Brotherhood,
+  duration: 15,
+  isHarmful: false,
+});
+
+const meditativeBrotherhoodStatus = createCombatStatus({
+  id: StatusId.MeditativeBrotherhood,
+  duration: 15,
+  isHarmful: false,
+});
+
+const sixsidedStarStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SixsidedStar,
+  duration: 5,
+  isHarmful: false,
+});
+
+const anatmanStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Anatman,
+  duration: 30,
+  isHarmful: false,
+});
 
 const bootshine: CombatAction = createCombatAction({
   id: ActionId.Bootshine,
@@ -240,7 +340,7 @@ const dragonKick: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.DragonKick, context, { potency: 320 }));
 
     if (hasForm(getState(), StatusId.OpoopoForm)) {
-      dispatch(buff(StatusId.LeadenFist, 30));
+      dispatch(buff(StatusId.LeadenFist));
     }
 
     dispatch(setForm(StatusId.RaptorForm, BeastChakra.OpoOpo));
@@ -253,7 +353,7 @@ const twinSnakes: CombatAction = createCombatAction({
   id: ActionId.TwinSnakes,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.TwinSnakes, context, { potency: 280 }));
-    dispatch(buff(StatusId.DisciplinedFist, 15));
+    dispatch(buff(StatusId.DisciplinedFist));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
@@ -265,7 +365,7 @@ const demolish: CombatAction = createCombatAction({
   id: ActionId.Demolish,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Demolish, context, { potency: 70, rearPotency: 130 }));
-    dispatch(debuff(StatusId.Demolish, 18, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 70 })) }));
+    dispatch(debuff(StatusId.Demolish));
     dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -451,7 +551,7 @@ const mantra: CombatAction = createCombatAction({
   id: ActionId.Mantra,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Mantra, 15));
+    dispatch(buff(StatusId.Mantra));
   },
   entersCombat: false,
 });
@@ -460,7 +560,7 @@ const riddleOfFire: CombatAction = createCombatAction({
   id: ActionId.RiddleofFire,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.RiddleofFire, 20));
+    dispatch(buff(StatusId.RiddleofFire));
   },
   entersCombat: false,
 });
@@ -469,7 +569,7 @@ const riddleOfWind: CombatAction = createCombatAction({
   id: ActionId.RiddleofWind,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.RiddleofWind, 15));
+    dispatch(buff(StatusId.RiddleofWind));
   },
   entersCombat: false,
 });
@@ -478,7 +578,7 @@ const riddleOfEarth: CombatAction = createCombatAction({
   id: ActionId.RiddleofEarth,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.RiddleofEarth, 15));
+    dispatch(buff(StatusId.RiddleofEarth));
   },
   entersCombat: false,
 });
@@ -487,8 +587,8 @@ const brotherhood: CombatAction = createCombatAction({
   id: ActionId.Brotherhood,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Brotherhood, 15));
-    dispatch(buff(StatusId.MeditativeBrotherhood, 15));
+    dispatch(buff(StatusId.Brotherhood));
+    dispatch(buff(StatusId.MeditativeBrotherhood));
   },
   entersCombat: false,
 });
@@ -497,7 +597,7 @@ const sixsidedStar: CombatAction = createCombatAction({
   id: ActionId.SixsidedStar,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.SixsidedStar, context, { potency: 550 }));
-    dispatch(buff(StatusId.SixsidedStar, 5));
+    dispatch(buff(StatusId.SixsidedStar));
   },
   reducedBySkillSpeed: true,
 });
@@ -522,7 +622,7 @@ const fourPointFury: CombatAction = createCombatAction({
   id: ActionId.FourpointFury,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.FourpointFury, context, { potency: 120 }));
-    dispatch(buff(StatusId.DisciplinedFist, 15));
+    dispatch(buff(StatusId.DisciplinedFist));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
@@ -545,10 +645,29 @@ const anatman: CombatAction = createCombatAction({
   id: ActionId.Anatman,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Anatman, 30));
+    dispatch(buff(StatusId.Anatman));
   },
   entersCombat: false,
 });
+
+export const mnkStatuses = [
+  perfectBalanceStatus,
+  formlessFistStatus,
+  raptorFormStatus,
+  coeurlFormStatus,
+  opoopoFormStatus,
+  brotherhoodStatus,
+  meditativeBrotherhoodStatus,
+  sixsidedStarStatus,
+  disciplinedFistStatus,
+  riddleOfFireStatus,
+  riddleOfWindStatus,
+  riddleOfEarthStatus,
+  mantraStatus,
+  anatmanStatus,
+  leadenFistStatus,
+  demolishStatus,
+];
 
 export const mnk: CombatAction[] = [
   bootshine,

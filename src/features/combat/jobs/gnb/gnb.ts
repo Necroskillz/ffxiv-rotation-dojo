@@ -5,6 +5,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -70,6 +71,111 @@ const removeBlastContinuationEpic: Epic<any, any, RootState> = (action$, state$)
     map(() => removeBuff(StatusId.ReadytoBlast))
   );
 
+const brutalShellStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BrutalShell,
+  duration: 30,
+  isHarmful: false,
+});
+
+const noMercyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.NoMercy,
+  duration: 20,
+  isHarmful: false,
+});
+
+const royalGuardStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RoyalGuard,
+  duration: null,
+  isHarmful: false,
+});
+
+const readytoBlastStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ReadytoBlast,
+  duration: 10,
+  isHarmful: false,
+});
+
+const readytoGougeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ReadytoGouge,
+  duration: 10,
+  isHarmful: false,
+});
+
+const readytoRipStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ReadytoRip,
+  duration: 10,
+  isHarmful: false,
+});
+
+const readytoTearStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ReadytoTear,
+  duration: 10,
+  isHarmful: false,
+});
+
+const bowShockStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BowShock,
+  duration: 15,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 60 })),
+});
+
+const sonicBreakStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SonicBreak,
+  duration: 30,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 60 })),
+});
+
+const camouflageStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Camouflage,
+  duration: 20,
+  isHarmful: false,
+});
+
+const nebulaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Nebula,
+  duration: 15,
+  isHarmful: false,
+});
+
+const auroraStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Aurora,
+  duration: 18,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 200 })),
+});
+
+const superbolideStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Superbolide,
+  duration: 10,
+  isHarmful: false,
+});
+
+const heartOfLightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HeartofLight,
+  duration: 15,
+  isHarmful: false,
+});
+
+const heartOfCorundumStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HeartofCorundum,
+  duration: 8,
+  isHarmful: false,
+});
+
+const clarityofCorundumStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ClarityofCorundum,
+  duration: 4,
+  isHarmful: false,
+});
+
+const catharsisofCorundumStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CatharsisofCorundum,
+  duration: 20,
+  isHarmful: false,
+});
+
 const keenEdge: CombatAction = createCombatAction({
   id: ActionId.KeenEdge,
   execute: (dispatch, _, context) => {
@@ -86,7 +192,7 @@ const brutalShell: CombatAction = createCombatAction({
 
     if (context.comboed) {
       dispatch(combo(ActionId.BrutalShell));
-      dispatch(buff(StatusId.BrutalShell, 30));
+      dispatch(buff(StatusId.BrutalShell));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.BrutalShell),
@@ -110,7 +216,7 @@ const noMercy: CombatAction = createCombatAction({
   id: ActionId.NoMercy,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.NoMercy, 20));
+    dispatch(buff(StatusId.NoMercy));
   },
   entersCombat: false,
 });
@@ -119,7 +225,7 @@ const royalGuard: CombatAction = createCombatAction({
   id: ActionId.RoyalGuard,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.RoyalGuard, null));
+    dispatch(buff(StatusId.RoyalGuard));
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.RoyalGuard) ? ActionId.ReleaseRoyalGuard : ActionId.RoyalGuard),
@@ -138,7 +244,7 @@ const burstStrike: CombatAction = createCombatAction({
   id: ActionId.BurstStrike,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.BurstStrike, context, { potency: 380 }));
-    dispatch(buff(StatusId.ReadytoBlast, 10));
+    dispatch(buff(StatusId.ReadytoBlast));
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => cartridge(state) > 0,
@@ -223,7 +329,7 @@ const gnashingFang: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.GnashingFang, context, { potency: 380 }));
     dispatch(combo(ActionId.GnashingFang));
-    dispatch(buff(StatusId.ReadytoRip, 10));
+    dispatch(buff(StatusId.ReadytoRip));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   isGlowing: (state) => cartridge(state) > 0,
@@ -243,7 +349,7 @@ const savageClaw: CombatAction = createCombatAction({
 
     if (context.comboed) {
       dispatch(combo(ActionId.SavageClaw));
-      dispatch(buff(StatusId.ReadytoTear, 10));
+      dispatch(buff(StatusId.ReadytoTear));
     }
   },
   isGlowing: () => true,
@@ -256,7 +362,7 @@ const wickedTalon: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.WickedTalon, context, { comboPotency: 540 }));
 
     if (context.comboed) {
-      dispatch(buff(StatusId.ReadytoGouge, 10));
+      dispatch(buff(StatusId.ReadytoGouge));
     }
   },
   isGlowing: () => true,
@@ -314,7 +420,7 @@ const bowShock: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.BowShock, context, { potency: 150 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.BowShock, 15, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 60 })) }));
+    dispatch(debuff(StatusId.BowShock));
   },
 });
 
@@ -323,7 +429,7 @@ const sonicBreak: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.SonicBreak, context, { potency: 300 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(debuff(StatusId.SonicBreak, 30, { periodicEffect: () => dispatch(dmgEvent(0, context, { potency: 60 })) }));
+    dispatch(debuff(StatusId.SonicBreak));
   },
   reducedBySkillSpeed: true,
 });
@@ -332,7 +438,7 @@ const camouflage: CombatAction = createCombatAction({
   id: ActionId.Camouflage,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Camouflage, 20));
+    dispatch(buff(StatusId.Camouflage));
   },
   entersCombat: false,
 });
@@ -341,7 +447,7 @@ const nebula: CombatAction = createCombatAction({
   id: ActionId.Nebula,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Nebula, 15));
+    dispatch(buff(StatusId.Nebula));
   },
   entersCombat: false,
 });
@@ -350,7 +456,7 @@ const aurora: CombatAction = createCombatAction({
   id: ActionId.Aurora,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Aurora, 18, { periodicEffect: () => dispatch(event(0, { healthPotency: 200 })) }));
+    dispatch(buff(StatusId.Aurora));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -364,7 +470,7 @@ const superbolide: CombatAction = createCombatAction({
   id: ActionId.Superbolide,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Superbolide, 10));
+    dispatch(buff(StatusId.Superbolide));
   },
   entersCombat: false,
 });
@@ -373,7 +479,7 @@ const heartOfLight: CombatAction = createCombatAction({
   id: ActionId.HeartofLight,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.HeartofLight, 15));
+    dispatch(buff(StatusId.HeartofLight));
   },
   entersCombat: false,
 });
@@ -388,9 +494,9 @@ const heartOfCorundum: CombatAction = createCombatAction({
   id: ActionId.HeartofCorundum,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.HeartofCorundum, 8));
-    dispatch(buff(StatusId.ClarityofCorundum, 4));
-    dispatch(buff(StatusId.CatharsisofCorundum, 20));
+    dispatch(buff(StatusId.HeartofCorundum));
+    dispatch(buff(StatusId.ClarityofCorundum));
+    dispatch(buff(StatusId.CatharsisofCorundum));
   },
   entersCombat: false,
 });
@@ -425,6 +531,26 @@ const fatedCircle: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
   isGlowing: (state) => cartridge(state) > 0,
 });
+
+export const gnbStatuses: CombatStatus[] = [
+  auroraStatus,
+  bowShockStatus,
+  camouflageStatus,
+  heartOfCorundumStatus,
+  heartOfLightStatus,
+  nebulaStatus,
+  superbolideStatus,
+  sonicBreakStatus,
+  royalGuardStatus,
+  readytoBlastStatus,
+  readytoRipStatus,
+  readytoTearStatus,
+  readytoGougeStatus,
+  brutalShellStatus,
+  noMercyStatus,
+  clarityofCorundumStatus,
+  catharsisofCorundumStatus,
+];
 
 export const gnb: CombatAction[] = [
   keenEdge,

@@ -1,5 +1,4 @@
-import { createSelector, createSlice, PayloadAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { interval, startWith, Subscription, switchMap, timer } from 'rxjs';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
@@ -9,6 +8,7 @@ import { actions } from './actions';
 import { CombatAction, CombatActionExecuteContext } from './combat-action';
 import { OGCDLockDuration } from './enums';
 import { collectStatuses } from './event-status-collector';
+import { statuses } from './statuses';
 
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
   90: { SUB: 400, DIV: 1900 },
@@ -232,7 +232,7 @@ function addStatus(state: CombatState, status: StatusState, isHarm: boolean) {
   const existing = collection.find((s) => s.id === status.id);
   if (existing) {
     if (existing.timeoutId) {
-      clearTimeout(existing.timeoutId);
+      existing.timeoutId && clearTimeout(existing.timeoutId);
     }
     existing.duration = status.duration;
     existing.timeoutId = status.timeoutId;
@@ -249,7 +249,6 @@ function removeStatus(state: CombatState, statusId: number, isHarm: boolean) {
   const status = collection.find((b) => b.id === statusId)!;
   if (status) {
     status.timeoutId && clearTimeout(status.timeoutId);
-    periodicSubscriptions.get(statusId)?.unsubscribe();
   }
 
   const newCollection = collection.filter((b) => b.id !== statusId);
@@ -448,6 +447,14 @@ export const selectBuff = createSelector(
   }
 );
 
+export const selectDebuff = createSelector(
+  selectDebuffs,
+  (_: any, id: StatusId) => id,
+  (debuffs, id) => {
+    return debuffs.find((b) => b.id === id) || null;
+  }
+);
+
 export const reset =
   (full: boolean): AppThunk =>
   (dispatch, getState) => {
@@ -477,70 +484,13 @@ export const combo =
     );
   };
 
-const periodicSubscriptions: Map<number, Subscription> = new Map();
-
-export const status =
-  (id: StatusId, duration: number | null, isHarm: boolean, options: StatusOptions): AppThunk =>
-  (dispatch, getState) => {
-    const status: StatusState = {
-      id,
-      timeoutId: duration
-        ? setTimeout(() => {
-            if (isHarm) {
-              dispatch(removeDebuff(id));
-            } else {
-              dispatch(removeBuff(id));
-            }
-
-            options.expireCallback && options.expireCallback();
-          }, duration * 1000)
-        : null,
-      duration,
-      timestamp: Date.now(),
-      stacks: options.stacks || null,
-      visible: options?.isVisible === undefined ? true : options.isVisible,
-    };
-
-    if (options.periodicEffect) {
-      if (hasBuff(getState(), id) || hasDebuff(getState(), id)) {
-        periodicSubscriptions.get(id)?.unsubscribe();
-      }
-
-      periodicSubscriptions.set(
-        id,
-        timer(options.periodicEffectDelay || 1000)
-          .pipe(switchMap(() => interval(options.periodicEffectInterval || 3000).pipe(startWith(0))))
-          .subscribe(() => options.periodicEffect!(dispatch))
-      );
-    }
-
-    if (isHarm) {
-      dispatch(addDebuff(status));
-    } else {
-      dispatch(addBuff(status));
-    }
-  };
-
-export interface StatusOptions {
-  stacks?: number;
-  isVisible?: boolean;
-  expireCallback?: () => void;
-  periodicEffect?: (dispatch: ThunkDispatch<RootState, any, any>) => void;
-  periodicEffectInterval?: number;
-  periodicEffectDelay?: number;
-}
-
 export const buff =
-  (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
-  (dispatch) => {
-    dispatch(status(id, duration, false, options || {}));
+  (id: StatusId, options?: { stacks?: number; duration?: number }): AppThunk =>
+  (dispatch, getState) => {
+    statuses[id].apply(dispatch as any, getState, options || {});
   };
 
-export const debuff =
-  (id: StatusId, duration: number | null, options?: StatusOptions): AppThunk =>
-  (dispatch) => {
-    dispatch(status(id, duration, true, options || {}));
-  };
+export const debuff = buff;
 
 export const removeBuff =
   (id: StatusId): AppThunk =>
@@ -559,67 +509,23 @@ export const removeDebuff =
   };
 
 export const extendableDebuff =
-  (id: StatusId, duration: number, maxDuration: number): AppThunk =>
+  (id: StatusId, duration?: number): AppThunk =>
   (dispatch, getState) => {
-    let extendedDuration = duration;
-    if (hasDebuff(getState(), id)) {
-      const combat = selectCombat(getState());
-
-      const status = combat.debuffs.find((b) => b.id === id)!;
-      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
-      extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
-    }
-    dispatch(debuff(id, extendedDuration));
+    statuses[id].extend(dispatch as any, getState, { duration });
   };
 
-export const extendableBuff =
-  (id: StatusId, duration: number, maxDuration: number, options?: StatusOptions): AppThunk =>
-  (dispatch, getState) => {
-    let extendedDuration = duration;
-    if (hasBuff(getState(), id)) {
-      const combat = selectCombat(getState());
-
-      const status = combat.buffs.find((b) => b.id === id)!;
-      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
-      extendedDuration = Math.min(extendedDuration + remainingDuration, maxDuration);
-    }
-    dispatch(buff(id, extendedDuration, options));
-  };
+export const extendableBuff = extendableDebuff;
 
 export const removeBuffStack =
   (id: StatusId): AppThunk =>
-  (dispatch, getState) => {
-    const stacks = buffStacks(getState(), id);
-    if (stacks === 1) {
-      dispatch(removeBuff(id));
-    } else {
-      const combat = selectCombat(getState());
-
-      const status = combat.buffs.find((b) => b.id === id);
-      if (!status) {
-        return;
-      }
-
-      const remainingDuration = status.duration ? status.duration - (Date.now() - status.timestamp) / 1000 : null;
-
-      dispatch(buff(id, remainingDuration, { stacks: stacks - 1 }));
-    }
+  (dispatch) => {
+    dispatch(statuses[id].removeStack as any);
   };
 
 export const addBuffStack =
-  (id: StatusId, duration: number): AppThunk =>
-  (dispatch, getState) => {
-    const stacks = buffStacks(getState(), id);
-    if (stacks === 0) {
-      dispatch(buff(id, duration, { stacks: 1 }));
-    } else {
-      const combat = selectCombat(getState());
-
-      const status = combat.buffs.find((b) => b.id === id)!;
-      const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
-
-      dispatch(buff(id, remainingDuration, { stacks: stacks + 1 }));
-    }
+  (id: StatusId): AppThunk =>
+  (dispatch) => {
+    dispatch(statuses[id].addStack as any);
   };
 
 export const cooldown =

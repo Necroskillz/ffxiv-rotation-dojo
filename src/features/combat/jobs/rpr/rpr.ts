@@ -5,6 +5,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   addBuffStack,
@@ -117,7 +118,7 @@ const consumeCircleOfSacrificeEpic: Epic<any, any, RootState> = (action$, state$
         takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === StatusId.CircleofSacrifice)))
       )
     ),
-    switchMap(() => of(removeBuff(StatusId.CircleofSacrifice), addBuffStack(StatusId.ImmortalSacrifice, 30)))
+    switchMap(() => of(removeBuff(StatusId.CircleofSacrifice), addBuffStack(StatusId.ImmortalSacrifice)))
   );
 
 const partyCircleOfSacrificeEpic: Epic<ReducerAction<StatusState>, any, RootState> = (action$, state$) =>
@@ -146,8 +147,100 @@ const partyCircleOfSacrificeEpic: Epic<ReducerAction<StatusState>, any, RootStat
 
       return actions;
     }),
-    concatMap((a) => a.pipe(map(() => addBuffStack(StatusId.ImmortalSacrifice, 30))))
+    concatMap((a) => a.pipe(map(() => addBuffStack(StatusId.ImmortalSacrifice))))
   );
+
+const immortalSacrificeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ImmortalSacrifice,
+  duration: 30,
+  isHarmful: false,
+  maxStacks: 8,
+});
+
+const deathsDesignStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DeathsDesign,
+  duration: 30,
+  isHarmful: true,
+  maxDuration: 60,
+});
+
+const thresholdStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Threshold,
+  duration: 10,
+  isHarmful: false,
+});
+
+const enhancedHarpeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedHarpe,
+  duration: 20,
+  isHarmful: false,
+});
+
+const soulReaverStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SoulReaver,
+  duration: 30,
+  isHarmful: false,
+});
+
+const enhancedGallowsStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedGallows,
+  duration: 60,
+  isHarmful: false,
+});
+
+const enhancedGibbetStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedGibbet,
+  duration: 60,
+  isHarmful: false,
+});
+
+const enshroudedStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Enshrouded,
+  duration: 30,
+  isHarmful: false,
+});
+
+const enhancedCrossReapingStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedCrossReaping,
+  duration: 30,
+  isHarmful: false,
+});
+
+const enhancedVoidReapingStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedVoidReaping,
+  duration: 30,
+  isHarmful: false,
+});
+
+const circleOfSacrificeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CircleofSacrifice,
+  duration: 5,
+  isHarmful: false,
+});
+
+const arcaneCircleStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ArcaneCircle,
+  duration: 20,
+  isHarmful: false,
+});
+
+const bloodsownCircleStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BloodsownCircle,
+  duration: 6,
+  isHarmful: false,
+});
+
+const soulsowStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Soulsow,
+  duration: null,
+  isHarmful: false,
+});
+
+const crestofTimeBorrowedStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CrestofTimeBorrowed,
+  duration: 5,
+  isHarmful: false,
+});
 
 const slice: CombatAction = createCombatAction({
   id: ActionId.Slice,
@@ -195,7 +288,7 @@ const shadowOfDeath: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.ShadowofDeath, context, { potency: 300 }));
 
-    dispatch(extendableDebuff(StatusId.DeathsDesign, 30, 60));
+    dispatch(extendableDebuff(StatusId.DeathsDesign));
   },
   reducedBySkillSpeed: true,
 });
@@ -218,8 +311,8 @@ const hellsIngress: CombatAction = createCombatAction({
   id: ActionId.HellsIngress,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Threshold, 10));
-    dispatch(buff(StatusId.EnhancedHarpe, 20));
+    dispatch(buff(StatusId.Threshold));
+    dispatch(buff(StatusId.EnhancedHarpe));
     dispatch(setResource({ resourceType: 'hell', amount: 1 }));
   },
   redirect: (state) => (hasBuff(state, StatusId.Threshold) && resource(state, 'hell') === 2 ? ActionId.Regress : ActionId.HellsIngress),
@@ -229,8 +322,8 @@ const hellsEgress: CombatAction = createCombatAction({
   id: ActionId.HellsEgress,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Threshold, 10));
-    dispatch(buff(StatusId.EnhancedHarpe, 20));
+    dispatch(buff(StatusId.Threshold));
+    dispatch(buff(StatusId.EnhancedHarpe));
     dispatch(setResource({ resourceType: 'hell', amount: 2 }));
   },
   redirect: (state) => (hasBuff(state, StatusId.Threshold) && resource(state, 'hell') === 1 ? ActionId.Regress : ActionId.HellsEgress),
@@ -250,7 +343,7 @@ const bloodStalk: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.BloodStalk, context, { potency: 340 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+    dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
   redirect: (state) =>
     hasBuff(state, StatusId.Enshrouded)
@@ -268,7 +361,7 @@ const unveiledGallows: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.UnveiledGallows, context, { potency: 400 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+    dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
   isGlowing: (state) => soul(state) >= 50,
 });
@@ -278,7 +371,7 @@ const unveiledGibbet: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.UnveiledGibbet, context, { potency: 400 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+    dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
   isGlowing: (state) => soul(state) >= 50,
 });
@@ -312,7 +405,7 @@ const gibbet: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.EnhancedGibbet));
     }
 
-    dispatch(buff(StatusId.EnhancedGallows, 60));
+    dispatch(buff(StatusId.EnhancedGallows));
 
     dispatch(addShroud(10));
   },
@@ -342,7 +435,7 @@ const gallows: CombatAction = createCombatAction({
       dispatch(removeBuff(StatusId.EnhancedGallows));
     }
 
-    dispatch(buff(StatusId.EnhancedGibbet, 60));
+    dispatch(buff(StatusId.EnhancedGibbet));
 
     dispatch(addShroud(10));
   },
@@ -358,7 +451,7 @@ const gluttony: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Gluttony, context, { potency: 500 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 2 }));
+    dispatch(buff(StatusId.SoulReaver, { stacks: 2 }));
   },
   isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
   isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && soul(state) >= 50,
@@ -368,7 +461,7 @@ const enshround: CombatAction = createCombatAction({
   id: ActionId.Enshroud,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Enshrouded, 30));
+    dispatch(buff(StatusId.Enshrouded));
     dispatch(addLemure(5));
   },
   isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
@@ -391,7 +484,7 @@ const crossReaping: CombatAction = createCombatAction({
     }
 
     if (lemure(getState()) > 0) {
-      dispatch(buff(StatusId.EnhancedVoidReaping, 30));
+      dispatch(buff(StatusId.EnhancedVoidReaping));
 
       dispatch(addVoid(1));
     }
@@ -415,7 +508,7 @@ const voidReaping: CombatAction = createCombatAction({
     }
 
     if (lemure(getState()) > 0) {
-      dispatch(buff(StatusId.EnhancedCrossReaping, 30));
+      dispatch(buff(StatusId.EnhancedCrossReaping));
 
       dispatch(addVoid(1));
     }
@@ -436,9 +529,9 @@ const arcaneCircle: CombatAction = createCombatAction({
   id: ActionId.ArcaneCircle,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ArcaneCircle, 20));
-    dispatch(buff(StatusId.CircleofSacrifice, 5));
-    dispatch(buff(StatusId.BloodsownCircle, 6));
+    dispatch(buff(StatusId.ArcaneCircle));
+    dispatch(buff(StatusId.CircleofSacrifice));
+    dispatch(buff(StatusId.BloodsownCircle));
   },
 });
 
@@ -470,7 +563,7 @@ const communio: CombatAction = createCombatAction({
 const soulsow: CombatAction = createCombatAction({
   id: ActionId.Soulsow,
   execute: (dispatch) => {
-    dispatch(buff(StatusId.Soulsow, null));
+    dispatch(buff(StatusId.Soulsow));
   },
   castTime: (state) => (inCombat(state) ? 5 : 0),
   redirect: (state) => (hasBuff(state, StatusId.Soulsow) ? ActionId.HarvestMoon : ActionId.Soulsow),
@@ -493,7 +586,7 @@ const whorlOfDeath: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.WhorlofDeath, context, { potency: 100 }));
 
-    dispatch(extendableDebuff(StatusId.DeathsDesign, 30, 60));
+    dispatch(extendableDebuff(StatusId.DeathsDesign));
   },
   reducedBySkillSpeed: true,
 });
@@ -566,7 +659,7 @@ const grimSwathe: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.GrimSwathe, context, { potency: 140 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, 30, { stacks: 1 }));
+    dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
   redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.LemuresScythe : ActionId.GrimSwathe),
   isGlowing: (state) => soul(state) >= 50,
@@ -585,9 +678,27 @@ const arcaneCrest: CombatAction = createCombatAction({
   id: ActionId.ArcaneCrest,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.CrestofTimeBorrowed, 5));
+    dispatch(buff(StatusId.CrestofTimeBorrowed));
   },
 });
+
+export const rprStatuses: CombatStatus[] = [
+  immortalSacrificeStatus,
+  deathsDesignStatus,
+  thresholdStatus,
+  enhancedHarpeStatus,
+  soulReaverStatus,
+  enhancedGallowsStatus,
+  enhancedGibbetStatus,
+  enshroudedStatus,
+  enhancedCrossReapingStatus,
+  enhancedVoidReapingStatus,
+  crestofTimeBorrowedStatus,
+  arcaneCircleStatus,
+  bloodsownCircleStatus,
+  circleOfSacrificeStatus,
+  soulsowStatus,
+];
 
 export const rpr: CombatAction[] = [
   slice,

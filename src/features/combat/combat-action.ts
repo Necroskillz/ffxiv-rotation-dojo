@@ -187,7 +187,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
           resolve();
 
           if (selectJob(getState()) === 'RDM') {
-            dispatch(buff(StatusId.Dualcast, 15));
+            dispatch(buff(StatusId.Dualcast));
           }
 
           dispatch(drainQueue());

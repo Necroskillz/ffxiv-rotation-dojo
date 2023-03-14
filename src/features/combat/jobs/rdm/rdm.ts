@@ -5,6 +5,7 @@ import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { CombatAction, createCombatAction } from '../../combat-action';
+import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   buff,
   combo,
@@ -117,6 +118,49 @@ function joltRedirect(state: RootState) {
   return hasCombo(state, ActionId.Resolution) ? ActionId.Resolution : hasCombo(state, ActionId.Scorch) ? ActionId.Scorch : ActionId.JoltII;
 }
 
+const dualcastStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Dualcast,
+  duration: 15,
+  isHarmful: false,
+});
+
+const verfireReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.VerfireReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const verstoneReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.VerstoneReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const manaficationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Manafication,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 6,
+});
+
+const accelerationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Acceleration,
+  duration: 20,
+  isHarmful: false,
+});
+
+const emboldenStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Embolden,
+  duration: 20,
+  isHarmful: false,
+});
+
+const magickBarrierStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MagickBarrier,
+  duration: 10,
+  isHarmful: false,
+});
+
 const jolt: CombatAction = createCombatAction({
   id: ActionId.Jolt,
   execute: () => {},
@@ -153,7 +197,7 @@ const verthuder3: CombatAction = createCombatAction({
     dispatch(addBlackMana(6));
 
     if (hasBuff(getState(), StatusId.Acceleration) || rng(50)) {
-      dispatch(buff(StatusId.VerfireReady, 30));
+      dispatch(buff(StatusId.VerfireReady));
     }
   },
   castTime: (state) => (hasBuff(state, StatusId.Acceleration) ? 0 : 5),
@@ -180,7 +224,7 @@ const veraero3: CombatAction = createCombatAction({
     dispatch(addWhiteMana(6));
 
     if (hasBuff(getState(), StatusId.Acceleration) || rng(50)) {
-      dispatch(buff(StatusId.VerstoneReady, 30));
+      dispatch(buff(StatusId.VerstoneReady));
     }
   },
   castTime: (state) => (hasBuff(state, StatusId.Acceleration) ? 0 : 5),
@@ -285,7 +329,7 @@ const manafication: CombatAction = createCombatAction({
   id: ActionId.Manafication,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Manafication, 15, { stacks: 6 }));
+    dispatch(buff(StatusId.Manafication));
     dispatch(addBlackAndWhiteMana(50));
   },
   isUsable: (state) => inCombat(state),
@@ -298,7 +342,7 @@ const verflare: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Verflare));
 
     if (whiteMana(getState()) > blackMana(getState()) || rng(20)) {
-      dispatch(buff(StatusId.VerfireReady, 30));
+      dispatch(buff(StatusId.VerfireReady));
     }
 
     dispatch(addBlackMana(11));
@@ -314,7 +358,7 @@ const verholy: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Verflare));
 
     if (blackMana(getState()) > whiteMana(getState()) || rng(20)) {
-      dispatch(buff(StatusId.VerstoneReady, 30));
+      dispatch(buff(StatusId.VerstoneReady));
     }
 
     dispatch(addWhiteMana(11));
@@ -348,7 +392,7 @@ const acceleration: CombatAction = createCombatAction({
   id: ActionId.Acceleration,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Acceleration, 20));
+    dispatch(buff(StatusId.Acceleration));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -361,7 +405,7 @@ const embolden: CombatAction = createCombatAction({
   id: ActionId.Embolden,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Embolden, 20));
+    dispatch(buff(StatusId.Embolden));
   },
 });
 
@@ -438,7 +482,7 @@ const magickBarrier: CombatAction = createCombatAction({
   id: ActionId.MagickBarrier,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.MagickBarrier, 10));
+    dispatch(buff(StatusId.MagickBarrier));
   },
 });
 
@@ -523,6 +567,16 @@ const enchantedMoulinet: CombatAction = createCombatAction({
     dispatch(addManaStack(1));
   },
 });
+
+export const rdmStatuses: CombatStatus[] = [
+  dualcastStatus,
+  verfireReadyStatus,
+  verstoneReadyStatus,
+  accelerationStatus,
+  emboldenStatus,
+  manaficationStatus,
+  magickBarrierStatus,
+];
 
 export const rdm: CombatAction[] = [
   jolt,
