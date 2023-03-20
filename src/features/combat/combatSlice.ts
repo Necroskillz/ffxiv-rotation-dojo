@@ -4,6 +4,7 @@ import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { selectJob, selectLevel, selectSkillSpeed, selectSpellSpeed } from '../player/playerSlice';
+import { stateInitializer } from '../script_engine/state_initializer';
 import { actions } from './actions';
 import { CombatAction, CombatActionExecuteContext } from './combat-action';
 import { OGCDLockDuration } from './enums';
@@ -185,6 +186,8 @@ const initialState: CombatState = {
   cast: null,
   pet: null,
 };
+
+export const ResourceTypes = Object.keys(initialState.resources);
 
 export interface AddComboActionPayload {
   actionId: ActionId;
@@ -471,6 +474,10 @@ export const reset =
     dispatch(setCast(null));
 
     dispatch(clear());
+
+    if (!full) {
+      dispatch(stateInitializer.initialize);
+    }
   };
 
 export const combo =
@@ -508,13 +515,13 @@ export const removeDebuff =
     }
   };
 
-export const extendableDebuff =
+export const extendableBuff =
   (id: StatusId, duration?: number): AppThunk =>
   (dispatch, getState) => {
     statuses[id].extend(dispatch as any, getState, { duration });
   };
 
-export const extendableBuff = extendableDebuff;
+export const extendableDebuff = extendableBuff;
 
 export const removeBuffStack =
   (id: StatusId): AppThunk =>
@@ -529,8 +536,12 @@ export const addBuffStack =
   };
 
 export const cooldown =
-  (cooldownGroup: number, duration: number): AppThunk =>
+  (cooldownGroup: number, duration: number, timestamp?: number): AppThunk =>
   (dispatch) => {
+    const now = Date.now();
+    timestamp = timestamp ?? now;
+    const remaining = timestamp + duration - now;
+
     dispatch(
       addCooldown({
         cooldownGroup,
@@ -540,9 +551,9 @@ export const cooldown =
           if (cooldownGroup === 58) {
             dispatch(drainQueue());
           }
-        }, duration),
+        }, remaining),
         duration,
-        timestamp: Date.now(),
+        timestamp,
       })
     );
   };

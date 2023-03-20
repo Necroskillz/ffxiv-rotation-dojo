@@ -56,6 +56,11 @@ export interface CombatStatusAdditionalOptions {
   stacks?: number;
 }
 
+function nextOccurence(initial: number, periodic: number, timePassed: number): number {
+  const timeLeft = timePassed % periodic;
+  return timeLeft < initial ? initial - timeLeft : periodic - timeLeft;
+}
+
 export function createCombatStatus(options: CombatStatusOptions) {
   const id = options.id;
 
@@ -79,7 +84,7 @@ export function createCombatStatus(options: CombatStatusOptions) {
       };
 
       if (combatStatus.tick) {
-        if (combatStatus.ticksImmediately) {
+        if (combatStatus.ticksImmediately && combatStatus.duration! - duration! === 0) {
           dispatch(combatStatus.tick);
         }
 
@@ -89,7 +94,7 @@ export function createCombatStatus(options: CombatStatusOptions) {
 
         periodicSubscriptions.set(
           id,
-          timer(combatStatus.firstTickDelay)
+          timer(nextOccurence(combatStatus.firstTickDelay, combatStatus.tickInterval, combatStatus.duration! - duration!))
             .pipe(switchMap(() => interval(combatStatus.tickInterval).pipe(startWith(0))))
             .subscribe(() => dispatch(combatStatus.tick!))
         );
@@ -115,9 +120,8 @@ export function createCombatStatus(options: CombatStatusOptions) {
       if (!combatStatus.maxDuration) return;
 
       let extendedDuration = applyOptions.duration ?? combatStatus.duration!;
-      if (hasBuff(getState(), id)) {
-        const status = combatStatus.isHarmful ? selectDebuff(getState(), id)! : selectBuff(getState(), id)!;
-
+      const status = combatStatus.isHarmful ? selectDebuff(getState(), id)! : selectBuff(getState(), id)!;
+      if (status) {
         const remainingDuration = status.duration! - (Date.now() - status.timestamp) / 1000;
         extendedDuration = Math.min(extendedDuration + remainingDuration, combatStatus.maxDuration);
       }

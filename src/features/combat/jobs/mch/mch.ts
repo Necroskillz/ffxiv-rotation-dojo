@@ -291,7 +291,7 @@ const airAnchor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
-    dispatch(addBattery(50));
+    dispatch(addBattery(20));
   },
   reducedBySkillSpeed: true,
 });

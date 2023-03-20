@@ -41,6 +41,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const slot = useAppSelector((state) => selectSlot(state, { hotbarId, slotId }));
   const keybind = useAppSelector((state) => selectKeybind(state, { hotbarId, slotId }));
   const settings = useAppSelector((state) => selectElement(state, 'Settings'));
+  const script = useAppSelector((state) => selectElement(state, 'Script'));
   const keybindingMode = useAppSelector(selectKeybindingMode);
   const hudLock = useAppSelector(selectLock);
   const hotbarLock = useAppSelector(selectHotbarLock);
@@ -161,7 +162,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
           event.preventDefault();
         }
       } else {
-        if (!settings.isVisible && keybind.key === extractKey(event) && keybind.modifier === modifier) {
+        if (!(settings.isVisible || script.isVisible) && keybind.key === extractKey(event) && keybind.modifier === modifier) {
           onClick();
 
           event.stopPropagation();
@@ -173,7 +174,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [keybind, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings]);
+  }, [keybind, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings, script]);
 
   return (
     <div ref={drop}>

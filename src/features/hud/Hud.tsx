@@ -34,6 +34,7 @@ import { Pet } from '../combat/Pet';
 import PullTimer from '../combat/PullTimer';
 import ResourceScrollingText from '../combat/ResourceScrollingText';
 import { Hotbars } from '../hotbars/Hotbars';
+import { Script } from '../script_engine/Script';
 import { Help } from './Help';
 import { Settings } from './Settings';
 
@@ -47,6 +48,7 @@ export const Hud: FC = () => {
       <DamageScrollingText />
       <Help />
       <ActionList />
+      <Script />
       <CastBar />
       <ManaBar />
       <Pet />

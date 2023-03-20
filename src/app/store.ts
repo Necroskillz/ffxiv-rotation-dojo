@@ -5,6 +5,7 @@ import hotbarReducer from '../features/hotbars/hotbarSlice';
 import combatReducer from '../features/combat/combatSlice';
 import playerReducer from '../features/player/playerSlice';
 import hudReducer from '../features/hud/hudSlice';
+import scriptEngineReducer, { scriptEngineEpics } from '../features/script_engine/scriptEngineSlice';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { dncEpics } from '../features/combat/jobs/dnc/dnc';
 import { roleEpics } from '../features/combat/role';
@@ -41,7 +42,8 @@ const rootEpic = combineEpics(
   pldEpics,
   warEpics,
   roleEpics,
-  generalEpics
+  generalEpics,
+  scriptEngineEpics
 );
 
 const hotbarMigrations: any = {
@@ -75,6 +77,7 @@ const rootReducer = combineReducers({
   combat: combatReducer,
   player: persistReducer({ key: 'store_player', storage }, playerReducer),
   hud: persistReducer({ key: 'store_hud', storage, version: 0, migrate: createMigrate(hudMigrations) }, hudReducer),
+  scriptEngine: persistReducer({ key: 'store_scriptEngine', storage }, scriptEngineReducer),
 });
 
 const epicMiddleware = createEpicMiddleware<ReducerAction<any>, ReducerAction<any>, any>();

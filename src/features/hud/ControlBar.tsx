@@ -58,6 +58,7 @@ export const ControlBar: FC = () => {
   const actions = useAppSelector((state) => selectElement(state, 'ActionList'));
   const settings = useAppSelector((state) => selectElement(state, 'Settings'));
   const help = useAppSelector((state) => selectElement(state, 'Help'));
+  const script = useAppSelector((state) => selectElement(state, 'Script'));
   const hudLock = useAppSelector(selectLock);
   const pullTimerDuration = useAppSelector(selectPullTimerDuration);
   const keybindingMode = useAppSelector(selectKeybindingMode);
@@ -77,6 +78,10 @@ export const ControlBar: FC = () => {
 
   function toggleHelp() {
     dispatch(setVisility({ element: 'Help', isVisible: !help.isVisible }));
+  }
+
+  function toggleScript() {
+    dispatch(setVisility({ element: 'Script', isVisible: !script.isVisible }));
   }
 
   function toggleLock() {
@@ -124,6 +129,9 @@ export const ControlBar: FC = () => {
         </button>
         <button className="border px-1 rounded" onClick={toggleSettings}>
           Settings
+        </button>
+        <button className="border px-1 rounded" onClick={toggleScript}>
+          Script
         </button>
         <button className="border px-1 rounded" onClick={resetCombat}>
           Reset

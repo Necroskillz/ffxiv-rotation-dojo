@@ -60,6 +60,10 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction, an
               <div className="text-xl text-right">{combatAction ? combatAction.cost(state) : action.cost}</div>
             </div>
           )}
+          <div className="grid auto-rows-max grid-flow-row">
+            <div className="text-xiv-golden-brown text-right">CD Group</div>
+            <div className="text-xl text-right">{action.cooldownGroup}</div>
+          </div>
         </div>
         <div dangerouslySetInnerHTML={{ __html: action.description }}></div>
       </div>
