@@ -1,6 +1,5 @@
 - disable right click
 - HUD editor
-- setup combat state
 - tooltip z index
 - sort action list by categories
 - positionals (movement), cancel cast
