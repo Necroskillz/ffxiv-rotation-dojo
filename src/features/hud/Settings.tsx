@@ -6,7 +6,7 @@ import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
 import { Option } from '../../types';
 import { selectPlayer, setPartySize, setPullTimerDuration, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { recastTime } from '../combat/combatSlice';
 
 const partySizeOptions: Option<number>[] = [
@@ -25,6 +25,11 @@ export function Settings() {
   const [pullTimerDuration, setPullTimer] = useState(player.pullTimerDuration);
   const gcd = useMemo(() => recastTime(state, 2500, 'Weaponskill') / 1000, [state]);
   const cast = useMemo(() => recastTime(state, 2500, 'Spell') / 1000, [state]);
+
+  useEffect(() => {
+    setLocalSkillSpeed(player.skillSpeed);
+    setLocalSpellSpeed(player.spellSpeed);
+  }, [player]);
 
   function close() {
     dispatch(setVisility({ element: 'Settings', isVisible: false }));
@@ -70,7 +75,7 @@ export function Settings() {
             <label>Party size</label>
             <Select
               options={partySizeOptions}
-              defaultValue={partySizeOptions.find((o) => o.value === player.partySize)}
+              value={partySizeOptions.find((o) => o.value === player.partySize)}
               styles={{ option: (styles) => ({ ...styles, color: '#000' }) }}
               onChange={setParty}
             ></Select>
