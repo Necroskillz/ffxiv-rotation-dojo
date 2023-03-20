@@ -1,4 +1,6 @@
 import { getActionById } from '../actions/actions';
+import { ActionId } from '../actions/action_enums';
+import { StatusId } from '../actions/status_enums';
 import { actions } from '../combat/actions';
 import { buff, cooldown, debuff, ResourceTypes, setCombat, setPet, setPullTimer, setResource } from '../combat/combatSlice';
 import { setPartySize, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
@@ -53,6 +55,10 @@ const buffCommand: ScriptEngineCommandDefinition = {
   name: 'buff',
   args: [{ type: CommandArgType.Number }, { type: CommandArgType.Number, optional: true }, { type: CommandArgType.Number, optional: true }],
   register: (id: number, duration?: number, stacks?: number) => {
+    if (!Object.values(StatusId).includes(id)) {
+      throw new Error(`Invalid status id: ${id}`);
+    }
+
     stateInitializer.registerAction((dispatch) => {
       dispatch(buff(id, { duration, stacks }));
     });
@@ -63,6 +69,10 @@ const debuffCommand: ScriptEngineCommandDefinition = {
   name: 'debuff',
   args: [{ type: CommandArgType.Number }, { type: CommandArgType.Number }, { type: CommandArgType.Number, optional: true }],
   register: (id: number, duration: number, stacks?: number) => {
+    if (!Object.values(StatusId).includes(id)) {
+      throw new Error(`Invalid status id: ${id}`);
+    }
+
     stateInitializer.registerAction((dispatch) => {
       dispatch(debuff(id, { duration, stacks }));
     });
@@ -73,6 +83,10 @@ const cooldownCommand: ScriptEngineCommandDefinition = {
   name: 'cooldown',
   args: [{ type: CommandArgType.Number }, { type: CommandArgType.Number }],
   register: (id: number, remaining: number) => {
+    if (!Object.values(ActionId).includes(id)) {
+      throw new Error(`Invalid action id: ${id}`);
+    }
+
     stateInitializer.registerAction((dispatch, getState) => {
       const combatAction = actions[id];
       const action = getActionById(id);

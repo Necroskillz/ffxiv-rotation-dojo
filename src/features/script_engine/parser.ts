@@ -47,14 +47,17 @@ const agrParser = {
 
 export function parse(script: string): ScriptEngineParseResult {
   const lines = script.split('\n');
-  const cmdLines = lines.map((line) => line.trim()).filter((line) => line.length > 0 && !line.startsWith('--'));
+  const cmdLines = lines
+    .map((line, index) => ({ text: line.trim(), lineNumber: index + 1 }))
+    .filter((item) => item.text.length > 0 && !item.text.startsWith('--'));
 
   const parseErrors: ScriptParserError[] = [];
 
-  const cmds = cmdLines.map((line, index) => {
-    const lineNumber = index + 1;
-    const [cmd, ...args] = line.split(' ');
+  const cmds = cmdLines.map((line) => {
+    const lineNumber = line.lineNumber;
+    const [cmd, ...args] = line.text.split(' ');
     const command = commands.find((c) => c.name === cmd);
+    const exec = { lineNumber, fn: () => {} };
 
     if (command === undefined) {
       parseErrors.push({
@@ -62,7 +65,7 @@ export function parse(script: string): ScriptEngineParseResult {
         message: `Unknown command: ${cmd}`,
       });
 
-      return () => {};
+      return exec;
     }
 
     if (args.length < command.args.filter((arg) => !arg.optional).length) {
@@ -73,7 +76,7 @@ export function parse(script: string): ScriptEngineParseResult {
         }, got ${args.length}`,
       });
 
-      return () => {};
+      return exec;
     }
 
     if (args.length > command.args.length) {
@@ -104,10 +107,11 @@ export function parse(script: string): ScriptEngineParseResult {
         message: errors.join('\n'),
       });
 
-      return () => {};
+      return exec;
     }
 
-    return () => command.register(...parsedArgs);
+    exec.fn = () => command.register(...parsedArgs);
+    return exec;
   });
 
   return {
@@ -117,9 +121,9 @@ export function parse(script: string): ScriptEngineParseResult {
 
       cmds.forEach((cmd) => {
         try {
-          cmd();
+          cmd.fn();
         } catch (error: any) {
-          errors.push(error.message);
+          errors.push(`Error executing command on line ${cmd.lineNumber}: ${error.message}`);
         }
       });
 
