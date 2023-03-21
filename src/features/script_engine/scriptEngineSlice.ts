@@ -99,6 +99,11 @@ export const selectScripts = (state: RootState) => {
 
   return state.scriptEngine.scripts.filter((script) => script.job === job);
 };
+export const selectIsScriptActive = (state: RootState) => {
+  const scripts = selectScripts(state);
+
+  return scripts.some((script) => script.active);
+};
 
 export default scriptEngineSlice.reducer;
 

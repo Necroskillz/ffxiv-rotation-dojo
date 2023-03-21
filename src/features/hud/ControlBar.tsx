@@ -9,6 +9,7 @@ import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import clsx from 'clsx';
+import { selectIsScriptActive } from '../script_engine/scriptEngineSlice';
 
 interface GroupOption {
   label: string;
@@ -62,6 +63,7 @@ export const ControlBar: FC = () => {
   const hudLock = useAppSelector(selectLock);
   const pullTimerDuration = useAppSelector(selectPullTimerDuration);
   const keybindingMode = useAppSelector(selectKeybindingMode);
+  const scriptActive = useAppSelector(selectIsScriptActive);
   const job = useAppSelector(selectJob);
 
   const toggleKeybindingMode = () => {
@@ -130,7 +132,7 @@ export const ControlBar: FC = () => {
         <button className="border px-1 rounded" onClick={toggleSettings}>
           Settings
         </button>
-        <button className="border px-1 rounded" onClick={toggleScript}>
+        <button className={clsx('border px-1 rounded', { 'bg-white text-xiv-bg': scriptActive })} onClick={toggleScript}>
           Script
         </button>
         <button className="border px-1 rounded" onClick={resetCombat}>
