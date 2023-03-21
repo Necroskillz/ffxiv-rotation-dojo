@@ -12,9 +12,19 @@ function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    const callback = (e: MouseEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (!localStorage.getItem('dev')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', callback);
+
     dispatch(init());
 
-    return () => {};
+    return () => document.removeEventListener('contextmenu', callback);
   }, [dispatch]);
 
   return (
