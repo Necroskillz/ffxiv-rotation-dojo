@@ -1,12 +1,24 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { concatMap, EMPTY, first, interval, map, Subject, switchMap, tap, withLatestFrom } from 'rxjs';
+import { concatMap, EMPTY, filter, first, interval, map, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
 import { ReducerAction, RootState } from '../../app/store';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { selectJob } from '../player/playerSlice';
 import { CombatAction, createCombatAction } from './combat-action';
 import { CombatStatus, createCombatStatus } from './combat-status';
-import { addMana, buff, buffStacks, hasBuff, inCombat, ogcdLock } from './combatSlice';
+import {
+  addBuff,
+  addEvent,
+  addMana,
+  buff,
+  buffStacks,
+  DamageType,
+  event,
+  hasBuff,
+  inCombat,
+  ogcdLock,
+  removeBuffAction,
+} from './combatSlice';
 import { OGCDLockDuration } from './enums';
 
 const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -39,6 +51,18 @@ const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
         return addMana(200);
       }
     })
+  );
+
+const bloodbathEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Bloodbath),
+    switchMap(() =>
+      action$.pipe(
+        filter((aa) => aa.type === addEvent.type && aa.payload.type === DamageType.Physical && aa.payload.id !== 0),
+        takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === StatusId.Bloodbath)))
+      )
+    ),
+    map((a) => event(a.payload.actionId, { healthPotency: Math.floor(a.payload.potency * 0.2) }))
   );
 
 const actions$ = new Subject<ReducerAction<any>>();
@@ -114,4 +138,4 @@ export const generalStatuses: CombatStatus[] = [sprintStatus, medicatedStatus];
 
 export const general: CombatAction[] = [sprint, tinctureOfDexterity, tinctureOfMind, tinctureOfStrength, tinctureOfIntelligence];
 
-export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic);
+export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic, bloodbathEpic);
