@@ -49,14 +49,7 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
   };
 
   return (
-    <Draggable
-      nodeRef={ref}
-      handle={dragHandle || '.handle' + name}
-      defaultPosition={defaultPosition}
-      position={position}
-      onStop={savePosition}
-      onDrag={updatePosition}
-    >
+    <Draggable nodeRef={ref} handle={dragHandle || '.handle' + name} position={position} onStop={savePosition} onDrag={updatePosition}>
       <div
         ref={ref}
         style={{ zIndex: z || 0 }}

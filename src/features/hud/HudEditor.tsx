@@ -27,30 +27,22 @@ export function HudEditor() {
             <FontAwesomeIcon size="2x" icon={faXmark} />
           </button>
         </div>
-        <div className="not-prose relative rounded-xl overflow-hidden bg-slate-800/25">
-          <div className="inset-0 bg-grid-slate-700/25">
-            <div className="relative rounded-xl overflow-auto">
-              <div className="shadow-sm overflow-hidden my-8">
-                <table className="border-collapse table-auto w-full">
-                  <thead>
-                    <tr>
-                      <th className="w-[220px] border-b border-slate-600 font-medium pl-8 pt-0 pb-3 text-slate-200 text-left">Element</th>
-                      <th className="w-[90px] border-b border-slate-600 font-mediumpt-0 pb-3 text-slate-200 text-center">X Offset</th>
-                      <th className="w-[90px] border-b border-slate-600 font-mediumpt-0 pb-3 text-slate-200 text-center">Y Offset</th>
-                      <th className="w-[50px] border-b border-slate-600 font-medium pt-0 pb-3 text-slate-200 text-left">Visible</th>
-                      <th className="border-b border-slate-600 font-medium pt-0 pl-8 pb-3 text-slate-200 text-left">Jobs</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(elements).map((key, i) => (
-                      <HudEditorRow key={i} name={key} element={elements[key]} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        <table className="border-collapse table-auto w-full">
+          <thead>
+            <tr>
+              <th className="w-[220px] border-b border-slate-700 font-medium pl-8 pt-0 pb-3 text-slate-200 text-left">Element</th>
+              <th className="w-[90px] border-b border-slate-700 font-medium pt-0 pb-3 text-slate-200 text-center">X Offset</th>
+              <th className="w-[90px] border-b border-slate-700 font-medium pt-0 pb-3 text-slate-200 text-center">Y Offset</th>
+              <th className="w-[50px] border-b border-slate-700 font-medium pt-0 pb-3 text-slate-200 text-left">Visible</th>
+              <th className="border-b border-slate-700 font-medium pt-0 pl-8 pb-3 text-slate-200 text-left">Jobs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(elements).map((key, i) => (
+              <HudEditorRow key={i} name={key} element={elements[key]} />
+            ))}
+          </tbody>
+        </table>
       </div>
     </HudItem>
   );
