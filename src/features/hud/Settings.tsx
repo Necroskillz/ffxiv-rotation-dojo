@@ -20,9 +20,9 @@ export function Settings() {
   const state = useAppSelector((s) => s);
   const player = useAppSelector(selectPlayer);
   const dispatch = useAppDispatch();
-  const [skillSpeed, setLocalSkillSpeed] = useState(player.skillSpeed);
-  const [spellSpeed, setLocalSpellSpeed] = useState(player.spellSpeed);
-  const [pullTimerDuration, setPullTimer] = useState(player.pullTimerDuration);
+  const [skillSpeed, setLocalSkillSpeed] = useState<number | null>(player.skillSpeed);
+  const [spellSpeed, setLocalSpellSpeed] = useState<number | null>(player.spellSpeed);
+  const [pullTimerDuration, setPullTimer] = useState<number | null>(player.pullTimerDuration);
   const gcd = useMemo(() => recastTime(state, 2500, 'Weaponskill') / 1000, [state]);
   const cast = useMemo(() => recastTime(state, 2500, 'Spell') / 1000, [state]);
 
@@ -40,21 +40,60 @@ export function Settings() {
   }
 
   function updateSkillSpeed(event: ChangeEvent<HTMLInputElement>) {
+    if (!event.target.value) {
+      setLocalSkillSpeed(null);
+
+      return;
+    }
+
     const value = parseInt(event.target.value || '400');
     dispatch(setSkillSpeed(value));
     setLocalSkillSpeed(value);
   }
 
+  function onBlurSkillSpeed() {
+    if (skillSpeed == null) {
+      dispatch(setSkillSpeed(400));
+      setLocalSkillSpeed(400);
+    }
+  }
+
   function updateSpellSpeed(event: ChangeEvent<HTMLInputElement>) {
+    if (!event.target.value) {
+      setLocalSpellSpeed(null);
+
+      return;
+    }
+
     const value = parseInt(event.target.value || '400');
     dispatch(setSpellSpeed(value));
     setLocalSpellSpeed(value);
   }
 
+  function onBlurSpellSpeed() {
+    if (spellSpeed == null) {
+      dispatch(setSpellSpeed(400));
+      setLocalSpellSpeed(400);
+    }
+  }
+
   function updatePullTimerDuration(event: ChangeEvent<HTMLInputElement>) {
-    const value = parseInt(event.target.value || '400');
+    if (!event.target.value) {
+      setPullTimer(null);
+
+      return;
+    }
+
+    const value = parseInt(event.target.value || '10');
     dispatch(setPullTimerDuration(value));
     setPullTimer(value);
+  }
+
+  function onBlurPullTimerDuration() {
+    if (pullTimerDuration == null) {
+      dispatch(setPullTimerDuration(10));
+      setPullTimer(10);
+    }
   }
 
   if (!hudElement.isVisible) {
@@ -82,17 +121,23 @@ export function Settings() {
           </div>
           <div className="grid grid-cols-[120px_100px_1fr] gap-1 w-fit items-center">
             <label>Skill speed</label>
-            <input className="w-[100px]" type="number" value={skillSpeed} onChange={updateSkillSpeed} />
+            <input className="w-[100px]" type="number" value={skillSpeed!} onChange={updateSkillSpeed} onBlur={onBlurSkillSpeed} />
             <span>(GCD {gcd})</span>
           </div>
           <div className="grid grid-cols-[120px_100px_1fr] gap-1 w-fit items-center">
             <label>Spell speed</label>
-            <input className="w-[100px]" type="number" value={spellSpeed} onChange={updateSpellSpeed} />
+            <input className="w-[100px]" type="number" value={spellSpeed!} onChange={updateSpellSpeed} onBlur={onBlurSpellSpeed} />
             <span>(Cast {cast})</span>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-1 w-fit items-center">
             <label>Pull timer</label>
-            <input className="w-[100px]" type="number" value={pullTimerDuration} onChange={updatePullTimerDuration} />
+            <input
+              className="w-[100px]"
+              type="number"
+              value={pullTimerDuration!}
+              onChange={updatePullTimerDuration}
+              onBlur={onBlurPullTimerDuration}
+            />
           </div>
         </div>
       </div>
