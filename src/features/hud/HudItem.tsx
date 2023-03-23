@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import Draggable, { ControlPosition, DraggableData, DraggableEvent, DraggableEventHandler } from 'react-draggable';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectJob } from '../player/playerSlice';
@@ -20,7 +20,11 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
   const hudElement = useAppSelector((state) => selectElement(state, name));
   const hudLock = useAppSelector(selectLock);
   const job = useAppSelector(selectJob);
-  const [initialPosition] = useState({ x: hudElement.xOffset, y: hudElement.yOffset });
+  const [position, setPosition] = useState({ x: hudElement.xOffset + defaultPosition.x, y: hudElement.yOffset + defaultPosition.y });
+
+  useEffect(() => {
+    setPosition({ x: hudElement.xOffset + defaultPosition.x, y: hudElement.yOffset + defaultPosition.y });
+  }, [hudElement, defaultPosition]);
 
   if (!hudElement.isVisible && hudLock) {
     return null;
@@ -34,10 +38,14 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
     dispatch(
       setOffset({
         element: name,
-        xOffset: data.x - defaultPosition.x + initialPosition.x,
-        yOffset: data.y - defaultPosition.y + initialPosition.y,
+        xOffset: data.x - defaultPosition.x,
+        yOffset: data.y - defaultPosition.y,
       })
     );
+  };
+
+  const updatePosition: DraggableEventHandler = (_: DraggableEvent, data: DraggableData) => {
+    setPosition({ x: data.x, y: data.y });
   };
 
   return (
@@ -45,8 +53,9 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
       nodeRef={ref}
       handle={dragHandle || '.handle' + name}
       defaultPosition={defaultPosition}
-      positionOffset={initialPosition}
+      position={position}
       onStop={savePosition}
+      onDrag={updatePosition}
     >
       <div
         ref={ref}

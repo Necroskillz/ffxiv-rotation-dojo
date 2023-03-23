@@ -27,6 +27,7 @@ const initialState: HudState = {
     Help: createDefaultElementPlacement({ isVisible: true }),
     ActionList: createDefaultElementPlacement({ isVisible: false }),
     Settings: createDefaultElementPlacement({ isVisible: false }),
+    HudEditor: createDefaultElementPlacement({ isVisible: false }),
     Script: createDefaultElementPlacement({ isVisible: false }),
     Hotbar1: createDefaultElementPlacement({ isVisible: true }),
     Hotbar2: createDefaultElementPlacement({ isVisible: true }),

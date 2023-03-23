@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import React from 'react';
+import { filter } from 'rxjs';
 import { ActionList } from '../actions/ActionList';
 import { Buffs } from '../combat/Buffs';
 import { BuffScrollingText } from '../combat/BuffScrollingText';
@@ -7,6 +8,7 @@ import DamageScrollingText from '../combat/DamageScrollingText';
 import { Debuffs } from '../combat/Debuffs';
 import { DebuffScrollingText } from '../combat/DebuffScrollingText';
 import DotScrollingText from '../combat/DotScrollingText';
+import { actionStream$ } from '../combat/general';
 import { ElementalGauge } from '../combat/jobs/blm/ElementalGauge';
 import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
@@ -36,49 +38,58 @@ import ResourceScrollingText from '../combat/ResourceScrollingText';
 import { Hotbars } from '../hotbars/Hotbars';
 import { Script } from '../script_engine/Script';
 import { Help } from './Help';
+import { HudEditor } from './HudEditor';
+import { setOffset } from './hudSlice';
 import { Settings } from './Settings';
 
-export const Hud: FC = () => {
-  return (
-    <div>
-      <DotScrollingText />
-      <BuffScrollingText />
-      <DebuffScrollingText />
-      <ResourceScrollingText />
-      <DamageScrollingText />
-      <Help />
-      <ActionList />
-      <Script />
-      <CastBar />
-      <ManaBar />
-      <Pet />
-      <Settings />
-      <PullTimer />
-      <DanceGauge />
-      <EspritGauge />
-      <SoulAndShroudGauge />
-      <DeathGauge />
-      <AetherflowGauge />
-      <TranceGauge />
-      <HeatGauge />
-      <BeastGauge />
-      <SongGauge />
-      <NinkiGauge />
-      <HutonGauge />
-      <DragonGauge />
-      <BalanceGauge />
-      <SenGauge />
-      <KenkiGauge />
-      <PowderGauge />
-      <ChakraGauge />
-      <MastersGauge />
-      <DarksideGauge />
-      <BloodGauge />
-      <ElementalGauge />
-      <OathGauge />
-      <Hotbars />
-      <Buffs />
-      <Debuffs />
-    </div>
-  );
-};
+export class Hud extends React.Component {
+  componentDidMount(): void {
+    actionStream$.pipe(filter((a) => a.type === setOffset.type)).subscribe(() => this.forceUpdate());
+  }
+
+  render() {
+    return (
+      <div>
+        <DotScrollingText />
+        <BuffScrollingText />
+        <DebuffScrollingText />
+        <ResourceScrollingText />
+        <DamageScrollingText />
+        <Help />
+        <HudEditor />
+        <ActionList />
+        <Script />
+        <CastBar />
+        <ManaBar />
+        <Pet />
+        <Settings />
+        <PullTimer />
+        <DanceGauge />
+        <EspritGauge />
+        <SoulAndShroudGauge />
+        <DeathGauge />
+        <AetherflowGauge />
+        <TranceGauge />
+        <HeatGauge />
+        <BeastGauge />
+        <SongGauge />
+        <NinkiGauge />
+        <HutonGauge />
+        <DragonGauge />
+        <BalanceGauge />
+        <SenGauge />
+        <KenkiGauge />
+        <PowderGauge />
+        <ChakraGauge />
+        <MastersGauge />
+        <DarksideGauge />
+        <BloodGauge />
+        <ElementalGauge />
+        <OathGauge />
+        <Hotbars />
+        <Buffs />
+        <Debuffs />
+      </div>
+    );
+  }
+}
