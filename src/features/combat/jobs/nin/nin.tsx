@@ -835,7 +835,10 @@ const assassinate: CombatAction = createCombatAction({
 const dreamWithinADream: CombatAction = createCombatAction({
   id: ActionId.DreamWithinaDream,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 450 }));
+    dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 }));
+    setTimeout(() => dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 })), 300);
+    setTimeout(() => dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 })), 600);
+
     dispatch(ogcdLock());
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
