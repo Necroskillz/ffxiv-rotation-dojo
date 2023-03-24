@@ -35,7 +35,6 @@ import {
   setCombat,
   setMudra,
 } from '../../combatSlice';
-import { collectStatuses } from '../../event-status-collector';
 
 function ninki(state: RootState) {
   return resource(state, 'ninki');
@@ -115,7 +114,19 @@ const bunshinDamageEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(([a, state]) =>
       addEvent({
         ...a.payload,
-        statuses: [...collectStatuses(a.payload.actionId, state), { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }],
+        statuses: [...a.payload.statuses, { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }],
+      })
+    )
+  );
+
+const dreamWithinADreamEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((aa) => aa.type === addEvent.type && aa.payload.actionId === ActionId.DreamWithinaDream && aa.payload.count !== 2),
+    delay(300),
+    map((a) =>
+      addEvent({
+        ...a.payload,
+        count: (a.payload.count ?? 0) + 1,
       })
     )
   );
@@ -836,9 +847,6 @@ const dreamWithinADream: CombatAction = createCombatAction({
   id: ActionId.DreamWithinaDream,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 }));
-    setTimeout(() => dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 })), 300);
-    setTimeout(() => dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 })), 600);
-
     dispatch(ogcdLock());
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -1001,5 +1009,6 @@ export const ninEpics = combineEpics(
   mudraFailByOtherActionEpic,
   endTenChiJinEpic,
   bunshinDamageEpic,
-  hollowNozuchiEpic
+  hollowNozuchiEpic,
+  dreamWithinADreamEpic,
 );

@@ -147,7 +147,7 @@ export function createCombatStatus(options: CombatStatusOptions) {
       if (stacks === 1) {
         combatStatus.remove(dispatch, getState, null);
       } else {
-        const status = combatStatus.isHarmful ? selectBuff(getState(), id)! : selectDebuff(getState(), id)!;
+        const status = combatStatus.isHarmful ? selectDebuff(getState(), id)! : selectBuff(getState(), id)!;
         if (!status) {
           return;
         }
