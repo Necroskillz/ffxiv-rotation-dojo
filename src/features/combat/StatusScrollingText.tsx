@@ -5,6 +5,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { bufferTime, filter, map, Subject, takeUntil, tap } from 'rxjs';
 import { getStatusById } from '../actions/status';
 import { actionStream$ } from './general';
+import { statuses } from './statuses';
 import { statusIcon } from './utils';
 
 interface Item {
@@ -13,6 +14,7 @@ interface Item {
   removedText: string;
   addedIcons: string[];
   removedIcons: string[];
+  addedColor: string;
   ref: any;
 }
 
@@ -21,12 +23,11 @@ type StatusScrollingTextState = {
 };
 
 type StatusScrollingTextProps = {
-  addType: string;
-  removeType: string;
+  addType: string[];
+  removeType: string[];
   multipleText: string;
   direction: string;
   time: number;
-  addTextColor: string;
 };
 
 let id = 0;
@@ -46,10 +47,10 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
     actionStream$
       .pipe(
         takeUntil(this.unsubscribe),
-        filter((a) => a.type === this.props.addType || a.type === this.props.removeType),
+        filter((a) => this.props.addType.includes(a.type) || this.props.removeType.includes(a.type)),
         map((action) => ({
           action,
-          status: action.type === this.props.addType ? getStatusById(action.payload.id) : getStatusById(action.payload),
+          status: this.props.addType.includes(action.type) ? getStatusById(action.payload.id) : getStatusById(action.payload),
         })),
         filter(({ status }) => status.icon.length > 0),
         filter(({ action }) => {
@@ -66,8 +67,9 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
         }),
         map(({ action, status }) => ({
           ...status,
-          direction: action.type === this.props.addType ? '+' : '-',
+          direction: this.props.addType.includes(action.type) ? '+' : '-',
           stacks: this.stackCache.get(status.id) || null,
+          isHarmful: statuses[status.id].isHarmful
         })),
         tap((item) => {
           if (item.direction === '-') {
@@ -87,6 +89,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           removedText: `- ${removed.length === 1 ? removed[0].name : this.props.multipleText}`,
           addedIcons: added.map((i) => statusIcon(i.icon, i.stacks)),
           removedIcons: removed.map((i) => statusIcon(i.icon, i.stacks)),
+          addedColor: added.some(i => i.isHarmful) ? 'text-xiv-offensive' : 'text-teal-300',
           ref: createRef<HTMLDivElement>(),
         };
 
@@ -124,7 +127,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
                     {i.addedIcons.map((icon, index) => (
                       <img key={index} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
                     ))}
-                    <span className={clsx('mx-1', this.props.addTextColor)}>{i.addedText}</span>
+                    <span className={clsx('mx-1', i.addedColor)}>{i.addedText}</span>
                   </React.Fragment>
                 )}
                 {i.removedIcons.length > 0 && (

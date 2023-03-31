@@ -7,12 +7,14 @@ import { selectJob, selectLevel, selectSkillSpeed, selectSpellSpeed } from '../p
 import { stateInitializer } from '../script_engine/state_initializer';
 import { actions } from './actions';
 import { CombatAction, CombatActionExecuteContext } from './combat-action';
+import { StatusTarget } from './combat-status';
 import { OGCDLockDuration } from './enums';
 import { collectStatuses } from './event-status-collector';
 import { statuses } from './statuses';
 
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
   90: { SUB: 400, DIV: 1900 },
+  70: { SUB: 364, DIV: 900 },
 };
 
 // https://www.akhmorning.com/allagan-studies/how-to-be-a-math-wizard/shadowbringers/speed/#gcds--cast-times
@@ -85,6 +87,7 @@ export interface StatusState {
   timeoutId: NodeJS.Timeout | null;
   stacks: number | null;
   visible: boolean;
+  target: StatusTarget;
 }
 
 export interface CooldownState {
@@ -126,6 +129,7 @@ export interface CombatState {
 const initialState: CombatState = {
   resources: {
     mana: 10000,
+    hp: 10000,
     esprit: 0,
     fans: 0,
     step: 0,
@@ -174,6 +178,7 @@ const initialState: CombatState = {
     paradox: 0,
     umbralHeart: 0,
     oath: 0,
+    mimicry: StatusId.AethericMimicryDPS,
   },
   inCombat: false,
   combo: {},
@@ -220,8 +225,11 @@ export interface EventStatus {
 
 export interface EventPayload {
   potency: number;
+  damage: number;
+  damagePercent: number;
   healthPotency: number;
   healthPercent: number;
+  health: number;
   mana: number;
   actionId: ActionId;
   type: DamageType;
@@ -309,6 +317,12 @@ export const combatSlice = createSlice({
     removeDebuff: (state, action: PayloadAction<number>) => {
       removeStatus(state, action.payload, true);
     },
+    addPlayerDebuff: (state, action: PayloadAction<StatusState>) => {
+      addStatus(state, action.payload, true);
+    },
+    removePlayerDebuff: (state, action: PayloadAction<number>) => {
+      removeStatus(state, action.payload, true);
+    },
     queueAction: (state, action: PayloadAction<QueuedActionState>) => {
       state.queuedAction = action.payload;
     },
@@ -366,6 +380,7 @@ export const {
   setResource,
   addBuff,
   addDebuff,
+  addPlayerDebuff,
   queueAction,
   removeQueuedAction,
   addOgcdLock,
@@ -380,12 +395,14 @@ export const {
   addEvent,
   removeDebuff: removeDebuffAction,
   removeBuff: removeBuffAction,
+  removePlayerDebuff: removePlayerDebuffAction,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
 export const selectInCombat = (state: RootState) => state.combat.inCombat;
 export const selectResources = (state: RootState) => state.combat.resources;
 export const selectMana = (state: RootState) => state.combat.resources.mana;
+export const selectHp = (state: RootState) => state.combat.resources.hp;
 export const selectEspirt = (state: RootState) => state.combat.resources.esprit;
 export const selectFans = (state: RootState) => state.combat.resources.fans;
 export const selectSoul = (state: RootState) => state.combat.resources.soul;
@@ -434,6 +451,7 @@ export const selectPolyglot = (state: RootState) => state.combat.resources.polyg
 export const selectParadox = (state: RootState) => state.combat.resources.paradox;
 export const selectUmbralHeart = (state: RootState) => state.combat.resources.umbralHeart;
 export const selectOath = (state: RootState) => state.combat.resources.oath;
+export const selectMimicry = (state: RootState) => state.combat.resources.mimicry;
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -462,7 +480,16 @@ export const reset =
   (full: boolean): AppThunk =>
   (dispatch, getState) => {
     const state = getState().combat;
-    const preservedBuffs = [StatusId.ClosedPosition, StatusId.Defiance, StatusId.RoyalGuard, StatusId.Grit];
+    const preservedBuffs = [
+      StatusId.ClosedPosition,
+      StatusId.Defiance,
+      StatusId.RoyalGuard,
+      StatusId.Grit,
+      StatusId.MightyGuard,
+      StatusId.AethericMimicryDPS,
+      StatusId.AethericMimicryHealer,
+      StatusId.AethericMimicryTank,
+    ];
     const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
     buffs.forEach((b) => dispatch(removeBuff(b.id)));
@@ -503,7 +530,7 @@ export const removeBuff =
   (id: StatusId): AppThunk =>
   (dispatch, getState) => {
     if (hasBuff(getState(), id)) {
-      dispatch(combatSlice.actions.removeBuff(id));
+      dispatch(statuses[id].remove as any);
     }
   };
 
@@ -511,7 +538,7 @@ export const removeDebuff =
   (id: StatusId): AppThunk =>
   (dispatch, getState) => {
     if (hasDebuff(getState(), id)) {
-      dispatch(combatSlice.actions.removeDebuff(id));
+      dispatch(statuses[id].remove as any);
     }
   };
 
@@ -548,7 +575,7 @@ export const cooldown =
         timeoutId: setTimeout(() => {
           dispatch(removeCooldown(cooldownGroup));
 
-          if (cooldownGroup === 58) {
+          if (cooldownGroup === 58 || cooldownGroup >= 1000) {
             dispatch(drainQueue());
           }
         }, remaining),
@@ -671,6 +698,9 @@ export const event =
         actionId,
         healthPotency: options.healthPotency || 0,
         healthPercent: options.healthPercent || 0,
+        damage: options.damage || 0,
+        damagePercent: options.damagePercent || 0,
+        health: options.health || 0,
         mana: options.mana || 0,
         potency: options.potency || 0,
         type: options.type || DamageType.None,
@@ -680,7 +710,7 @@ export const event =
     );
   };
 
-interface DmgEventOptions extends EventOptions {
+export interface DmgEventOptions extends EventOptions {
   comboPotency?: number;
   rearPotency?: number;
   flankPotency?: number;
@@ -718,7 +748,7 @@ export const dmgEvent =
       } else if (action.type === 'Spell') {
         type = DamageType.Magical;
       } else {
-        if (['RDM', 'SMN', 'BLM'].includes(selectJob(getState()))) {
+        if (['RDM', 'SMN', 'BLM', 'BLU'].includes(selectJob(getState()))) {
           type = DamageType.Magical;
         } else {
           type = DamageType.Physical;
@@ -769,6 +799,8 @@ export const removeResourceFactory =
   };
 
 export const addMana = addResourceFactory('mana', 10000);
+export const addHp = addResourceFactory('hp', 10000);
+export const setHp = setResourceFactory('hp');
 export const addEsprit = addResourceFactory('esprit', 100);
 export const addFans = addResourceFactory('fans', 4);
 export const addSoul = addResourceFactory('soul', 100);
@@ -823,6 +855,7 @@ export const addPolyglot = addResourceFactory('polyglot', 2);
 export const addUmbralHeart = addResourceFactory('umbralHeart', 3);
 export const removeUmbralHeart = removeResourceFactory('umbralHeart');
 export const addOath = addResourceFactory('oath', 100);
+export const setMimicry = setResourceFactory('mimicry');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

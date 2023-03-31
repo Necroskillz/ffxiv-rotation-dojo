@@ -24,7 +24,7 @@ export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dra
 
   useEffect(() => {
     setPosition({ x: hudElement.xOffset + defaultPosition.x, y: hudElement.yOffset + defaultPosition.y });
-  }, [hudElement, defaultPosition]);
+  }, [hudElement.isVisible, hudElement.xOffset, hudElement.yOffset, defaultPosition.x, defaultPosition.y]);
 
   if (!hudElement.isVisible && hudLock) {
     return null;

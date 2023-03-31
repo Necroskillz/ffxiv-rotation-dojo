@@ -2,4 +2,5 @@
 - sort action list by categories
 - positionals (movement), cancel cast
 - follow list of actions (correct/fail)
-- ping
+- diminishing returns
+- ping?

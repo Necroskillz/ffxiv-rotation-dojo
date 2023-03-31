@@ -13,6 +13,24 @@ const id =
   (actionId: ActionId) =>
     id.includes(actionId);
 
+const bluPhysical = (actionId: ActionId) =>
+  id(
+    ActionId.DrillCannons,
+    ActionId.SharpenedKnife,
+    ActionId.TripleTrident,
+    ActionId.FinalSting,
+    ActionId.FlyingFrenzy,
+    ActionId.FourTonzeWeight,
+    ActionId.FlyingFrenzy,
+    ActionId.Kaltstrahl,
+    ActionId.AbyssalTransfixion,
+    ActionId.RevengeBlast,
+    ActionId.PeripheralSynthesis
+  )(actionId);
+
+const bluDarkness = (actionId: ActionId) =>
+  id(ActionId.ThousandNeedles, ActionId.Missile, ActionId.Launcher, ActionId.FinalSting)(actionId);
+
 const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => boolean> = {
   [StatusId.Medicated]: always,
   // DRK
@@ -107,6 +125,14 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
       ActionId.EnchantedMoulinet,
       ActionId.EnchantedReprise,
     ].includes(actionId),
+  // BLU
+  [StatusId.Boost]: (id) => !bluDarkness(id),
+  [StatusId.Harmonized]: bluPhysical,
+  [StatusId.Tingling]: bluPhysical,
+  [StatusId.WaxingNocturne]: (id) => !bluDarkness(id),
+  [StatusId.Offguard]: (id) => !bluDarkness(id),
+  [StatusId.PeculiarLight]: (id) => !bluDarkness(id) && !bluPhysical(id),
+  [StatusId.SurpanakhasFury]: id(ActionId.Surpanakha),
   // BRD
   [StatusId.BattleVoice]: always,
   [StatusId.RadiantFinale]: always,

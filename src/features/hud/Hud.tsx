@@ -10,6 +10,7 @@ import { DebuffScrollingText } from '../combat/DebuffScrollingText';
 import DotScrollingText from '../combat/DotScrollingText';
 import { actionStream$ } from '../combat/general';
 import { ElementalGauge } from '../combat/jobs/blm/ElementalGauge';
+import { MimicryGauge } from '../combat/jobs/blu/MimicryGauge';
 import { SongGauge } from '../combat/jobs/brd/SongGauge';
 import { DanceGauge } from '../combat/jobs/dnc/DanceGauge';
 import { EspritGauge } from '../combat/jobs/dnc/EspritGauge';
@@ -33,6 +34,7 @@ import { TranceGauge } from '../combat/jobs/smn/TranceGauge';
 import { BeastGauge } from '../combat/jobs/war/BeastGauge';
 import { ManaBar } from '../combat/ManaBar';
 import { Pet } from '../combat/Pet';
+import { PlayerDebuffs } from '../combat/PlayerDebuffs';
 import PullTimer from '../combat/PullTimer';
 import ResourceScrollingText from '../combat/ResourceScrollingText';
 import { Hotbars } from '../hotbars/Hotbars';
@@ -86,9 +88,11 @@ export class Hud extends React.Component {
         <BloodGauge />
         <ElementalGauge />
         <OathGauge />
+        <MimicryGauge />
         <Hotbars />
         <Buffs />
         <Debuffs />
+        <PlayerDebuffs />
       </div>
     );
   }

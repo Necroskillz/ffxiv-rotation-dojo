@@ -11,11 +11,10 @@ export const DebuffScrollingText = () => {
     <HudItem name="DebuffScrollingText" defaultPosition={{ x: 600, y: 20 }}>
       {hudLock ? (
         <StatusScrollingText
-          addType={addDebuff.type}
-          removeType={removeDebuffAction.type}
+          addType={[addDebuff.type]}
+          removeType={[removeDebuffAction.type]}
           direction="up"
           multipleText="Multiple Debuffs"
-          addTextColor="text-xiv-offensive"
           time={2000}
         />
       ) : (

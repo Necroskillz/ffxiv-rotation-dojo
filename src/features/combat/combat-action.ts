@@ -20,6 +20,7 @@ import {
   resource,
   selectCombat,
   selectCombo,
+  selectHp,
   selectInCombat,
   selectResources,
   setCast,
@@ -54,6 +55,7 @@ export interface CombatAction {
   castTime: (state: RootState) => number;
   cost: (state: RootState) => number;
   get isGcdAction(): boolean;
+  bluNo: number;
 }
 
 export interface ExtraCooldownOptions {
@@ -84,6 +86,7 @@ export interface CombatActionOptions {
   reducedBySpellSpeed?: boolean;
   isGcdAction?: boolean;
   animationLock?: number;
+  bluNo?: number;
 }
 
 export function createCombatAction(options: CombatActionOptions): CombatAction {
@@ -197,6 +200,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     },
     isGlowing: options.isGlowing || (() => false),
     isUsable: (state) => {
+      if (selectHp(state) === 0) {
+        return false;
+      }
+
       if (action.costType && action.costType !== 'unknown' && resource(state, action.costType) < combatAction.cost(state)) {
         return false;
       }
@@ -247,6 +254,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     },
     cost: (state) => (options.cost ? options.cost(state, action.cost) : action.cost),
     isGcdAction,
+    bluNo: options.bluNo ?? 0,
   };
 
   return combatAction;

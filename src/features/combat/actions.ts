@@ -1,6 +1,7 @@
 import { CombatAction } from './combat-action';
 import { general } from './general';
 import { blm } from './jobs/blm/blm';
+import { blu } from './jobs/blu/blu';
 import { brd } from './jobs/brd/brd';
 import { dnc } from './jobs/dnc/dnc';
 import { drg } from './jobs/drg/drg';
@@ -30,4 +31,4 @@ function combineActions(...actions: CombatAction[][]): Record<number, CombatActi
   return result;
 }
 
-export const actions = combineActions(dnc, mch, brd, drg, mnk, nin, rpr, sam, blm, smn, rdm, drk, gnb, pld, war, role, general);
+export const actions = combineActions(dnc, mch, brd, drg, mnk, nin, rpr, sam, blm, smn, rdm, blu, drk, gnb, pld, war, role, general);

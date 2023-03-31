@@ -1,6 +1,7 @@
 import { CombatStatus } from './combat-status';
 import { generalStatuses } from './general';
 import { blmStatuses } from './jobs/blm/blm';
+import { bluStatuses } from './jobs/blu/blu';
 import { brdStatuses } from './jobs/brd/brd';
 import { dncStatuses } from './jobs/dnc/dnc';
 import { drgStatuses } from './jobs/drg/drg';
@@ -44,6 +45,7 @@ export const statuses = combineStatuses(
   ninStatuses,
   pldStatuses,
   rdmStatuses,
+  bluStatuses,
   rprStatuses,
   samStatuses,
   smnStatuses,

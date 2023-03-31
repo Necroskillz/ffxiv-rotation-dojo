@@ -47,6 +47,7 @@ const initialState: HudState = {
     HotbarConfig8: createDefaultElementPlacement({ isVisible: false }),
     Buffs: createDefaultElementPlacement({ isVisible: true }),
     Debuffs: createDefaultElementPlacement({ isVisible: true }),
+    PlayerDebuffs: createDefaultElementPlacement({ isVisible: true }),
     CastBar: createDefaultElementPlacement({ isVisible: true }),
     PullTimer: createDefaultElementPlacement({ isVisible: true }),
     BuffScrollingText: createDefaultElementPlacement({ isVisible: true }),
@@ -58,7 +59,7 @@ const initialState: HudState = {
     EspritGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
     SoulAndShroudGauge: createDefaultElementPlacement({ isVisible: true, job: 'RPR' }),
     DeathGauge: createDefaultElementPlacement({ isVisible: true, job: 'RPR' }),
-    ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN', 'DRK', 'BLM', 'PLD'] }),
+    ManaBar: createDefaultElementPlacement({ isVisible: true, job: ['SMN', 'DRK', 'BLM', 'PLD', 'BLU'] }),
     Pet: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     AetherflowGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
     TranceGauge: createDefaultElementPlacement({ isVisible: true, job: ['SMN'] }),
@@ -78,6 +79,7 @@ const initialState: HudState = {
     BloodGauge: createDefaultElementPlacement({ isVisible: true, job: ['DRK'] }),
     ElementalGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLM'] }),
     OathGauge: createDefaultElementPlacement({ isVisible: true, job: ['PLD'] }),
+    MimicryGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLU'] }),
   },
 };
 

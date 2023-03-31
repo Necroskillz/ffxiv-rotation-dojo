@@ -22,7 +22,11 @@ export const CastBar = () => {
         const seconds = Math.floor(remainingCastTime / 1000);
         setCastTime(castProgressTime);
         setSeconds(seconds.toString().padStart(2, '0'));
-        setFraction(Math.floor((remainingCastTime - seconds * 1000) / 10).toString().padEnd(2, '0'));
+        setFraction(
+          Math.max(0, Math.floor((remainingCastTime - seconds * 1000) / 10))
+            .toString()
+            .padEnd(2, '0')
+        );
       } else {
         setSeconds('');
         setFraction('');
@@ -31,9 +35,13 @@ export const CastBar = () => {
     }
 
     set();
-    const timer = setInterval(() => set(), 1);
 
-    return () => clearInterval(timer);
+    let timer: NodeJS.Timeout;
+    if (cast) {
+      timer = setInterval(() => set(), 5);
+    }
+
+    return () => timer && clearInterval(timer);
   }, [cast, setSeconds, setFraction, setCastTime]);
 
   return (
@@ -58,7 +66,7 @@ export const CastBar = () => {
           </div>
         </div>
       ) : (
-        <div className='w-40'>{!hudLock && 'Cast Bar'}</div>
+        <div className="w-40">{!hudLock && 'Cast Bar'}</div>
       )}
     </HudItem>
   );

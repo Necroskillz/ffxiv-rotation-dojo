@@ -15,8 +15,9 @@ interface Item {
   ref: any;
   abilityName: string;
   mana: number;
-  health: number;
+  healthPotency: number;
   healthPercent: number;
+  health: number;
 }
 
 type ResourceScrollingTextState = {
@@ -42,7 +43,11 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
   componentDidMount(): void {
     actionStream$
       .pipe(
-        filter((a) => a.type === addEvent.type && (a.payload.mana > 0 || a.payload.healthPotency > 0 || a.payload.healthPercent > 0)),
+        filter(
+          (a) =>
+            a.type === addEvent.type &&
+            (a.payload.mana > 0 || a.payload.healthPotency > 0 || a.payload.healthPercent > 0 || a.payload.health > 0)
+        ),
         takeUntil(this.unsubscribe),
         bufferTime(0),
         filter((actions) => actions.length > 0)
@@ -53,8 +58,9 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           ref: createRef<HTMLDivElement>(),
           abilityName: '',
           mana: 0,
-          health: 0,
+          healthPotency: 0,
           healthPercent: 0,
+          health: 0,
         };
 
         actions.forEach((a) => {
@@ -67,13 +73,19 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           }
 
           if (a.payload.healthPotency) {
-            item.health += a.payload.healthPotency;
+            item.healthPotency += a.payload.healthPotency;
           }
 
           if (a.payload.healthPercent) {
             item.healthPercent += a.payload.healthPercent;
           }
+
+          if (a.payload.health) {
+            item.health += a.payload.health;
+          }
         });
+
+        console.log(item);
 
         this.buffer.push(item);
 
@@ -108,15 +120,21 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
                         <span className="font-ui-medium text-xs">MP</span>
                       </React.Fragment>
                     )}
-                    {i.health > 0 && (
+                    {i.healthPotency > 0 && (
                       <React.Fragment>
-                        <span className="text-lg">{i.health}</span>
+                        <span className="text-lg">{i.healthPotency}</span>
                         <span className="font-ui-medium text-xs">HP potency</span>
                       </React.Fragment>
                     )}
                     {i.healthPercent > 0 && (
                       <React.Fragment>
                         <span className="text-lg">{i.healthPercent}%</span>
+                        <span className="font-ui-medium text-xs">HP</span>
+                      </React.Fragment>
+                    )}
+                    {i.health > 0 && (
+                      <React.Fragment>
+                        <span className="text-lg">{i.health}</span>
                         <span className="font-ui-medium text-xs">HP</span>
                       </React.Fragment>
                     )}

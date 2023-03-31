@@ -109,7 +109,7 @@ const removeSoulReaverEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(() => removeBuff(StatusId.SoulReaver))
   );
 
-const consumeCircleOfSacrificeEpic: Epic<any, any, RootState> = (action$, state$) =>
+const consumeCircleOfSacrificeEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.CircleofSacrifice),
     switchMap(() =>

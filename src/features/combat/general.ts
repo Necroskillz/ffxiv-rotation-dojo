@@ -8,6 +8,7 @@ import { CombatAction, createCombatAction } from './combat-action';
 import { CombatStatus, createCombatStatus } from './combat-status';
 import {
   addBuff,
+  addDebuff,
   addEvent,
   addMana,
   buff,
@@ -18,6 +19,8 @@ import {
   inCombat,
   ogcdLock,
   removeBuffAction,
+  removeDebuff,
+  removeDebuffAction,
 } from './combatSlice';
 import { OGCDLockDuration } from './enums';
 
@@ -53,7 +56,7 @@ const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const bloodbathEpic: Epic<any, any, RootState> = (action$, state$) =>
+const bloodbathEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Bloodbath),
     switchMap(() =>
@@ -63,6 +66,18 @@ const bloodbathEpic: Epic<any, any, RootState> = (action$, state$) =>
       )
     ),
     map((a) => event(a.payload.actionId, { healthPotency: Math.floor(a.payload.potency * 0.2) }))
+  );
+
+const removeSleepEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === addDebuff.type && a.payload.id === StatusId.Sleep),
+    switchMap(() =>
+      action$.pipe(
+        filter((aa) => aa.type === addEvent.type && aa.payload.potency > 0),
+        takeUntil(action$.pipe(first((a) => a.type === removeDebuffAction.type && a.payload === StatusId.Sleep)))
+      )
+    ),
+    map(() => removeDebuff(StatusId.Sleep))
   );
 
 const actions$ = new Subject<ReducerAction<any>>();
@@ -138,4 +153,4 @@ export const generalStatuses: CombatStatus[] = [sprintStatus, medicatedStatus];
 
 export const general: CombatAction[] = [sprint, tinctureOfDexterity, tinctureOfMind, tinctureOfStrength, tinctureOfIntelligence];
 
-export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic, bloodbathEpic);
+export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic, bloodbathEpic, removeSleepEpic);

@@ -1,4 +1,4 @@
-import { faHammer, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faBahai, faHammer, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { createRef } from 'react';
@@ -19,6 +19,8 @@ interface Item {
   ref: any;
   abilityName: string;
   damage: number;
+  damagePercent: number;
+  damageAbsolute: number;
   type: DamageType;
   icons: string[];
 }
@@ -46,7 +48,12 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
   componentDidMount(): void {
     actionStream$
       .pipe(
-        filter((a) => a.type === addEvent.type && a.payload.potency > 0 && a.payload.actionId !== 0),
+        filter(
+          (a) =>
+            a.type === addEvent.type &&
+            (a.payload.potency > 0 || a.payload.damagePercent > 0 || a.payload.damage > 0) &&
+            a.payload.actionId !== 0
+        ),
         takeUntil(this.unsubscribe)
       )
       .subscribe((action) => {
@@ -55,6 +62,8 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
           ref: createRef<HTMLDivElement>(),
           abilityName: getActionById(action.payload.actionId).name,
           damage: action.payload.potency,
+          damagePercent: action.payload.damagePercent,
+          damageAbsolute: action.payload.damage,
           type: action.payload.type,
           icons: action.payload.statuses.map((status: EventStatus) => statusIcon(getStatusById(status.id).icon, status.stacks)),
         };
@@ -85,12 +94,13 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
               {this.state.items.map((i) => (
                 <CSSTransition key={i.id} nodeRef={i.ref} classNames={`scroll-up`} timeout={{ enter: 2000, exit: 0 }}>
                   <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg">
-                    {i.damage}
-                    <FontAwesomeIcon
-                      color={i.type === DamageType.Magical ? '#E399FB' : '#CBFDFB'}
-                      icon={i.type === DamageType.Magical ? faMagicWandSparkles : faHammer}
-                    />
                     {i.abilityName}
+                    <FontAwesomeIcon
+                      color={i.type === DamageType.Magical ? '#E399FB' : i.type === DamageType.Physical ? '#CBFDFB' : '#E4FFCB'}
+                      icon={i.type === DamageType.Magical ? faMagicWandSparkles : i.type === DamageType.Physical ? faHammer : faBahai}
+                    />
+                    {!!(i.damage || i.damageAbsolute) && <React.Fragment>{i.damage || i.damageAbsolute}</React.Fragment>}
+                    {i.damagePercent > 0 && <React.Fragment>{i.damagePercent}%</React.Fragment>}
                     {i.icons.length > 0 && (
                       <div className="grid grid-flow-col auto-cols-max">
                         {i.icons.map((i, id) => (

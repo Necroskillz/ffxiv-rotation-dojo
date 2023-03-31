@@ -1,7 +1,7 @@
 import { useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectLock } from '../hud/hudSlice';
-import { addBuff, removeBuffAction } from './combatSlice';
+import { addBuff, addPlayerDebuff, removeBuffAction, removePlayerDebuffAction } from './combatSlice';
 import { StatusScrollingText } from './StatusScrollingText';
 
 export const BuffScrollingText = () => {
@@ -10,11 +10,10 @@ export const BuffScrollingText = () => {
     <HudItem name="BuffScrollingText" defaultPosition={{ x: 650, y: 250 }}>
       {hudLock ? (
         <StatusScrollingText
-          addType={addBuff.type}
-          removeType={removeBuffAction.type}
+          addType={[addBuff.type, addPlayerDebuff.type]}
+          removeType={[removeBuffAction.type, removePlayerDebuffAction.type]}
           direction="down"
-          multipleText="Multiple Buffs"
-          addTextColor="text-teal-300"
+          multipleText="Multiple"
           time={5000}
         />
       ) : (

@@ -1,4 +1,4 @@
-import { FC, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getActionById } from '../actions/actions';
 import { actions } from '../combat/actions';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -15,7 +15,7 @@ import { selectElement, selectLock } from '../hud/hudSlice';
 import css from './HotbarSlot.module.css';
 import { ActionTooltip } from '../actions/ActionTooltip';
 import { Cost } from './Cost';
-import { selectJob } from '../player/playerSlice';
+import { selectBlueMagicSpellSet, selectJob } from '../player/playerSlice';
 
 type HotbarProps = {
   hotbarId: number;
@@ -47,7 +47,9 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const hudLock = useAppSelector(selectLock);
   const hotbarLock = useAppSelector(selectHotbarLock);
   const job = useAppSelector(selectJob);
-  const actionId = slot.actionId[job];
+  const blueMagicSpellSet = useAppSelector(selectBlueMagicSpellSet);
+  const jobId = useMemo(() => job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job, [job, blueMagicSpellSet.id]);
+  const actionId = slot.actionId[jobId];
 
   let action = actionId ? getActionById(actionId) : null;
   let combatAction = actionId ? actions[actionId] : null;
@@ -97,7 +99,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     () => ({
       accept: 'action',
       drop: (item: { id: ActionId }) => {
-        dispatch(assignAction({ hotbarId, slotId, job, actionId: item.id }));
+        dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: item.id }));
 
         return { id: actionId };
       },
@@ -106,7 +108,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
         canDrop: monitor.canDrop(),
       }),
     }),
-    [action, job]
+    [action, jobId]
   );
 
   const [, drag, preview] = useDrag(
@@ -116,16 +118,16 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
       canDrag: () => !!action && hudLock && !hotbarLock,
       end: (item, monitor) => {
         if (!monitor.didDrop()) {
-          dispatch(assignAction({ hotbarId, slotId, job, actionId: null }));
+          dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: null }));
         } else {
           const result = monitor.getDropResult<{ id: number }>();
           if (result && result.id !== action?.id) {
-            dispatch(assignAction({ hotbarId, slotId, job, actionId: result.id }));
+            dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: result.id }));
           }
         }
       },
     }),
-    [action, hudLock, job, hotbarLock]
+    [action, hudLock, jobId, hotbarLock]
   );
 
   useEffect(() => {
@@ -163,7 +165,11 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
           event.preventDefault();
         }
       } else {
-        if (!(settings.isVisible || script.isVisible || hudEditor.isVisible) && keybind.key === extractKey(event) && keybind.modifier === modifier) {
+        if (
+          !(settings.isVisible || script.isVisible || hudEditor.isVisible) &&
+          keybind.key === extractKey(event) &&
+          keybind.modifier === modifier
+        ) {
           onClick();
 
           event.stopPropagation();

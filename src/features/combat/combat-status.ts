@@ -4,17 +4,24 @@ import { StatusId } from '../actions/status_enums';
 import {
   addBuff,
   addDebuff,
+  addPlayerDebuff,
   buffStacks,
   hasBuff,
   hasDebuff,
-  removeBuff,
-  removeDebuff,
+  removeBuffAction,
+  removeDebuffAction,
+  removePlayerDebuffAction,
   selectBuff,
   selectDebuff,
   StatusState,
 } from './combatSlice';
 
 const periodicSubscriptions: Map<number, Subscription> = new Map();
+
+export enum StatusTarget {
+  Enemy,
+  Player,
+}
 
 export interface CombatStatus {
   id: StatusId;
@@ -34,6 +41,7 @@ export interface CombatStatus {
   duration: number | null;
   maxDuration: number | null;
   maxStacks: number | null;
+  target: StatusTarget;
 }
 
 export interface CombatStatusOptions {
@@ -49,6 +57,7 @@ export interface CombatStatusOptions {
   initialStacks?: number;
   maxDuration?: number;
   maxStacks?: number;
+  target?: StatusTarget;
 }
 
 export interface CombatStatusAdditionalOptions {
@@ -81,6 +90,7 @@ export function createCombatStatus(options: CombatStatusOptions) {
         timestamp: Date.now(),
         stacks: stacks,
         visible: combatStatus.isVisible,
+        target: combatStatus.target,
       };
 
       if (combatStatus.tick) {
@@ -94,23 +104,31 @@ export function createCombatStatus(options: CombatStatusOptions) {
 
         periodicSubscriptions.set(
           id,
-          timer(nextOccurence(combatStatus.firstTickDelay, combatStatus.tickInterval, combatStatus.duration! - duration!))
+          timer(nextOccurence(combatStatus.firstTickDelay, combatStatus.tickInterval, Math.max(0, combatStatus.duration! - duration!)))
             .pipe(switchMap(() => interval(combatStatus.tickInterval).pipe(startWith(0))))
             .subscribe(() => dispatch(combatStatus.tick!))
         );
       }
 
       if (combatStatus.isHarmful) {
-        dispatch(addDebuff(status));
+        if (combatStatus.target === StatusTarget.Enemy) {
+          dispatch(addDebuff(status));
+        } else {
+          dispatch(addPlayerDebuff(status));
+        }
       } else {
         dispatch(addBuff(status));
       }
     },
     remove: (dispatch) => {
       if (combatStatus.isHarmful) {
-        dispatch(removeDebuff(id));
+        if (combatStatus.target === StatusTarget.Enemy) {
+          dispatch(removeDebuffAction(id));
+        } else {
+          dispatch(removePlayerDebuffAction(id));
+        }
       } else {
-        dispatch(removeBuff(id));
+        dispatch(removeBuffAction(id));
       }
 
       periodicSubscriptions.get(id)?.unsubscribe();
@@ -131,15 +149,12 @@ export function createCombatStatus(options: CombatStatusOptions) {
     addStack: (dispatch, getState) => {
       const stacks = buffStacks(getState(), id);
 
-      if (combatStatus.maxStacks !== null && stacks >= combatStatus.maxStacks) return;
-
       if (stacks === 0) {
         combatStatus.apply(dispatch, getState, { stacks: 1 });
       } else {
-        const status = combatStatus.isHarmful ? selectDebuff(getState(), id)! : selectBuff(getState(), id)!;
-        const remainingDuration = status.duration ? status.duration - (Date.now() - status.timestamp) / 1000 : null;
-
-        combatStatus.apply(dispatch, getState, { duration: remainingDuration, stacks: stacks + 1 });
+        combatStatus.apply(dispatch, getState, {
+          stacks: combatStatus.maxStacks ? Math.min(combatStatus.maxStacks, stacks + 1) : stacks + 1,
+        });
       }
     },
     removeStack: (dispatch, getState) => {
@@ -168,6 +183,7 @@ export function createCombatStatus(options: CombatStatusOptions) {
     duration: options.duration,
     maxDuration: options.maxDuration ?? null,
     maxStacks: options.maxStacks ?? null,
+    target: options.target ?? StatusTarget.Enemy,
   };
 
   return combatStatus;
