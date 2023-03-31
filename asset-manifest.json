@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/ffxiv-rotation-dojo/static/css/main.45048017.css",
-    "main.js": "/ffxiv-rotation-dojo/static/js/main.a0f6112f.js",
+    "main.js": "/ffxiv-rotation-dojo/static/js/main.c281d33c.js",
     "static/js/787.31497535.chunk.js": "/ffxiv-rotation-dojo/static/js/787.31497535.chunk.js",
     "index.html": "/ffxiv-rotation-dojo/index.html",
     "main.45048017.css.map": "/ffxiv-rotation-dojo/static/css/main.45048017.css.map",
-    "main.a0f6112f.js.map": "/ffxiv-rotation-dojo/static/js/main.a0f6112f.js.map",
+    "main.c281d33c.js.map": "/ffxiv-rotation-dojo/static/js/main.c281d33c.js.map",
     "787.31497535.chunk.js.map": "/ffxiv-rotation-dojo/static/js/787.31497535.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.45048017.css",
-    "static/js/main.a0f6112f.js"
+    "static/js/main.c281d33c.js"
   ]
 }
