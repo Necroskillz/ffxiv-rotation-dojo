@@ -249,6 +249,7 @@ const slipstreamActiveStatus: CombatStatus = createCombatStatus({
   id: StatusId.SlipstreamActive,
   duration: 15,
   isHarmful: true,
+  isVisible: false,
   tick: (dispatch) => dispatch(event(0, { potency: 30 })),
   ticksImmediately: true,
 });

@@ -13,7 +13,7 @@ export const Debuffs = () => {
     <HudItem name="Debuffs" defaultPosition={{ x: 20, y: 150 }}>
       <div className="h-20 grid auto-cols-max grid-flow-col gap-x-1">
         {hudLock || debuffs.length
-          ? debuffs.filter((d) => d.target === StatusTarget.Enemy).map((b) => <Status key={b.id} status={b} />)
+          ? debuffs.filter((d) => d.target === StatusTarget.Enemy && d.visible).map((d) => <Status key={d.id} status={d} />)
           : 'Enemy debuffs'}
       </div>
     </HudItem>

@@ -84,6 +84,8 @@ export function createCombatStatus(options: CombatStatusOptions) {
         timeoutId: duration
           ? setTimeout(() => {
               dispatch(combatStatus.remove);
+
+              combatStatus.onExpire && dispatch(combatStatus.onExpire);
             }, duration * 1000)
           : null,
         duration,
@@ -132,7 +134,6 @@ export function createCombatStatus(options: CombatStatusOptions) {
       }
 
       periodicSubscriptions.get(id)?.unsubscribe();
-      combatStatus.onExpire && dispatch(combatStatus.onExpire);
     },
     extend: (dispatch, getState, applyOptions) => {
       if (!combatStatus.maxDuration) return;

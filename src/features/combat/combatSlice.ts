@@ -492,6 +492,7 @@ export const reset =
     ];
     const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
+    dispatch(clear());
     buffs.forEach((b) => dispatch(removeBuff(b.id)));
     state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
     Object.keys(state.cooldowns).forEach((k) => dispatch(removeCooldown(k as any)));
@@ -499,8 +500,6 @@ export const reset =
     dispatch(removeQueuedAction());
     dispatch(removeOgcdLock());
     dispatch(setCast(null));
-
-    dispatch(clear());
 
     if (!full) {
       dispatch(stateInitializer.initialize);

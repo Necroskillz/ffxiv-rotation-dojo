@@ -127,48 +127,6 @@ const endArmysPaeonEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const wanderersMinuetEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.WanderersMinuetActive),
-    switchMap((a) =>
-      interval(3000).pipe(
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasBuff(state, a.payload.id)),
-        filter(() => rng(80)),
-        switchMap(() => of(addWandererRepertiore(1), addSoulVoice(5)))
-      )
-    )
-  );
-
-const magesBalladEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.MagesBalladActive),
-    switchMap((a) =>
-      interval(3000).pipe(
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasBuff(state, a.payload.id)),
-        filter(() => rng(80)),
-        switchMap(() => of(modifyCooldown(5, -7500), addSoulVoice(5)))
-      )
-    )
-  );
-
-const armysPaeonEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.ArmysPaeonActive),
-    switchMap((a) =>
-      interval(3000).pipe(
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasBuff(state, a.payload.id)),
-        filter(() => rng(80)),
-        switchMap(() => of(addArmyRepertiore(1), addSoulVoice(5)))
-      )
-    )
-  );
-
 const straightShotReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.StraightShotReady,
   duration: 30,
@@ -221,6 +179,11 @@ const wanderersMinuetActive: CombatStatus = createCombatStatus({
   id: StatusId.WanderersMinuetActive,
   duration: 45,
   isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => {
+    dispatch(addWandererRepertiore(1));
+    dispatch(addSoulVoice(5));
+  },
   onExpire: (dispatch, getState) => {
     setTimeout(() => {
       if (hasBuff(getState(), StatusId.TheWanderersMinuet)) {
@@ -240,6 +203,11 @@ const magesBalladActive: CombatStatus = createCombatStatus({
   id: StatusId.MagesBalladActive,
   duration: 45,
   isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => {
+    dispatch(modifyCooldown(5, -7500));
+    dispatch(addSoulVoice(5));
+  },
   onExpire: (dispatch, getState) => {
     setTimeout(() => {
       if (hasBuff(getState(), StatusId.MagesBallad)) {
@@ -265,6 +233,11 @@ const armysPaeonActive: CombatStatus = createCombatStatus({
   id: StatusId.ArmysPaeonActive,
   duration: 45,
   isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => {
+    dispatch(addArmyRepertiore(1));
+    dispatch(addSoulVoice(5));
+  },
   onExpire: (dispatch, getState) => {
     if (armyRepertoire(getState())) {
       dispatch(buff(StatusId.ArmysEthos));
@@ -745,7 +718,4 @@ export const brdEpics = combineEpics(
   endArmysPaeonEpic,
   endMagesBalladEpic,
   endWanderersMinuetEpic,
-  wanderersMinuetEpic,
-  magesBalladEpic,
-  armysPaeonEpic
 );

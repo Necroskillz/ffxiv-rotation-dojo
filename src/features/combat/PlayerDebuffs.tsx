@@ -13,7 +13,7 @@ export const PlayerDebuffs = () => {
     <HudItem name="PlayerDebuffs" defaultPosition={{ x: 20, y: 150 }}>
       <div className="h-20 grid auto-cols-max grid-flow-col gap-x-1">
         {hudLock || debuffs.length
-          ? debuffs.filter((d) => d.target === StatusTarget.Player).map((b) => <Status key={b.id} status={b} />)
+          ? debuffs.filter((d) => d.target === StatusTarget.Player && d.visible).map((d) => <Status key={d.id} status={d} />)
           : 'Player debuffs'}
       </div>
     </HudItem>
