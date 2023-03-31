@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { interval, of } from 'rxjs';
-import { filter, map, switchMap, takeWhile, withLatestFrom } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
 import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
@@ -24,7 +24,6 @@ import {
   modifyCooldown,
   addArmyRepertiore,
   hasDebuff,
-  extendableDebuff,
   addSoulVoice,
   dmgEvent,
   event,
