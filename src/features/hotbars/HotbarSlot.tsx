@@ -16,6 +16,8 @@ import css from './HotbarSlot.module.css';
 import { ActionTooltip } from '../actions/ActionTooltip';
 import { Cost } from './Cost';
 import { selectBlueMagicSpellSet, selectJob } from '../player/playerSlice';
+import Tippy from '@tippyjs/react';
+import { followCursor } from 'tippy.js';
 
 type HotbarProps = {
   hotbarId: number;
@@ -48,7 +50,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const hotbarLock = useAppSelector(selectHotbarLock);
   const job = useAppSelector(selectJob);
   const blueMagicSpellSet = useAppSelector(selectBlueMagicSpellSet);
-  const jobId = useMemo(() => job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job, [job, blueMagicSpellSet.id]);
+  const jobId = useMemo(() => (job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job), [job, blueMagicSpellSet.id]);
   const actionId = slot.actionId[jobId];
 
   let action = actionId ? getActionById(actionId) : null;
@@ -185,44 +187,53 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
 
   return (
     <div ref={drop}>
-      {action && <ActionTooltip anchorId={`slot_${hotbarId}_${slotId}`} action={action} combatAction={combatAction!} />}
-      <div
-        id={`slot_${hotbarId}_${slotId}`}
-        onMouseOver={mouseOver}
-        onMouseOut={mouseOut}
-        className={clsx(css.slot, {
-          [css.glowing]: isGlowing,
-          [css.active]: (canDrop && isOver) || (keybindingMode && isMouseOver) || isActive,
-          [css.unusable]: action && !isUsable,
-        })}
-        onClick={onClick}
-        ref={drag}
-        style={{
-          width: 40 * size + 2,
-          height: 40 * size + 2,
-        }}
+      <Tippy
+        disabled={!action}
+        content={<ActionTooltip action={action!} combatAction={combatAction!} />}
+        arrow={false}
+        duration={[0, 0]}
+        maxWidth={600}
+        plugins={[followCursor]}
+        followCursor={true}
       >
-        <Keybind keybind={keybind} />
-        <CooldownSwipe
-          cooldown={cooldown}
-          globalCooldown={globalCooldown}
-          extraCooldown={extraCooldown}
-          isGcdAction={!!combatAction?.isGcdAction}
-          maxCharges={maxCharges}
-          size={size}
-        />
-        {action && (
-          <img
-            src={'https://xivapi.com' + action.icon}
-            alt={action.name}
-            style={{
-              width: 40 * size,
-              height: 40 * size,
-            }}
+        <div
+          id={`slot_${hotbarId}_${slotId}`}
+          onMouseOver={mouseOver}
+          onMouseOut={mouseOut}
+          className={clsx(css.slot, {
+            [css.glowing]: isGlowing,
+            [css.active]: (canDrop && isOver) || (keybindingMode && isMouseOver) || isActive,
+            [css.unusable]: action && !isUsable,
+          })}
+          onClick={onClick}
+          ref={drag}
+          style={{
+            width: 40 * size + 2,
+            height: 40 * size + 2,
+          }}
+        >
+          <Keybind keybind={keybind} />
+          <CooldownSwipe
+            cooldown={cooldown}
+            globalCooldown={globalCooldown}
+            extraCooldown={extraCooldown}
+            isGcdAction={!!combatAction?.isGcdAction}
+            maxCharges={maxCharges}
+            size={size}
           />
-        )}
-        {action && action.cost > 0 && <Cost action={action} size={size} />}
-      </div>
+          {action && (
+            <img
+              src={'https://xivapi.com' + action.icon}
+              alt={action.name}
+              style={{
+                width: 40 * size,
+                height: 40 * size,
+              }}
+            />
+          )}
+          {action && action.cost > 0 && <Cost action={action} size={size} />}
+        </div>
+      </Tippy>
     </div>
   );
 };

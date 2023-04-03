@@ -2155,7 +2155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/dom@npm:^1.0.1, @floating-ui/dom@npm:^1.0.4":
+"@floating-ui/dom@npm:^1.0.1":
   version: 1.1.0
   resolution: "@floating-ui/dom@npm:1.1.0"
   dependencies:
@@ -2726,6 +2726,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@popperjs/core@npm:^2.9.0":
+  version: 2.11.7
+  resolution: "@popperjs/core@npm:2.11.7"
+  checksum: 5b6553747899683452a1d28898c1b39173a4efd780e74360bfcda8eb42f1c5e819602769c81a10920fc68c881d07fb40429604517d499567eac079cfa6470f19
+  languageName: node
+  linkType: hard
+
 "@ramonak/react-progress-bar@npm:^5.0.3":
   version: 5.0.3
   resolution: "@ramonak/react-progress-bar@npm:5.0.3"
@@ -3079,6 +3086,18 @@ __metadata:
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
   checksum: 852c48ea6db1c9471b18276617c84fec4320771e466cd58339a732ca3fd73ad35e5a43ae14f51af51a8d0a150dcf60fcaab049ef367871207bea8f92c4b8195e
+  languageName: node
+  linkType: hard
+
+"@tippyjs/react@npm:^4.2.6":
+  version: 4.2.6
+  resolution: "@tippyjs/react@npm:4.2.6"
+  dependencies:
+    tippy.js: ^6.3.1
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 8f0fba591c9dae2e1af1ae632bbc775ba5c9dd4498e50e242be70302b4c27115c6740eec44e885e294b27cb28515777b52af5b34aac9d4bab627d948add938ae
   languageName: node
   linkType: hard
 
@@ -5095,13 +5114,6 @@ __metadata:
   version: 1.2.2
   resolution: "cjs-module-lexer@npm:1.2.2"
   checksum: 977f3f042bd4f08e368c890d91eecfbc4f91da0bc009a3c557bc4dfbf32022ad1141244ac1178d44de70fc9f3dea7add7cd9a658a34b9fae98a55d8f92331ce5
-  languageName: node
-  linkType: hard
-
-"classnames@npm:^2.3.2":
-  version: 2.3.2
-  resolution: "classnames@npm:2.3.2"
-  checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
   languageName: node
   linkType: hard
 
@@ -7290,6 +7302,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.0.1
     "@testing-library/user-event": ^14.1.1
+    "@tippyjs/react": ^4.2.6
     "@types/jest": ^27.4.1
     "@types/node": ^17.0.25
     "@types/react": ^18.0.6
@@ -7311,12 +7324,12 @@ __metadata:
     react-redux: ^8.0.1
     react-scripts: 5.0.1
     react-select: ^5.7.0
-    react-tooltip: ^5.5.2
     react-transition-group: ^4.4.5
     redux-observable: 2.0.0-rc.2
     redux-persist: ^6.0.0
     rxjs: ^7.5.7
     tailwindcss: ^3.2.4
+    tippy.js: ^6.3.7
     typescript: ^4.6.0
     web-vitals: ^2.1.0
   languageName: unknown
@@ -12763,19 +12776,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-tooltip@npm:^5.5.2":
-  version: 5.5.2
-  resolution: "react-tooltip@npm:5.5.2"
-  dependencies:
-    "@floating-ui/dom": ^1.0.4
-    classnames: ^2.3.2
-  peerDependencies:
-    react: ">=16.14.0"
-    react-dom: ">=16.14.0"
-  checksum: 2858744531317ce491bd234bdf80dd3412ea0b147a7d88bba55cebb9c42787acc5420a9b63c6134e0b1f5ab9477b8ac7bff3961c4738aaf8bff90c6c9dc0a649
-  languageName: node
-  linkType: hard
-
 "react-transition-group@npm:^4.3.0, react-transition-group@npm:^4.4.5":
   version: 4.4.5
   resolution: "react-transition-group@npm:4.4.5"
@@ -14480,6 +14480,15 @@ __metadata:
   version: 2.0.3
   resolution: "tiny-each-async@npm:2.0.3"
   checksum: 363511e6dd1dd9eadee4809d8a3485783f24579ae464c7b0768bb48047e6eaae3360cfe72b2ba345523d1d4033b5542129771c320bfb756abcf4918824511624
+  languageName: node
+  linkType: hard
+
+"tippy.js@npm:^6.3.1, tippy.js@npm:^6.3.7":
+  version: 6.3.7
+  resolution: "tippy.js@npm:6.3.7"
+  dependencies:
+    "@popperjs/core": ^2.9.0
+  checksum: cac955318a65288e8d2dca05059878b003c6e66f92c94f7810f5bc5448eb6646abdf7dacc9bd00020e2611592598d0aae3a28ec9a45349a159603c3fdddce5fb
   languageName: node
   linkType: hard
 

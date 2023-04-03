@@ -1,5 +1,4 @@
 import './App.css';
-import 'react-tooltip/dist/react-tooltip.css';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Hud } from './features/hud/Hud';

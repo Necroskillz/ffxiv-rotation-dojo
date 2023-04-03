@@ -7,8 +7,10 @@
   "description": "App for trying FFXIV rotations",
   "private": true,
   "dependencies": {
+    "@tippyjs/react": "^4.2.6",
     "electron-is-dev": "^2.0.0",
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",
@@ -44,7 +46,6 @@
     "react-redux": "^8.0.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
-    "react-tooltip": "^5.5.2",
     "react-transition-group": "^4.4.5",
     "redux-observable": "2.0.0-rc.2",
     "redux-persist": "^6.0.0",
