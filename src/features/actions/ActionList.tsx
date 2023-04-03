@@ -8,10 +8,14 @@ import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
 import { selectBlueMagicSpellBook, selectJob, setBluSpellSet } from '../player/playerSlice';
 import { Action } from './Action';
-import { getActionById, getActionsByJob } from './actions';
+import { ActionInfo, getActionById, getActionsByJob } from './actions';
 import Select from 'react-select';
 import { Option } from '../../types';
 import { useDrag } from 'react-dnd';
+import React from 'react';
+import Tippy from '@tippyjs/react';
+import { followCursor } from 'tippy.js';
+import { ActionTooltip } from './ActionTooltip';
 
 const blueMagicSetOptions = [
   { value: 1, label: 'Set 1' },
@@ -25,7 +29,31 @@ export function ActionList() {
   const job = useAppSelector(selectJob);
   const hudElement = useAppSelector((state) => selectElement(state, 'ActionList'));
   const dispatch = useAppDispatch();
-  const actionList = useMemo(() => getActionsByJob(job), [job]);
+  const actionList = useMemo(() => {
+    const groups = getActionsByJob(job)
+      .filter((a) => a.id < 999000)
+      .reduce((acc, a) => {
+        const category =
+          a.job[0] === 'All' || a.type === 'Medicine'
+            ? 'General'
+            : a.job.length > 3
+            ? 'Role'
+            : a.job.length === 3 || a.job.length === 2
+            ? 'Class'
+            : 'Job';
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(a);
+        return acc;
+      }, {} as Record<string, ActionInfo[]>);
+
+    Object.keys(groups).forEach((key) => {
+      groups[key].sort((a, b) => a.level - b.level);
+    });
+
+    return groups;
+  }, [job]);
   const blueMagicSpellbook = useAppSelector(selectBlueMagicSpellBook);
   const blueMagicSpellSet = useMemo(() => blueMagicSpellbook.find((s) => s.active), [blueMagicSpellbook]);
 
@@ -52,11 +80,18 @@ export function ActionList() {
             <FontAwesomeIcon size="2x" icon={faXmark} />
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-1 w-[780px] h-[530px]  overflow-auto">
-          {actionList
-            .filter((a) => a.id < 999000)
-            .map((a) => (
-              <Action key={a.id} action={a} />
+        <div className="w-[780px] h-[530px]  overflow-auto">
+          {['Class', 'Job', 'Role', 'General']
+            .filter((c) => actionList[c]?.length)
+            .map((c, id) => (
+              <React.Fragment key={id}>
+                <h3 className="text-xl my-1">{c}</h3>
+                <div className="grid grid-cols-3 gap-1">
+                  {actionList[c].map((a) => (
+                    <Action key={a.id} action={a} />
+                  ))}
+                </div>
+              </React.Fragment>
             ))}
         </div>
         {job === 'BLU' && (
@@ -92,6 +127,7 @@ type BluActionProps = {
 
 const BluAction: FC<BluActionProps> = ({ actionId }) => {
   const action = getActionById(actionId);
+  const combatAction = actions[actionId];
 
   const [, drag] = useDrag(() => ({
     type: 'action',
@@ -100,9 +136,19 @@ const BluAction: FC<BluActionProps> = ({ actionId }) => {
   }));
 
   return (
-    <div className="grid grid-flow-row place-items-center">
-      <img ref={drag} className="w-10" src={'https://xivapi.com' + action.icon} alt={'icon'} />
-      <span>#{actions[actionId].bluNo}</span>
-    </div>
+    <Tippy
+      disabled={!action}
+      content={<ActionTooltip action={action} combatAction={combatAction} />}
+      arrow={false}
+      duration={[0, 0]}
+      maxWidth={600}
+      plugins={[followCursor]}
+      followCursor={true}
+    >
+      <div className="grid grid-flow-row place-items-center">
+        <img ref={drag} className="w-10" src={'https://xivapi.com' + action.icon} alt={'icon'} />
+        <span>#{actions[actionId].bluNo}</span>
+      </div>
+    </Tippy>
   );
 };
