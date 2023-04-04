@@ -314,6 +314,10 @@ const reassemble: CombatAction = createCombatAction({
   },
   maxCharges: () => 2,
   entersCombat: false,
+  extraCooldown: () => ({
+    cooldownGroup: 1002,
+    duration: 1,
+  }),
 });
 
 const ricochet: CombatAction = createCombatAction({

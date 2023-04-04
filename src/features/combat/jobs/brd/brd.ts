@@ -143,7 +143,7 @@ const stormbiteStatus: CombatStatus = createCombatStatus({
   duration: 45,
   isHarmful: true,
   tick: (dispatch) => {
-    dispatch(event(ActionId.Stormbite, { potency: 25 }));
+    dispatch(event(0, { potency: 25 }));
   },
 });
 
@@ -152,7 +152,7 @@ const causticBiteStatus: CombatStatus = createCombatStatus({
   duration: 45,
   isHarmful: true,
   tick: (dispatch) => {
-    dispatch(event(ActionId.CausticBite, { potency: 20 }));
+    dispatch(event(0, { potency: 20 }));
   },
 });
 
