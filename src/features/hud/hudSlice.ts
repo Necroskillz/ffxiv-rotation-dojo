@@ -55,6 +55,7 @@ const initialState: HudState = {
     ResourceScrollingText: createDefaultElementPlacement({ isVisible: true }),
     DamageScrollingText: createDefaultElementPlacement({ isVisible: true }),
     DotScrollingText: createDefaultElementPlacement({ isVisible: true }),
+    PotencyPerSecondDisplay: createDefaultElementPlacement({ isVisible: true }),
     DanceGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
     EspritGauge: createDefaultElementPlacement({ isVisible: true, job: 'DNC' }),
     SoulAndShroudGauge: createDefaultElementPlacement({ isVisible: true, job: 'RPR' }),

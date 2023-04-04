@@ -35,6 +35,7 @@ import { BeastGauge } from '../combat/jobs/war/BeastGauge';
 import { ManaBar } from '../combat/ManaBar';
 import { Pet } from '../combat/Pet';
 import { PlayerDebuffs } from '../combat/PlayerDebuffs';
+import PotencyPerSecondDisplay from '../combat/PotencyPerSecondDisplay';
 import PullTimer from '../combat/PullTimer';
 import ResourceScrollingText from '../combat/ResourceScrollingText';
 import { Hotbars } from '../hotbars/Hotbars';
@@ -89,6 +90,7 @@ export class Hud extends React.Component {
         <ElementalGauge />
         <OathGauge />
         <MimicryGauge />
+        <PotencyPerSecondDisplay />
         <Hotbars />
         <Buffs />
         <Debuffs />

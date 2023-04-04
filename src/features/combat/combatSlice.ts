@@ -347,7 +347,6 @@ export const combatSlice = createSlice({
     },
     executeAction: (state, action: PayloadAction<{ id: ActionId }>) => {},
     clear: (state) => {
-      state.inCombat = false;
       state.resources = initialState.resources;
       state.pullTimer = null;
     },
@@ -492,6 +491,7 @@ export const reset =
     ];
     const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
+    dispatch(setCombat(false));
     dispatch(clear());
     buffs.forEach((b) => dispatch(removeBuff(b.id)));
     state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
