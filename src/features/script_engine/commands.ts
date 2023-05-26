@@ -2,7 +2,7 @@ import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
 import { actions } from '../combat/actions';
-import { buff, cooldown, debuff, ResourceTypes, setCombat, setPet, setPullTimer, setResource } from '../combat/combatSlice';
+import { buff, combo, cooldown, debuff, ResourceTypes, setCombat, setPet, setPullTimer, setResource } from '../combat/combatSlice';
 import { setPartySize, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
 import { stateInitializer } from './state_initializer';
 
@@ -75,6 +75,20 @@ const debuffCommand: ScriptEngineCommandDefinition = {
 
     stateInitializer.registerAction((dispatch) => {
       dispatch(debuff(id, { duration, stacks }));
+    });
+  },
+};
+
+const comboCommand: ScriptEngineCommandDefinition = {
+  name: 'combo',
+  args: [{ type: CommandArgType.Number }],
+  register: (id: number) => {
+    if (!Object.values(ActionId).includes(id)) {
+      throw new Error(`Invalid action id: ${id}`);
+    }
+
+    stateInitializer.registerAction((dispatch) => {
+      dispatch(combo(id));
     });
   },
 };
@@ -152,6 +166,7 @@ export const commands: ScriptEngineCommandDefinition[] = [
   resourceCommand,
   buffCommand,
   debuffCommand,
+  comboCommand,
   cooldownCommand,
   petCommand,
   pullTimerCommand,
