@@ -686,7 +686,7 @@ export const gcd =
 interface EventOptions extends Partial<Omit<EventPayload, 'actionId'>> {}
 
 export const event =
-  (actionId: ActionId, options: EventOptions): AppThunk =>
+  (actionId: number, options: EventOptions): AppThunk =>
   (dispatch) => {
     if (options.mana) {
       dispatch(addMana(options.mana));

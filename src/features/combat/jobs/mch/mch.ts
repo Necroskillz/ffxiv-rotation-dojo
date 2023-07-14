@@ -34,6 +34,7 @@ import {
   event,
   DamageType,
 } from '../../combatSlice';
+import { collectStatuses } from '../../event-status-collector';
 
 function heat(state: RootState) {
   return resource(state, 'heat');
@@ -46,8 +47,6 @@ function battery(state: RootState) {
 function wildfireStacks(state: RootState) {
   return resource(state, 'wildfire');
 }
-
-// A function that adds 20 to supplied potency if Overheated buff is active
 function adjustedPotency(state: RootState, potency: number) {
   return hasBuff(state, StatusId.Overheated) ? potency + 20 : potency;
 }
@@ -108,7 +107,10 @@ const queenEpic: Epic<any, any, RootState> = (action$, state$) =>
         mergeMap((a) => from(a)),
         concatMap((a) => of(a).pipe(delay(a.delay))),
         takeUntil(stopQueen),
-        map((a) => event(a.actionId, { potency: a.potency, type: DamageType.Physical }))
+        withLatestFrom(state$),
+        map(([a, state]) =>
+          event(a.actionId, { potency: a.potency, type: DamageType.Physical, statuses: collectStatuses(a.actionId, state) })
+        )
       );
     })
   );
