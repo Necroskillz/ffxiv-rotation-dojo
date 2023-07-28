@@ -1,6 +1,6 @@
 import Tippy from '@tippyjs/react';
 import clsx from 'clsx';
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { useDrag } from 'react-dnd';
 import { followCursor } from 'tippy.js';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -22,15 +22,21 @@ export const Action: FC<ActionProps> = ({ action }) => {
     canDrag: () => action.isAssignableToHotbar,
   }));
 
-  const blueMagicSpellSet = useAppSelector(selectBlueMagicSpellSet);
-  const [bluSelected, setBluSelected] = useState(blueMagicSpellSet.spells.includes(action.id));
+  const bluSelected = useAppSelector((state) => {
+    const spellSet = selectBlueMagicSpellSet(state);
+    return spellSet.spells.includes(action.id);
+  });
+
+  const bluActiveSpellCount = useAppSelector((state) => {
+    const spellSet = selectBlueMagicSpellSet(state);
+    return spellSet.spells.length;
+  });
 
   const combatAction = actions[action.id];
 
   function modifyBluSpellset(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.checked && blueMagicSpellSet.spells.length >= 24) return;
+    if (event.target.checked && bluActiveSpellCount >= 24) return;
 
-    setBluSelected(event.target.checked);
     if (event.target.checked) {
       dispatch(addBluSpell(action.id));
     } else {

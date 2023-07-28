@@ -67,6 +67,7 @@ export interface CombatActionExecuteContext {
   comboed: boolean;
   cost: number;
   consumedStatuses: StatusId[];
+  startedCombat?: boolean;
 }
 
 export interface CombatActionOptions {
@@ -138,6 +139,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         }
 
         if (!selectInCombat(getState()) && options.entersCombat !== false) {
+          context.startedCombat = true;
           dispatch(setCombat(true));
         }
         const cost = combatAction.cost(getState());

@@ -41,7 +41,7 @@ export const playerSlice = createSlice({
       state.job = action.payload;
 
       if (action.payload === 'BLU') {
-        state.level = 70;
+        state.level = 80;
       } else {
         state.level = 90;
       }

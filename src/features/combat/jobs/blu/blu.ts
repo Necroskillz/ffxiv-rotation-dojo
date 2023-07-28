@@ -21,6 +21,7 @@ import {
   executeAction,
   hasBuff,
   hasDebuff,
+  hp,
   inCombat,
   ogcdLock,
   recastTime,
@@ -28,8 +29,10 @@ import {
   removeBuffAction,
   removeDebuff,
   resource,
+  setCast,
   setHp,
 } from '../../combatSlice';
+import { rng } from '../../utils';
 
 function mimicry(state: RootState): StatusId {
   return resource(state, 'mimicry');
@@ -191,6 +194,15 @@ const popChelonianGatepic: Epic<any, any, RootState> = (action$, state$) =>
     map(([, state]) => state),
     filter((state) => inCombat(state) && hasBuff(state, StatusId.ChelonianGate)),
     switchMap(() => of(buff(StatusId.AuspiciousTrance)))
+  );
+
+const removeApokalypsisEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => (a.type === executeAction.type && a.payload.id !== ActionId.Apokalypsis) || a.type === setCast.type),
+    withLatestFrom(state$),
+    map(([, state]) => state),
+    filter((state) => hasBuff(state, StatusId.Apokalypsis)),
+    map(() => removeBuff(StatusId.Apokalypsis))
   );
 
 const dropsyStatus: CombatStatus = createCombatStatus({
@@ -471,6 +483,82 @@ const phantomFlurryStatus: CombatStatus = createCombatStatus({
   interval: 1000,
 });
 
+const schiltronStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Schiltron,
+  duration: 15,
+  isHarmful: false,
+});
+
+const breathOfMagicStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BreathofMagic,
+  duration: 60,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 120 })),
+});
+
+const begrimedStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Begrimed,
+  duration: 9,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 10 })),
+});
+
+const spickAndSpanStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Spickandspan,
+  duration: 15,
+  maxStacks: 6,
+  isHarmful: false,
+  tick: (dispatch, getState) => dispatch(event(0, { healthPotency: 50 * buffStacks(getState(), StatusId.Spickandspan) })),
+});
+
+const magicVulnerabilityDownStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MagicVulnerabilityDown,
+  duration: 10,
+  isHarmful: false,
+});
+
+const physicalVulnerabilityDownStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PhysicalVulnerabilityDown,
+  duration: 10,
+  isHarmful: false,
+});
+
+const wingedReprobationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.WingedReprobation,
+  duration: null,
+  maxStacks: 3,
+  isHarmful: false,
+});
+
+const wingedRedemptionStatus: CombatStatus = createCombatStatus({
+  id: StatusId.WingedRedemption,
+  duration: 10,
+  isHarmful: false,
+});
+
+const candyCaneStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CandyCane,
+  duration: 10,
+  isHarmful: true,
+});
+
+const mortalFlameStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MortalFlame,
+  duration: null,
+  isHarmful: true,
+  tick: (dispatch) => dispatch(event(0, { potency: 40 })),
+});
+
+const apokalypsisStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Apokalypsis,
+  duration: 10,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { potency: 140 })),
+  ticksImmediately: true,
+  initialDelay: 900,
+  interval: 1000,
+});
+
 function physicalPotency(state: RootState, options: DmgEventOptions) {
   if (hasBuff(state, StatusId.Harmonized)) {
     options.potency = Math.floor(options.potency! * 1.8);
@@ -706,6 +794,8 @@ const iceSpikes: CombatAction = createCombatAction({
   bluNo: 16,
   execute: (dispatch) => {
     dispatch(buff(StatusId.IceSpikes));
+    dispatch(removeBuff(StatusId.Schiltron));
+    dispatch(removeBuff(StatusId.VeiloftheWhorl));
   },
   isUsable: isUsable(ActionId.IceSpikes),
   reducedBySpellSpeed: true,
@@ -1082,6 +1172,8 @@ const veilOfTheWhorl: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.VeiloftheWhorl));
+    dispatch(removeBuff(StatusId.Schiltron));
+    dispatch(removeBuff(StatusId.IceSpikes));
   },
   isUsable: isUsable(ActionId.VeiloftheWhorl),
   entersCombat: false,
@@ -1197,7 +1289,7 @@ const magicHammer: CombatAction = createCombatAction({
   id: ActionId.MagicHammer,
   bluNo: 60,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.MagicHammer, context, magicalPotency(getState(), { potency: 250 })));
+    dispatch(dmgEvent(ActionId.MagicHammer, context, magicalPotency(getState(), { potency: 250, mana: 1000 })));
     dispatch(debuff(StatusId.Conked));
   },
   isUsable: isUsable(ActionId.MagicHammer),
@@ -1783,7 +1875,248 @@ const nightbloom: CombatAction = createCombatAction({
     dispatch(debuff(StatusId.Bleeding, { duration: 60 }));
   },
   isUsable: isUsable(ActionId.Nightbloom),
+});
+
+const goblinPunch: CombatAction = createCombatAction({
+  id: ActionId.GoblinPunch,
+  bluNo: 105,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.GoblinPunch, context, {
+        potency: 120,
+        frontPotency: 220,
+        frontEnhancedPotency: 320,
+        isEnhanced: hasBuff(getState(), StatusId.MightyGuard),
+        type: DamageType.Physical,
+      })
+    );
+  },
+  isUsable: isUsable(ActionId.GoblinPunch),
   reducedBySpellSpeed: true,
+});
+
+const rightRound: CombatAction = createCombatAction({
+  id: ActionId.RightRound,
+  bluNo: 106,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RightRound, context, { potency: 110, type: DamageType.Physical }));
+  },
+  isUsable: isUsable(ActionId.RightRound, (s) => inCombat(s)),
+  reducedBySpellSpeed: true,
+});
+
+const schiltron: CombatAction = createCombatAction({
+  id: ActionId.Schiltron,
+  bluNo: 107,
+  execute: (dispatch) => {
+    dispatch(buff(StatusId.Schiltron));
+    dispatch(removeBuff(StatusId.IceSpikes));
+    dispatch(removeBuff(StatusId.VeiloftheWhorl));
+  },
+  isUsable: isUsable(ActionId.Schiltron),
+  reducedBySpellSpeed: true,
+  entersCombat: false,
+});
+
+const rehydration: CombatAction = createCombatAction({
+  id: ActionId.Rehydration,
+  bluNo: 108,
+  execute: (dispatch) => {
+    dispatch(event(ActionId.Rehydration, { healthPotency: 600 }));
+  },
+  isUsable: isUsable(ActionId.Rehydration),
+  reducedBySpellSpeed: true,
+  entersCombat: false,
+});
+
+const breathOfMagic: CombatAction = createCombatAction({
+  id: ActionId.BreathofMagic,
+  bluNo: 109,
+  execute: (dispatch) => {
+    dispatch(debuff(StatusId.BreathofMagic));
+  },
+  isUsable: isUsable(ActionId.BreathofMagic),
+  reducedBySpellSpeed: true,
+});
+
+const wildRage: CombatAction = createCombatAction({
+  id: ActionId.WildRage,
+  bluNo: 110,
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.WildRage, context, { potency: 500, type: DamageType.Physical }));
+    const currentHp = hp(getState());
+    dispatch(setHp(Math.ceil(currentHp / 2)));
+  },
+  isUsable: isUsable(ActionId.WildRage),
+  reducedBySpellSpeed: true,
+});
+
+const peatPelt: CombatAction = createCombatAction({
+  id: ActionId.PeatPelt,
+  bluNo: 111,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.PeatPelt, context, { potency: 100 }));
+    dispatch(debuff(StatusId.Begrimed));
+  },
+  isUsable: isUsable(ActionId.PeatPelt),
+  reducedBySpellSpeed: true,
+});
+
+const deepClean: CombatAction = createCombatAction({
+  id: ActionId.DeepClean,
+  bluNo: 112,
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.DeepClean, context, { potency: 220 }));
+    if (hasBuff(getState(), StatusId.Begrimed)) {
+      dispatch(removeDebuff(StatusId.Begrimed));
+      dispatch(addBuffStack(StatusId.Spickandspan, { keepDuration: true }));
+    }
+  },
+  isUsable: isUsable(ActionId.DeepClean),
+  reducedBySpellSpeed: true,
+});
+
+const rubyDynamics: CombatAction = createCombatAction({
+  id: ActionId.RubyDynamics,
+  bluNo: 113,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.RubyDynamics, context, { potency: 220, type: DamageType.Physical }));
+  },
+  isUsable: isUsable(ActionId.RubyDynamics),
+  reducedBySpellSpeed: true,
+  extraCooldown: gcd,
+});
+
+const divinationRune: CombatAction = createCombatAction({
+  id: ActionId.DivinationRune,
+  bluNo: 114,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DivinationRune, context, { potency: 100, mana: 200 }));
+  },
+  isUsable: isUsable(ActionId.DivinationRune),
+  reducedBySpellSpeed: true,
+});
+
+const dimensionalShift: CombatAction = createCombatAction({
+  id: ActionId.DimensionalShift,
+  bluNo: 115,
+  execute: (dispatch) => {
+    dispatch(event(ActionId.DimensionalShift, { damagePercent: 30, type: DamageType.Darkness }));
+  },
+  isUsable: isUsable(ActionId.DimensionalShift),
+  reducedBySpellSpeed: true,
+});
+
+const convictionMarcato: CombatAction = createCombatAction({
+  id: ActionId.ConvictionMarcato,
+  bluNo: 116,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.ConvictionMarcato, context, {
+        potency: 220,
+        enhancedPotency: 440,
+        isEnhanced: hasBuff(getState(), StatusId.WingedRedemption),
+      })
+    );
+    dispatch(removeBuff(StatusId.WingedRedemption));
+  },
+  isUsable: isUsable(ActionId.ConvictionMarcato),
+  reducedBySpellSpeed: true,
+});
+
+const forceField: CombatAction = createCombatAction({
+  id: ActionId.ForceField,
+  bluNo: 117,
+  execute: (dispatch) => {
+    if (rng(50)) {
+      dispatch(buff(StatusId.MagicVulnerabilityDown));
+    } else {
+      dispatch(buff(StatusId.PhysicalVulnerabilityDown));
+    }
+  },
+  isUsable: isUsable(ActionId.ForceField),
+  reducedBySpellSpeed: true,
+  extraCooldown: gcd,
+});
+
+const wingedReprobation: CombatAction = createCombatAction({
+  id: ActionId.WingedReprobation,
+  bluNo: 118,
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.WingedReprobation, context, { potency: 300 }));
+    if (buffStacks(getState(), StatusId.WingedReprobation) === 3) {
+      dispatch(removeBuff(StatusId.WingedReprobation));
+      dispatch(buff(StatusId.WingedRedemption));
+    } else {
+      dispatch(addBuffStack(StatusId.WingedReprobation));
+    }
+  },
+  isUsable: isUsable(ActionId.WingedReprobation),
+  reducedBySpellSpeed: true,
+  cooldown: (state) => (buffStacks(state, StatusId.WingedReprobation) === 3 ? 90 : 0),
+  extraCooldown: gcd,
+});
+
+const laserEye: CombatAction = createCombatAction({
+  id: ActionId.LaserEye,
+  bluNo: 119,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.LaserEye, context, { potency: 220 }));
+  },
+  isUsable: isUsable(ActionId.LaserEye),
+  reducedBySpellSpeed: true,
+});
+
+const candyCane: CombatAction = createCombatAction({
+  id: ActionId.CandyCane,
+  bluNo: 120,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.CandyCane, context, { potency: 250, mana: 1000 }));
+    dispatch(debuff(StatusId.CandyCane));
+  },
+  isUsable: isUsable(ActionId.CandyCane),
+  reducedBySpellSpeed: true,
+  extraCooldown: gcd,
+});
+
+const mortalFlame: CombatAction = createCombatAction({
+  id: ActionId.MortalFlame,
+  bluNo: 121,
+  execute: (dispatch, _, context) => {
+    if (!context.startedCombat) {
+      dispatch(debuff(StatusId.MortalFlame));
+    }
+  },
+  isUsable: isUsable(ActionId.MortalFlame),
+  reducedBySpellSpeed: true,
+});
+
+const seaShanty: CombatAction = createCombatAction({
+  id: ActionId.SeaShanty,
+  bluNo: 122,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.SeaShanty, context, { potency: 500 }));
+  },
+  isUsable: isUsable(ActionId.SeaShanty),
+});
+
+const apokalypsis: CombatAction = createCombatAction({
+  id: ActionId.Apokalypsis,
+  bluNo: 123,
+  execute: (dispatch) => {
+    dispatch(buff(StatusId.Apokalypsis));
+  },
+  isUsable: isUsable(ActionId.Apokalypsis),
+});
+
+const beingMortal: CombatAction = createCombatAction({
+  id: ActionId.BeingMortal,
+  bluNo: 124,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.BeingMortal, context, { potency: 800 }));
+  },
+  isUsable: isUsable(ActionId.BeingMortal),
 });
 
 export const bluStatuses: CombatStatus[] = [
@@ -1831,6 +2164,17 @@ export const bluStatuses: CombatStatus[] = [
   dragonForceStatus,
   lightheadedStatus,
   phantomFlurryStatus,
+  schiltronStatus,
+  breathOfMagicStatus,
+  begrimedStatus,
+  magicVulnerabilityDownStatus,
+  physicalVulnerabilityDownStatus,
+  spickAndSpanStatus,
+  wingedReprobationStatus,
+  wingedRedemptionStatus,
+  candyCaneStatus,
+  mortalFlameStatus,
+  apokalypsisStatus,
 ];
 
 export const blu: CombatAction[] = [
@@ -1941,6 +2285,26 @@ export const blu: CombatAction[] = [
   phantomFlurry,
   phantomFlurryFinisher,
   nightbloom,
+  goblinPunch,
+  rightRound,
+  schiltron,
+  rehydration,
+  breathOfMagic,
+  wildRage,
+  peatPelt,
+  deepClean,
+  rubyDynamics,
+  divinationRune,
+  dimensionalShift,
+  convictionMarcato,
+  forceField,
+  wingedReprobation,
+  laserEye,
+  candyCane,
+  mortalFlame,
+  seaShanty,
+  apokalypsis,
+  beingMortal,
 ];
 
 export const bluEpics = combineEpics(
@@ -1954,5 +2318,6 @@ export const bluEpics = combineEpics(
   removeAuspiciousTranceEpic,
   matraMagicEpic,
   removePhantomFlurryEpic,
-  consumeTinglingEpic
+  consumeTinglingEpic,
+  removeApokalypsisEpic
 );

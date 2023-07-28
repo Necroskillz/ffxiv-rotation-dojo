@@ -11,7 +11,7 @@ type ActionTooltipProps = {
 export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction }) => {
   const state = useAppSelector((state) => state);
 
-  if (!action || !combatAction) return null;
+  if (!action) return null;
 
   const castTime = combatAction ? combatAction.castTime(state) : action.castTime;
   const recastTime = combatAction ? combatAction.cooldown(state) : action.recastTime;

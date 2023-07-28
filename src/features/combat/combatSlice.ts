@@ -14,6 +14,7 @@ import { statuses } from './statuses';
 
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
   90: { SUB: 400, DIV: 1900 },
+  80: { SUB: 380, DIV: 1300 },
   70: { SUB: 364, DIV: 900 },
 };
 
@@ -542,7 +543,7 @@ export const removeDebuff =
   };
 
 export const extendableBuff =
-  (id: StatusId, duration?: number): AppThunk =>
+(id: StatusId, duration?: number): AppThunk =>
   (dispatch, getState) => {
     statuses[id].extend(dispatch as any, getState, { duration });
   };
@@ -556,9 +557,9 @@ export const removeBuffStack =
   };
 
 export const addBuffStack =
-  (id: StatusId): AppThunk =>
-  (dispatch) => {
-    dispatch(statuses[id].addStack as any);
+  (id: StatusId, options?: { keepDuration?: boolean }): AppThunk =>
+  (dispatch, getState) => {
+    statuses[id].addStack(dispatch as any, getState, options || {});
   };
 
 export const cooldown =
@@ -713,11 +714,14 @@ export interface DmgEventOptions extends EventOptions {
   comboPotency?: number;
   rearPotency?: number;
   flankPotency?: number;
+  frontPotency?: number;
   rearComboPotency?: number;
   flankComboPotency?: number;
+  frontComboPotency?: number;
   enhancedPotency?: number;
   rearEnhancedPotency?: number;
   flankEnhancedPotency?: number;
+  frontEnhancedPotency?: number;
   isEnhanced?: boolean;
   comboMana?: number;
   comboHealthPotency?: number;
@@ -727,12 +731,13 @@ export const dmgEvent =
   (actionId: ActionId, context: CombatActionExecuteContext, options: DmgEventOptions): AppThunk =>
   (dispatch, getState) => {
     let { mana, healthPotency, type } = options;
-    let potency = options.rearPotency || options.flankPotency || options.potency;
+    let potency = options.rearPotency || options.flankPotency || options.frontPotency || options.potency;
 
     if (options.isEnhanced) {
-      potency = options.rearEnhancedPotency || options.flankEnhancedPotency || options.enhancedPotency || potency;
+      potency =
+        options.rearEnhancedPotency || options.flankEnhancedPotency || options.frontEnhancedPotency || options.enhancedPotency || potency;
     } else {
-      const comboPotency = options.rearComboPotency || options.flankComboPotency || options.comboPotency;
+      const comboPotency = options.rearComboPotency || options.flankComboPotency || options.frontComboPotency || options.comboPotency;
       if (context.comboed) {
         potency = comboPotency || potency;
         mana = options.comboMana;
@@ -858,6 +863,10 @@ export const setMimicry = setResourceFactory('mimicry');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');
+}
+
+export function hp(state: RootState) {
+  return resource(state, 'hp');
 }
 
 export function hasCombo(state: RootState, id: number) {

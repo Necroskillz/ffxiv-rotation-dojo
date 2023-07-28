@@ -85,8 +85,6 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           }
         });
 
-        console.log(item);
-
         this.buffer.push(item);
 
         this.setState({ items: this.buffer });

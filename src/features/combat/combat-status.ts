@@ -63,6 +63,7 @@ export interface CombatStatusOptions {
 export interface CombatStatusAdditionalOptions {
   duration?: number | null;
   stacks?: number;
+  keepDuration?: boolean;
 }
 
 function nextOccurence(initial: number, periodic: number, timePassed: number): number {
@@ -147,14 +148,17 @@ export function createCombatStatus(options: CombatStatusOptions) {
 
       combatStatus.apply(dispatch, getState, { duration: extendedDuration });
     },
-    addStack: (dispatch, getState) => {
+    addStack: (dispatch, getState, options) => {
       const stacks = buffStacks(getState(), id);
 
       if (stacks === 0) {
         combatStatus.apply(dispatch, getState, { stacks: 1 });
       } else {
+        const status = combatStatus.isHarmful ? selectDebuff(getState(), id)! : selectBuff(getState(), id)!;
+
         combatStatus.apply(dispatch, getState, {
           stacks: combatStatus.maxStacks ? Math.min(combatStatus.maxStacks, stacks + 1) : stacks + 1,
+          duration: options.keepDuration ? status.duration! - (Date.now() - status.timestamp) / 1000 : null,
         });
       }
     },
