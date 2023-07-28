@@ -172,7 +172,7 @@ const fastBlade: CombatAction = createCombatAction({
 const riotBlade: CombatAction = createCombatAction({
   id: ActionId.RiotBlade,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RiotBlade, context, { potency: 120, comboPotency: 200, comboMana: 1000 }));
+    dispatch(dmgEvent(ActionId.RiotBlade, context, { potency: 140, comboPotency: 300, comboMana: 1000 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.RiotBlade));
@@ -192,7 +192,7 @@ const rageOfHalone: CombatAction = createCombatAction({
 const royalAuthority: CombatAction = createCombatAction({
   id: ActionId.RoyalAuthority,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 120, comboPotency: 380 }));
+    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 140, comboPotency: 400 }));
 
     if (context.comboed) {
       dispatch(buff(StatusId.SwordOath));
@@ -239,7 +239,7 @@ const requiescat: CombatAction = createCombatAction({
 const atonement: CombatAction = createCombatAction({
   id: ActionId.Atonement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 380, mana: 400 }));
+    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 400, mana: 400 }));
 
     dispatch(removeBuffStack(StatusId.SwordOath));
   },
@@ -388,7 +388,7 @@ const intervene: CombatAction = createCombatAction({
 const circleOfScorn: CombatAction = createCombatAction({
   id: ActionId.CircleofScorn,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CircleofScorn, context, { potency: 100 }));
+    dispatch(dmgEvent(ActionId.CircleofScorn, context, { potency: 120 }));
     dispatch(ogcdLock());
     dispatch(debuff(StatusId.CircleofScorn));
   },

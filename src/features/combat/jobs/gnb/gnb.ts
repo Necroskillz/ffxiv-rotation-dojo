@@ -179,7 +179,7 @@ const catharsisofCorundumStatus: CombatStatus = createCombatStatus({
 const keenEdge: CombatAction = createCombatAction({
   id: ActionId.KeenEdge,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.KeenEdge, context, { potency: 170 }));
+    dispatch(dmgEvent(ActionId.KeenEdge, context, { potency: 200 }));
     dispatch(combo(ActionId.KeenEdge));
   },
   reducedBySkillSpeed: true,
@@ -188,7 +188,7 @@ const keenEdge: CombatAction = createCombatAction({
 const brutalShell: CombatAction = createCombatAction({
   id: ActionId.BrutalShell,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.BrutalShell, context, { potency: 130, comboPotency: 270, comboHealthPotency: 200 }));
+    dispatch(dmgEvent(ActionId.BrutalShell, context, { potency: 160, comboPotency: 300, comboHealthPotency: 200 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.BrutalShell));

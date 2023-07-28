@@ -184,7 +184,7 @@ const maim: CombatAction = createCombatAction({
 const stormsPath: CombatAction = createCombatAction({
   id: ActionId.StormsPath,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 150, comboPotency: 430, healthPotency: 250 }));
+    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 160, comboPotency: 440, healthPotency: 250 }));
 
     if (context.comboed) {
       dispatch(addBeast(20));
@@ -197,7 +197,7 @@ const stormsPath: CombatAction = createCombatAction({
 const stormsEye: CombatAction = createCombatAction({
   id: ActionId.StormsEye,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 150, comboPotency: 430 }));
+    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 160, comboPotency: 440 }));
 
     if (context.comboed) {
       dispatch(addBeast(10));
@@ -218,7 +218,7 @@ const innerBeast: CombatAction = createCombatAction({
 const fellCleave: CombatAction = createCombatAction({
   id: ActionId.FellCleave,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 490 }));
+    dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 520 }));
 
     dispatch(modifyCooldown(20, -5000));
   },
@@ -247,7 +247,7 @@ const infuriate: CombatAction = createCombatAction({
 const innerChaos: CombatAction = createCombatAction({
   id: ActionId.InnerChaos,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.InnerChaos, context, { potency: 650 }));
+    dispatch(dmgEvent(ActionId.InnerChaos, context, { potency: 660 }));
     dispatch(removeBuff(StatusId.NascentChaos));
     dispatch(modifyCooldown(20, -5000));
   },
@@ -325,7 +325,7 @@ const onslaught: CombatAction = createCombatAction({
 const upheaval: CombatAction = createCombatAction({
   id: ActionId.Upheaval,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Upheaval, context, { potency: 370 }));
+    dispatch(dmgEvent(ActionId.Upheaval, context, { potency: 400 }));
     dispatch(ogcdLock());
   },
 });

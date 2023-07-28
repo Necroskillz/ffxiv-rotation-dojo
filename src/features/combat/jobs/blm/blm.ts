@@ -352,7 +352,7 @@ const paradox1: CombatAction = createCombatAction({
 const xenoglossy: CombatAction = createCombatAction({
   id: ActionId.Xenoglossy,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Xenoglossy, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.Xenoglossy, context, { potency: 880 }));
   },
   isGlowing: (state) => polyglot(state) > 0,
   reducedBySpellSpeed: true,
