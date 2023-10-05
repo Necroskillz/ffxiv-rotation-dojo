@@ -449,7 +449,7 @@ const gallows: CombatAction = createCombatAction({
 const gluttony: CombatAction = createCombatAction({
   id: ActionId.Gluttony,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Gluttony, context, { potency: 500 }));
+    dispatch(dmgEvent(ActionId.Gluttony, context, { potency: 520 }));
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SoulReaver, { stacks: 2 }));
   },
@@ -519,7 +519,7 @@ const voidReaping: CombatAction = createCombatAction({
 const lemuresSlice: CombatAction = createCombatAction({
   id: ActionId.LemuresSlice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.LemuresSlice, context, { potency: 220 }));
+    dispatch(dmgEvent(ActionId.LemuresSlice, context, { potency: 240 }));
     dispatch(ogcdLock());
   },
   isGlowing: (state) => voidShroud(state) >= 2,

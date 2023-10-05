@@ -171,7 +171,7 @@ const jolt: CombatAction = createCombatAction({
 const jolt2: CombatAction = createCombatAction({
   id: ActionId.JoltII,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.JoltII, context, { potency: 310 }));
+    dispatch(dmgEvent(ActionId.JoltII, context, { potency: 320 }));
     dispatch(addBlackAndWhiteMana(2));
   },
   redirect: joltRedirect,
@@ -235,7 +235,7 @@ const veraero3: CombatAction = createCombatAction({
 const verfire: CombatAction = createCombatAction({
   id: ActionId.Verfire,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Verfire, context, { potency: 330 }));
+    dispatch(dmgEvent(ActionId.Verfire, context, { potency: 340 }));
     dispatch(addBlackMana(5));
     dispatch(removeBuff(StatusId.VerfireReady));
   },
@@ -247,7 +247,7 @@ const verfire: CombatAction = createCombatAction({
 const verstone: CombatAction = createCombatAction({
   id: ActionId.Verstone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Verstone, context, { potency: 330 }));
+    dispatch(dmgEvent(ActionId.Verstone, context, { potency: 340 }));
     dispatch(addWhiteMana(5));
     dispatch(removeBuff(StatusId.VerstoneReady));
   },
@@ -338,7 +338,7 @@ const manafication: CombatAction = createCombatAction({
 const verflare: CombatAction = createCombatAction({
   id: ActionId.Verflare,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 580 }));
+    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 600 }));
     dispatch(combo(ActionId.Verflare));
 
     if (whiteMana(getState()) > blackMana(getState()) || rng(20)) {
@@ -354,7 +354,7 @@ const verflare: CombatAction = createCombatAction({
 const verholy: CombatAction = createCombatAction({
   id: ActionId.Verholy,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 580 }));
+    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 600 }));
     dispatch(combo(ActionId.Verflare));
 
     if (blackMana(getState()) > whiteMana(getState()) || rng(20)) {
@@ -420,7 +420,7 @@ const fleche: CombatAction = createCombatAction({
 const contreSixte: CombatAction = createCombatAction({
   id: ActionId.ContreSixte,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 360, type: DamageType.Physical }));
+    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 380, type: DamageType.Physical }));
     dispatch(ogcdLock());
   },
 });
@@ -498,7 +498,7 @@ const reprise: CombatAction = createCombatAction({
 const enchantedReprise: CombatAction = createCombatAction({
   id: ActionId.EnchantedReprise,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedReprise, context, { potency: 330, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedReprise, context, { potency: 340, type: DamageType.Magical }));
   },
   reducedBySkillSpeed: true,
 });

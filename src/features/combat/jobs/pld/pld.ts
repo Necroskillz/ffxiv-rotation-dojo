@@ -229,7 +229,7 @@ const holySpirit: CombatAction = createCombatAction({
 const requiescat: CombatAction = createCombatAction({
   id: ActionId.Requiescat,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Requiescat, context, { potency: 300, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.Requiescat, context, { potency: 320, type: DamageType.Magical }));
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Requiescat));
     dispatch(buff(StatusId.ConfiteorReady));
@@ -253,8 +253,8 @@ const confiteor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.Confiteor, context, {
-        potency: 400,
-        enhancedPotency: 900,
+        potency: 420,
+        enhancedPotency: 920,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -284,8 +284,8 @@ const bladeofFaith: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofFaith, context, {
-        potency: 200,
-        enhancedPotency: 700,
+        potency: 220,
+        enhancedPotency: 720,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -305,8 +305,8 @@ const bladeofTruth: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofTruth, context, {
-        potency: 300,
-        enhancedPotency: 800,
+        potency: 320,
+        enhancedPotency: 820,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -326,8 +326,8 @@ const bladeOfValor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofValor, context, {
-        potency: 400,
-        enhancedPotency: 900,
+        potency: 420,
+        enhancedPotency: 920,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -388,7 +388,7 @@ const intervene: CombatAction = createCombatAction({
 const circleOfScorn: CombatAction = createCombatAction({
   id: ActionId.CircleofScorn,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CircleofScorn, context, { potency: 120 }));
+    dispatch(dmgEvent(ActionId.CircleofScorn, context, { potency: 140 }));
     dispatch(ogcdLock());
     dispatch(debuff(StatusId.CircleofScorn));
   },

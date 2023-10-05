@@ -498,7 +498,7 @@ const bloodletter: CombatAction = createCombatAction({
 const sidewinder: CombatAction = createCombatAction({
   id: ActionId.Sidewinder,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Sidewinder, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.Sidewinder, context, { potency: 320 }));
 
     dispatch(ogcdLock());
   },
@@ -507,7 +507,7 @@ const sidewinder: CombatAction = createCombatAction({
 const empyrealArrow: CombatAction = createCombatAction({
   id: ActionId.EmpyrealArrow,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.EmpyrealArrow, context, { potency: 230 }));
+    dispatch(dmgEvent(ActionId.EmpyrealArrow, context, { potency: 240 }));
     dispatch(ogcdLock());
 
     if (hasBuff(getState(), StatusId.WanderersMinuetActive)) {
