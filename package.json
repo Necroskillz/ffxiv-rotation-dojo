@@ -1,7 +1,7 @@
 {
   "name": "ffxiv-rotation-dojo",
   "version": "1.0.0",
-  "homepage": "https://necroskillz.github.io/ffxiv-rotation-dojo",
+  "homepage": "https://ffxiv-rotation-dojo.vercel.app/",
   "main": "electron/main.js",
   "author": "Necroskillz",
   "description": "App for trying FFXIV rotations",
