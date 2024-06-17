@@ -525,7 +525,6 @@ const slipstream: CombatAction = createCombatAction({
   id: ActionId.Slipstream,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 430 }));
-    dispatch(dmgEvent(0, context, { potency: 30 }));
     dispatch(debuff(StatusId.SlipstreamActive));
 
     dispatch(removeBuff(StatusId.GarudasFavor));

@@ -110,3 +110,23 @@ body {
   opacity: 0;
   transition: opacity 200ms ease-in;
 }
+
+.highlight-green {
+  color: #6CC46C;
+}
+
+.highlight-yellow {
+  color: #EEEE61;
+}
+
+.highlight {
+  color: #EE7318;
+}
+
+.alternative-container .alternative {
+  display: none;
+}
+
+.alternative-container .alternative:first-child {
+  display: inline-block;
+}

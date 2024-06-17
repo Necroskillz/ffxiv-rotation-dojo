@@ -104,7 +104,7 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
                     {i.icons.length > 0 && (
                       <div className="grid grid-flow-col auto-cols-max">
                         {i.icons.map((i, id) => (
-                          <img className="w-7" key={id} src={'https://xivapi.com' + i} alt="" />
+                          <img className="w-7" key={id} src={'https://beta.xivapi.com' + i} alt="" />
                         ))}
                       </div>
                     )}

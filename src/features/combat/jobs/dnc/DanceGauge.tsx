@@ -23,7 +23,7 @@ export const DanceStep: FC<DanceStepProps> = ({ actionId, isActive }) => {
 
   return (
     <div className={clsx(style.step, { [style.active]: isActive })}>
-      {action && <img src={'https://xivapi.com' + action.icon} alt={action.name} />}
+      {action && <img src={'https://beta.xivapi.com' + action.icon} alt={action.name} />}
     </div>
   );
 };

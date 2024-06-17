@@ -125,7 +125,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
                 {i.addedIcons.length > 0 && (
                   <React.Fragment>
                     {i.addedIcons.map((icon, index) => (
-                      <img key={index} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
+                      <img key={index} className="w-7" src={'https://beta.xivapi.com' + icon} alt="Icon" />
                     ))}
                     <span className={clsx('mx-1', i.addedColor)}>{i.addedText}</span>
                   </React.Fragment>
@@ -133,7 +133,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
                 {i.removedIcons.length > 0 && (
                   <React.Fragment>
                     {i.removedIcons.map((icon, index) => (
-                      <img key={index} className="w-7" src={'https://xivapi.com' + icon} alt="Icon" />
+                      <img key={index} className="w-7" src={'https://beta.xivapi.com' + icon} alt="Icon" />
                     ))}
                     <span className="ml-1 text-slate-300">{i.removedText}</span>
                   </React.Fragment>

@@ -48,7 +48,7 @@ export const Status: FC<BuffProps> = ({ status }) => {
       followCursor={true}
     >
       <div className="grid grid-flow-row-dense">
-        <img id={`status_${status.id}`} src={'https://xivapi.com' + icon} alt={statusInfo.name} />
+        <img id={`status_${status.id}`} src={'https://beta.xivapi.com' + icon} alt={statusInfo.name} />
         <div className="justify-self-center self-start text-xl -mt-4 text-teal-300">{remainingTime || null}</div>
       </div>
     </Tippy>

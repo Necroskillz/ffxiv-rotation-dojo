@@ -146,7 +146,7 @@ const BluAction: FC<BluActionProps> = ({ actionId }) => {
       followCursor={true}
     >
       <div className="grid grid-flow-row place-items-center">
-        <img ref={drag} className="w-10" src={'https://xivapi.com' + action.icon} alt={'icon'} />
+        <img ref={drag} className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={'icon'} />
         <span>#{actions[actionId].bluNo}</span>
       </div>
     </Tippy>

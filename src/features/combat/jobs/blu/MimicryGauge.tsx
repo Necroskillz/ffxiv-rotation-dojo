@@ -34,7 +34,7 @@ export const MimicryGauge = () => {
         <div className="grid grid-flow-row auto-rows-max place-items-center gap-1">
           {items.map((item, id) => (
             <div onClick={() => selectItem(item.id)} key={id} className={clsx({ border: selectedItem === item.id }, 'rounded')}>
-              <img src={'https://xivapi.com' + item.icon} alt="icon" />
+              <img src={'https://beta.xivapi.com' + item.icon} alt="icon" />
             </div>
           ))}
         </div>

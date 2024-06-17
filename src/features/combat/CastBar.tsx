@@ -48,7 +48,7 @@ export const CastBar = () => {
     <HudItem name="CastBar" defaultPosition={{ x: 200, y: 250 }}>
       {cast && action ? (
         <div className="grid auto-cols-max grid-flow-col gap-2 w-40 gap-0.5 text-xiv-ui">
-          <img className="w-10" src={'https://xivapi.com' + action.icon} alt={action.name} />
+          <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
           <div>
             <div className="text-xs leading-none mb-1">{action.name}</div>
             <GaugeBar

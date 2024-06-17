@@ -20,7 +20,7 @@ export const ActionTooltip: FC<ActionTooltipProps> = ({ action, combatAction }) 
     <div className="grid auto-rows-max grid-flow-row gap-2 items-center w-[360px] p-1 pt-2">
       <div className="grid auto-cols-max grid-flow-col gap-2 items-center">
         <div>
-          <img className="w-10" src={'https://xivapi.com' + action.icon} alt={action.name} />
+          <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
         </div>
         <div>
           <div>{action.name}</div>

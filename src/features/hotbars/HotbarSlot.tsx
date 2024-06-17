@@ -223,7 +223,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
           />
           {action && (
             <img
-              src={'https://xivapi.com' + action.icon}
+              src={'https://beta.xivapi.com' + action.icon}
               alt={action.name}
               style={{
                 width: 40 * size,

@@ -23,7 +23,7 @@ const ActionIconPreview = () => {
 
   return (
     <div style={style}>
-      <img style={{ width: '40px', height: '40px' }} src={'https://xivapi.com' + action.icon} alt={action.name} />
+      <img style={{ width: '40px', height: '40px' }} src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
     </div>
   );
 };

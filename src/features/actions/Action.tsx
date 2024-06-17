@@ -65,7 +65,7 @@ export const Action: FC<ActionProps> = ({ action }) => {
           )}
           <div className={clsx({ 'cursor-not-allowed': !action.isAssignableToHotbar })}>
             <div ref={drag} className={clsx({ 'pointer-events-none': !action.isAssignableToHotbar })}>
-              <img className="w-10" src={'https://xivapi.com' + action.icon} alt={action.name} />
+              <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
             </div>
           </div>
           <div>

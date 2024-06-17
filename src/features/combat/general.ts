@@ -113,7 +113,7 @@ const sprint: CombatAction = createCombatAction({
 });
 
 const tinctureOfDexterity: CombatAction = createCombatAction({
-  id: ActionId.Grade7TinctureofDexterity,
+  id: ActionId.Grade8TinctureofDexterity,
   execute: (dispatch) => {
     dispatch(ogcdLock(OGCDLockDuration.Potion));
     dispatch(buff(StatusId.Medicated));
@@ -123,7 +123,7 @@ const tinctureOfDexterity: CombatAction = createCombatAction({
 });
 
 const tinctureOfMind: CombatAction = createCombatAction({
-  id: ActionId.Grade7TinctureofMind,
+  id: ActionId.Grade8TinctureofMind,
   execute: (dispatch) => {
     dispatch(ogcdLock(OGCDLockDuration.Potion));
     dispatch(buff(StatusId.Medicated));
@@ -132,7 +132,7 @@ const tinctureOfMind: CombatAction = createCombatAction({
 });
 
 const tinctureOfStrength: CombatAction = createCombatAction({
-  id: ActionId.Grade7TinctureofStrength,
+  id: ActionId.Grade8TinctureofStrength,
   execute: (dispatch) => {
     dispatch(ogcdLock(OGCDLockDuration.Potion));
     dispatch(buff(StatusId.Medicated));
@@ -141,7 +141,7 @@ const tinctureOfStrength: CombatAction = createCombatAction({
 });
 
 const tinctureOfIntelligence: CombatAction = createCombatAction({
-  id: ActionId.Grade7TinctureofIntelligence,
+  id: ActionId.Grade8TinctureofIntelligence,
   execute: (dispatch) => {
     dispatch(ogcdLock(OGCDLockDuration.Potion));
     dispatch(buff(StatusId.Medicated));
