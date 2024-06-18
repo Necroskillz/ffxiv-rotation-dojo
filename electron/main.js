@@ -15,7 +15,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   // win.loadFile("index.html");
-  win.loadURL(isDev ? 'http://localhost:3000' : 'https://necroskillz.github.io/ffxiv-rotation-dojo/');
+  win.loadURL(isDev ? 'http://localhost:3000' : 'https://ffxiv-rotation-dojo.vercel.app/');
   // Open the DevTools.
   if (isDev) {
     win.webContents.openDevTools({ mode: 'detach' });
