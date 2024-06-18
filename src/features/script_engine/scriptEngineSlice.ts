@@ -37,6 +37,7 @@ interface ScriptPayload {
   name: string;
   script: string;
   job: string;
+  active: boolean;
 }
 
 interface DeleteScriptPayload {
@@ -61,14 +62,14 @@ export const scriptEngineSlice = createSlice({
 
       if (script) {
         script.script = action.payload.script;
-        script.active = true;
+        script.active = action.payload.active;
       } else {
         script = {
           name: action.payload.name,
           job: action.payload.job,
           script: action.payload.script,
           errors: [],
-          active: true,
+          active: action.payload.active,
         };
 
         state.scripts.push(script);
@@ -79,10 +80,13 @@ export const scriptEngineSlice = createSlice({
     deleteScript: (state, action: PayloadAction<DeleteScriptPayload>) => {
       state.scripts = state.scripts.filter((script) => !(script.name === action.payload.name && script.job === action.payload.job));
     },
+    deleteAllScripts: (state) => {
+      state.scripts = [];
+    },
   },
 });
 
-export const { setScript, deleteScript } = scriptEngineSlice.actions;
+export const { setScript, deleteScript, deleteAllScripts } = scriptEngineSlice.actions;
 
 export const init = (): AppThunk => (dispatch, getState) => {
   const script = selectScripts(getState()).find((script) => script.active);
@@ -90,7 +94,7 @@ export const init = (): AppThunk => (dispatch, getState) => {
   if (script) {
     dispatch(setScript(script));
   } else {
-    dispatch(setScript({ name: '', script: '', job: selectJob(getState()) }));
+    dispatch(setScript({ name: '', script: '', job: selectJob(getState()), active: true }));
   }
 };
 

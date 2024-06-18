@@ -62,6 +62,7 @@ export const ControlBar: FC = () => {
   const help = useAppSelector((state) => selectElement(state, 'Help'));
   const script = useAppSelector((state) => selectElement(state, 'Script'));
   const hudEditor = useAppSelector((state) => selectElement(state, 'HudEditor'));
+  const importExport = useAppSelector((state) => selectElement(state, 'ImportExport'));
   const hudLock = useAppSelector(selectLock);
   const pullTimerDuration = useAppSelector(selectPullTimerDuration);
   const keybindingMode = useAppSelector(selectKeybindingMode);
@@ -91,6 +92,11 @@ export const ControlBar: FC = () => {
   function toggleHudEditor() {
     dispatch(setVisility({ element: 'HudEditor', isVisible: !hudEditor.isVisible }));
   }
+
+  function toggleImportExport() {
+    dispatch(setVisility({ element: 'ImportExport', isVisible: !importExport.isVisible }));
+  }
+
 
   function toggleLock() {
     dispatch(lock(!hudLock));
@@ -137,6 +143,9 @@ export const ControlBar: FC = () => {
         </button>
         <button className="border px-1 rounded" onClick={toggleSettings}>
           Settings
+        </button>
+        <button className="border px-1 rounded" onClick={toggleImportExport}>
+          Import/Export
         </button>
         <button className="border px-1 rounded" onClick={toggleHudEditor}>
           HUD

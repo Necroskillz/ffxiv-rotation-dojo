@@ -45,13 +45,13 @@ export function Script() {
   }
 
   function saveScript(event: React.FormEvent<HTMLFormElement>) {
-    dispatch(setScript({ script: state.script!, job, name: activeScript!.name }));
+    dispatch(setScript({ script: state.script!, job, name: activeScript!.name, active: true }));
 
     event.preventDefault();
   }
 
   function addNewScript(event: React.FormEvent<HTMLFormElement>) {
-    dispatch(setScript({ script: '', job, name: state.name! }));
+    dispatch(setScript({ script: '', job, name: state.name!, active: true }));
 
     setState({ name: '', script: '' });
 
@@ -61,9 +61,9 @@ export function Script() {
   function setActiveScript(value: Option<string> | null) {
     if (value?.value) {
       const script = scripts.find((s) => s.name === value.value);
-      dispatch(setScript(script!));
+      dispatch(setScript({ ...script!, active: true }));
     } else {
-      dispatch(setScript({ script: '', job, name: '' }));
+      dispatch(setScript({ script: '', job, name: '', active: true }));
     }
   }
 

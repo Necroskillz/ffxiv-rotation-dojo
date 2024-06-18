@@ -44,6 +44,7 @@ import { Help } from './Help';
 import { HudEditor } from './HudEditor';
 import { setOffset } from './hudSlice';
 import { Settings } from './Settings';
+import { ImportExport } from './ImportExport';
 
 export class Hud extends React.Component {
   componentDidMount(): void {
@@ -62,6 +63,7 @@ export class Hud extends React.Component {
         <HudEditor />
         <ActionList />
         <Script />
+        <ImportExport />
         <CastBar />
         <ManaBar />
         <Pet />

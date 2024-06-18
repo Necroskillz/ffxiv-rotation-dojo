@@ -32,27 +32,18 @@ export interface HotbarsState {
   lock: boolean;
 }
 
-function createDefaultHotbar(id: number): HotbarState {
-  const hotbar: HotbarState = {
-    id,
-    config: {
-      buttons: 12,
-      rows: 1,
-      size: 1,
-    },
-    keybinds: [],
-    slots: [],
-  };
-
+function createDefaultSlots(hotbar: HotbarState) {
   for (let i = 0; i < 12; i++) {
     hotbar.slots[i] = { id: i + 1, actionId: {} };
   }
+}
 
+function createDefaultKeybinds(hotbar: HotbarState) {
   for (let i = 0; i < 12; i++) {
     let key: string | null = null;
     let modifier: string | null = null;
 
-    if (id <= 3) {
+    if (hotbar.id <= 3) {
       if (i < 9) {
         key = `Digit${(i + 1).toString()}`;
       } else {
@@ -69,7 +60,7 @@ function createDefaultHotbar(id: number): HotbarState {
         }
       }
 
-      switch (id) {
+      switch (hotbar.id) {
         case 2:
           modifier = 'SHIFT';
           break;
@@ -81,6 +72,22 @@ function createDefaultHotbar(id: number): HotbarState {
 
     hotbar.keybinds[i] = { id: i + 1, key, modifier };
   }
+}
+
+function createDefaultHotbar(id: number): HotbarState {
+  const hotbar: HotbarState = {
+    id,
+    config: {
+      buttons: 12,
+      rows: 1,
+      size: 1,
+    },
+    keybinds: [],
+    slots: [],
+  };
+
+  createDefaultSlots(hotbar);
+  createDefaultKeybinds(hotbar);
 
   return hotbar;
 }
@@ -151,6 +158,12 @@ export const hotbarSlice = createSlice({
       keybind.key = action.payload.key;
       keybind.modifier = action.payload.modifier;
     },
+    removeAllActions: (state) => {
+      state.hotbars.forEach((h) => createDefaultSlots(h));
+    },
+    removeAllKeybinds: (state) => {
+      state.hotbars.forEach((h) => createDefaultKeybinds(h));
+    },
     setKeybindingMode: (state, action: PayloadAction<boolean>) => {
       state.keybindingMode = action.payload;
     },
@@ -168,7 +181,8 @@ export const hotbarSlice = createSlice({
   },
 });
 
-export const { assignAction, assignKeybind, setKeybindingMode, setSize, setRows, setLock } = hotbarSlice.actions;
+export const { assignAction, assignKeybind, removeAllActions, removeAllKeybinds, setKeybindingMode, setSize, setRows, setLock } =
+  hotbarSlice.actions;
 
 export const selectHotbars = (state: RootState) => state.hotbars.hotbars;
 export const selectKeybindingMode = (state: RootState) => state.hotbars.keybindingMode;

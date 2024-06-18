@@ -29,6 +29,7 @@ const initialState: HudState = {
     Settings: createDefaultElementPlacement({ isVisible: false }),
     HudEditor: createDefaultElementPlacement({ isVisible: false }),
     Script: createDefaultElementPlacement({ isVisible: false }),
+    ImportExport: createDefaultElementPlacement({ isVisible: false }),
     Hotbar1: createDefaultElementPlacement({ isVisible: true }),
     Hotbar2: createDefaultElementPlacement({ isVisible: true }),
     Hotbar3: createDefaultElementPlacement({ isVisible: true }),
