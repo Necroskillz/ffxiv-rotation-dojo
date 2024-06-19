@@ -19,8 +19,11 @@ import {
   inCombat,
   ogcdLock,
   removeBuffAction,
+  removeCooldown,
   removeDebuff,
   removeDebuffAction,
+  selectCast,
+  setCast,
 } from './combatSlice';
 import { OGCDLockDuration } from './enums';
 
@@ -112,6 +115,58 @@ const sprint: CombatAction = createCombatAction({
   entersCombat: false,
 });
 
+const moveForward: CombatAction = createCombatAction({
+  id: ActionId.MoveForward,
+  execute: (dispatch, getState) => {
+    const cast = selectCast(getState());
+
+    if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
+      dispatch(setCast(null));
+      dispatch(removeCooldown(58));
+    }
+  },
+  entersCombat: false,
+});
+
+const moveBack: CombatAction = createCombatAction({
+  id: ActionId.MoveBack,
+  execute: (dispatch, getState) => {
+    const cast = selectCast(getState());
+
+    if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
+      dispatch(setCast(null));
+      dispatch(removeCooldown(58));
+    }
+  },
+  entersCombat: false,
+});
+
+const moveLeft: CombatAction = createCombatAction({
+  id: ActionId.MoveLeft,
+  execute: (dispatch, getState) => {
+    const cast = selectCast(getState());
+
+    if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
+      dispatch(setCast(null));
+      dispatch(removeCooldown(58));
+    }
+  },
+  entersCombat: false,
+});
+
+const moveRight: CombatAction = createCombatAction({
+  id: ActionId.MoveRight,
+  execute: (dispatch, getState) => {
+    const cast = selectCast(getState());
+
+    if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
+      dispatch(setCast(null));
+      dispatch(removeCooldown(58));
+    }
+  },
+  entersCombat: false,
+});
+
 const tinctureOfDexterity: CombatAction = createCombatAction({
   id: ActionId.Grade8TinctureofDexterity,
   execute: (dispatch) => {
@@ -151,6 +206,16 @@ const tinctureOfIntelligence: CombatAction = createCombatAction({
 
 export const generalStatuses: CombatStatus[] = [sprintStatus, medicatedStatus];
 
-export const general: CombatAction[] = [sprint, tinctureOfDexterity, tinctureOfMind, tinctureOfStrength, tinctureOfIntelligence];
+export const general: CombatAction[] = [
+  sprint,
+  tinctureOfDexterity,
+  tinctureOfMind,
+  tinctureOfStrength,
+  tinctureOfIntelligence,
+  moveForward,
+  moveBack,
+  moveLeft,
+  moveRight,
+];
 
 export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic, bloodbathEpic, removeSleepEpic);

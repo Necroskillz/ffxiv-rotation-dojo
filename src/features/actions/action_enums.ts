@@ -674,4 +674,8 @@ export enum ActionId {
   Sprint = 4,
   FumaShurikenChi = 999000,
   FumaShurikenJin = 999001,
+  MoveLeft = 888002,
+  MoveRight = 888003,
+  MoveForward = 888004,
+  MoveBack = 888005,
 }

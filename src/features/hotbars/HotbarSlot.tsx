@@ -87,15 +87,19 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   let activeTimer: MutableRefObject<NodeJS.Timer | null> = useRef(null);
 
   const onClick = useCallback(() => {
-    if (!combatAction || !hudLock) {
+    if (!combatAction || !action || !hudLock) {
       return;
     }
 
     setActive(true);
     activeTimer.current = setTimeout(() => setActive(false), 300);
 
-    dispatch(queue(combatAction.id));
-  }, [combatAction, dispatch, hudLock]);
+    if (action.type === 'Movement') {
+      dispatch(combatAction.execute());
+    } else {
+      dispatch(queue(combatAction.id));
+    }
+  }, [combatAction, dispatch, hudLock, action]);
 
   const [{ canDrop, isOver }, drop] = useDrop(
     () => ({

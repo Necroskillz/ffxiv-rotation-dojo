@@ -116,21 +116,23 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         dispatch(breakCombo());
       }
 
-      if (options.extraCooldown) {
-        const extraCooldown = options.extraCooldown(getState());
-        if (extraCooldown) {
-          dispatch(cooldown(extraCooldown.cooldownGroup, extraCooldown.duration * 1000));
+      if (action.type !== 'Movement') {
+        if (options.extraCooldown) {
+          const extraCooldown = options.extraCooldown(getState());
+          if (extraCooldown) {
+            dispatch(cooldown(extraCooldown.cooldownGroup, extraCooldown.duration * 1000));
+          }
         }
-      }
 
-      if (combatAction.maxCharges(getState()) > 1 && combatAction.getCooldown(getState())[0]) {
-        dispatch(modifyCooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
-      } else {
-        dispatch(cooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
-      }
+        if (combatAction.maxCharges(getState()) > 1 && combatAction.getCooldown(getState())[0]) {
+          dispatch(modifyCooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
+        } else {
+          dispatch(cooldown(getCooldownGroup(getState()), combatAction.cooldown(getState())));
+        }
 
-      if (isGcdAction) {
-        dispatch(ogcdLock(options.animationLock != null ? options.animationLock : OGCDLockDuration.GCD));
+        if (isGcdAction) {
+          dispatch(ogcdLock(options.animationLock != null ? options.animationLock : OGCDLockDuration.GCD));
+        }
       }
 
       function resolve() {
