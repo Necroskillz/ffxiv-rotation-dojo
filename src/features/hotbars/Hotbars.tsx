@@ -6,6 +6,7 @@ import { ActionId } from '../actions/action_enums';
 import { Hotbar } from './Hotbar';
 import { HotbarConfig } from './HotbarConfig';
 import { selectHotbars } from './hotbarSlice';
+import { KeyboardHandler } from './KeyboardHandler';
 
 const ActionIconPreview = () => {
   const preview = usePreview<{ id: ActionId }>();
@@ -40,6 +41,7 @@ export const Hotbars = () => {
         </React.Fragment>
       ))}
       <ActionIconPreview />
+      <KeyboardHandler />
     </div>
   );
 };

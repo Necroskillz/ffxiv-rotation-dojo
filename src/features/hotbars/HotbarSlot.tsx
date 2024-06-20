@@ -18,6 +18,8 @@ import { Cost } from './Cost';
 import { selectBlueMagicSpellSet, selectJob } from '../player/playerSlice';
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
+import { useKeyEvents } from './hooks';
+import { Subscription } from 'rxjs';
 
 type HotbarProps = {
   hotbarId: number;
@@ -53,8 +55,8 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const jobId = useMemo(() => (job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job), [job, blueMagicSpellSet.id]);
   const actionId = slot.actionId[jobId];
 
-  let action = actionId ? getActionById(actionId) : null;
-  let combatAction = actionId ? actions[actionId] : null;
+  let action = useMemo(() => (actionId ? getActionById(actionId) : null), [actionId]);
+  let combatAction = useMemo(() => (actionId ? actions[actionId] : null), [actionId]);
 
   if (combatAction) {
     const redirectId = combatAction.redirect(state);
@@ -140,42 +142,21 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
+  const [keyEvents] = useKeyEvents();
+
   useEffect(() => {
-    function extractKey(event: KeyboardEvent) {
-      if (specialKeys.has(event.key)) {
-        return event.key;
-      }
+    let sub: Subscription;
 
-      return event.code;
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Shift' || event.key === 'Control' || event.key === 'Alt') {
-        return;
-      }
-
-      let modifier: string | null = null;
-      if (event.shiftKey) {
-        modifier = 'SHIFT';
-      } else if (event.ctrlKey) {
-        modifier = 'CONTROL';
-      } else if (event.altKey) {
-        modifier = 'ALT';
-      }
-
+    function handleKeyEvent(key: string, modifier: string | null, event: KeyboardEvent) {
       if (keybindingMode) {
         if (isMouseOver) {
-          dispatch(assignKeybind({ hotbarId, slotId, key: event.code === 'Escape' ? null : extractKey(event), modifier }));
+          dispatch(assignKeybind({ hotbarId, slotId, key: key === 'Escape' ? null : key, modifier }));
 
           event.stopPropagation();
           event.preventDefault();
         }
       } else {
-        if (
-          !(settings.isVisible || script.isVisible || hudEditor.isVisible) &&
-          keybind.key === extractKey(event) &&
-          keybind.modifier === modifier
-        ) {
+        if (!(settings.isVisible || script.isVisible || hudEditor.isVisible) && keybind.key === key && keybind.modifier === modifier) {
           onClick();
 
           event.stopPropagation();
@@ -184,10 +165,10 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown);
+    sub = keyEvents.subscribe((e) => handleKeyEvent(e.key, e.modifier, e.event));
 
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [keybind, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings, script, hudEditor]);
+    return () => sub?.unsubscribe();
+  }, [keybind, keyEvents, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings, script, hudEditor]);
 
   return (
     <div ref={drop}>
