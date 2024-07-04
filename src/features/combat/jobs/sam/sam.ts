@@ -704,16 +704,6 @@ const hissatsuGuren: CombatAction = createCombatAction({
   isGlowing: (state) => kenki(state) >= 25,
 });
 
-const shoha2: CombatAction = createCombatAction({
-  id: ActionId.ShohaII,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ShohaII, context, { potency: 200 }));
-    dispatch(ogcdLock());
-  },
-  isUsable: (state) => meditation(state) === 3,
-  isGlowing: (state) => meditation(state) === 3,
-});
-
 export const samStatuses: CombatStatus[] = [
   fukaStatus,
   fugetsuStatus,
@@ -763,7 +753,6 @@ export const sam: CombatAction[] = [
   mangetsu,
   hissatsuKyuten,
   hissatsuGuren,
-  shoha2,
 ];
 
 export const samEpics = combineEpics(consumeMeikyoEpic, removeKaeshiEpic, removeKaeshiNamikiriEpic, meditateEpic, meditateStopEpic);

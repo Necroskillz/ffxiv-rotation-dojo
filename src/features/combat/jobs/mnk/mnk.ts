@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, first, interval, map, of, switchMap, takeUntil, takeWhile, withLatestFrom } from 'rxjs';
+import { filter, interval, map, of, switchMap, takeWhile, withLatestFrom } from 'rxjs';
 import { AppThunk, ReducerAction, RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -10,16 +10,13 @@ import {
   addBuff,
   addChakra,
   buff,
-  debuff,
   dmgEvent,
-  event,
   executeAction,
   gcd,
   hasBuff,
   inCombat,
   ogcdLock,
   removeBuff,
-  removeBuffAction,
   removeBuffStack,
   resource,
   selectBeastChakra,
@@ -95,65 +92,6 @@ const brotherhoodChakraEpic: Epic<ReducerAction<StatusState>, any, RootState> = 
         })
       )
     )
-  );
-
-const anatmanEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Anatman),
-    switchMap((a) =>
-      interval(100).pipe(
-        withLatestFrom(state$),
-        map(([, state]) => state),
-        takeWhile((state) => hasBuff(state, a.payload.id)),
-        takeUntil(action$.pipe(first((aa) => aa.type === executeAction.type && aa.payload.id !== ActionId.Anatman))),
-        switchMap((state) => {
-          const actions = [];
-
-          if (hasBuff(state, StatusId.DisciplinedFist)) {
-            actions.push(buff(StatusId.DisciplinedFist));
-          }
-
-          if (hasBuff(state, StatusId.OpoopoForm)) {
-            actions.push(buff(StatusId.OpoopoForm));
-          }
-
-          if (hasBuff(state, StatusId.RaptorForm)) {
-            actions.push(buff(StatusId.RaptorForm));
-          }
-
-          if (hasBuff(state, StatusId.CoeurlForm)) {
-            actions.push(buff(StatusId.CoeurlForm));
-          }
-
-          return of(...actions);
-        })
-      )
-    )
-  );
-
-const anatmapStopEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Anatman),
-    switchMap(() =>
-      action$.pipe(
-        first(
-          (aa) =>
-            (aa.type === executeAction.type && aa.payload.id !== ActionId.Anatman) ||
-            (aa.type === removeBuffAction.type && aa.payload === StatusId.Anatman)
-        )
-      )
-    ),
-    withLatestFrom(state$),
-    map(([, state]) => state),
-    switchMap((state) => {
-      const actions: any[] = [];
-
-      if (hasBuff(state, StatusId.Anatman)) {
-        actions.push(removeBuff(StatusId.Anatman));
-      }
-
-      return of(...actions);
-    })
   );
 
 export const addBeastChakra =
@@ -238,19 +176,6 @@ const leadenFistStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const disciplinedFistStatus: CombatStatus = createCombatStatus({
-  id: StatusId.DisciplinedFist,
-  duration: 15,
-  isHarmful: false,
-});
-
-const demolishStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Demolish,
-  duration: 18,
-  isHarmful: true,
-  tick: (dispatch) => dispatch(event(0, { potency: 70 })),
-});
-
 const mantraStatus: CombatStatus = createCombatStatus({
   id: StatusId.Mantra,
   duration: 15,
@@ -290,12 +215,6 @@ const meditativeBrotherhoodStatus = createCombatStatus({
 const sixsidedStarStatus: CombatStatus = createCombatStatus({
   id: StatusId.SixsidedStar,
   duration: 5,
-  isHarmful: false,
-});
-
-const anatmanStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Anatman,
-  duration: 30,
   isHarmful: false,
 });
 
@@ -353,7 +272,6 @@ const twinSnakes: CombatAction = createCombatAction({
   id: ActionId.TwinSnakes,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.TwinSnakes, context, { potency: 280 }));
-    dispatch(buff(StatusId.DisciplinedFist));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
@@ -365,7 +283,6 @@ const demolish: CombatAction = createCombatAction({
   id: ActionId.Demolish,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Demolish, context, { potency: 70, rearPotency: 130 }));
-    dispatch(debuff(StatusId.Demolish));
     dispatch(setForm(StatusId.OpoopoForm, BeastChakra.Couerl));
   },
   isGlowing: (state) => hasForm(state, StatusId.CoeurlForm),
@@ -373,13 +290,13 @@ const demolish: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
 });
 
-const meditation: CombatAction = createCombatAction({
-  id: ActionId.Meditation,
+const forbiddenMeditation: CombatAction = createCombatAction({
+  id: ActionId.ForbiddenMeditation,
   execute: (dispatch, getState) => {
     dispatch(addChakra(inCombat(getState()) ? 1 : 5));
     dispatch(gcd({ time: 1000 }));
   },
-  redirect: (state) => (chakra(state) === 5 ? ActionId.TheForbiddenChakra : ActionId.Meditation),
+  redirect: (state) => (chakra(state) === 5 ? ActionId.TheForbiddenChakra : ActionId.ForbiddenMeditation),
   entersCombat: false,
   isGcdAction: true,
 });
@@ -622,7 +539,6 @@ const fourPointFury: CombatAction = createCombatAction({
   id: ActionId.FourpointFury,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.FourpointFury, context, { potency: 120 }));
-    dispatch(buff(StatusId.DisciplinedFist));
     dispatch(setForm(StatusId.CoeurlForm, BeastChakra.Raptor));
   },
   isGlowing: (state) => hasForm(state, StatusId.RaptorForm),
@@ -641,15 +557,6 @@ const rockbreaker: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
 });
 
-const anatman: CombatAction = createCombatAction({
-  id: ActionId.Anatman,
-  execute: (dispatch) => {
-    dispatch(ogcdLock());
-    dispatch(buff(StatusId.Anatman));
-  },
-  entersCombat: false,
-});
-
 export const mnkStatuses = [
   perfectBalanceStatus,
   formlessFistStatus,
@@ -659,14 +566,11 @@ export const mnkStatuses = [
   brotherhoodStatus,
   meditativeBrotherhoodStatus,
   sixsidedStarStatus,
-  disciplinedFistStatus,
   riddleOfFireStatus,
   riddleOfWindStatus,
   riddleOfEarthStatus,
   mantraStatus,
-  anatmanStatus,
   leadenFistStatus,
-  demolishStatus,
 ];
 
 export const mnk: CombatAction[] = [
@@ -676,7 +580,7 @@ export const mnk: CombatAction[] = [
   dragonKick,
   twinSnakes,
   demolish,
-  meditation,
+  forbiddenMeditation,
   formShift,
   steelPeak,
   theForbiddenChakra,
@@ -701,7 +605,6 @@ export const mnk: CombatAction[] = [
   shadowOfTheDestroyer,
   fourPointFury,
   rockbreaker,
-  anatman,
 ];
 
-export const mnkEpics = combineEpics(procChakraEpic, brotherhoodChakraEpic, anatmanEpic, anatmapStopEpic);
+export const mnkEpics = combineEpics(procChakraEpic, brotherhoodChakraEpic);

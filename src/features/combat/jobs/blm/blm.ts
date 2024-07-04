@@ -193,12 +193,6 @@ const thunder4Status: CombatStatus = createCombatStatus({
   },
 });
 
-const sharpcastStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Sharpcast,
-  duration: 30,
-  isHarmful: false,
-});
-
 const leyLinesStatus: CombatStatus = createCombatStatus({
   id: StatusId.LeyLines,
   duration: 30,
@@ -238,8 +232,7 @@ const fire: CombatAction = createCombatAction({
       dispatch(setFireIce(astralFire(getState()) + 1, 0));
     }
 
-    if (rng(40) || hasBuff(getState(), StatusId.Sharpcast)) {
-      dispatch(removeBuff(StatusId.Sharpcast));
+    if (rng(40)) {
       dispatch(buff(StatusId.Firestarter));
     }
 
@@ -334,8 +327,7 @@ const paradox1: CombatAction = createCombatAction({
 
     if (fire) {
       dispatch(setFireIce(fire + 1, 0));
-      if (rng(40) || hasBuff(getState(), StatusId.Sharpcast)) {
-        dispatch(removeBuff(StatusId.Sharpcast));
+      if (rng(40)) {
         dispatch(buff(StatusId.Firestarter));
       }
     } else if (ice) {
@@ -372,11 +364,6 @@ const thunder3: CombatAction = createCombatAction({
     dispatch(debuff(StatusId.ThunderIII));
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeDebuff(StatusId.ThunderIV));
-
-    if (hasBuff(getState(), StatusId.Sharpcast)) {
-      dispatch(removeBuff(StatusId.Sharpcast));
-      dispatch(buff(StatusId.Thundercloud));
-    }
   },
   isGlowing: (state) => hasBuff(state, StatusId.Thundercloud),
   castTime: (state, baseCastTime) => (hasBuff(state, StatusId.Thundercloud) ? 0 : baseCastTime),
@@ -395,20 +382,6 @@ const transpose: CombatAction = createCombatAction({
       dispatch(setFireIce(1, 0));
     }
   },
-});
-
-const sharpcast: CombatAction = createCombatAction({
-  id: ActionId.Sharpcast,
-  execute: (dispatch) => {
-    dispatch(ogcdLock());
-    dispatch(buff(StatusId.Sharpcast));
-  },
-  cooldown: () => 30,
-  maxCharges: () => 2,
-  extraCooldown: () => ({
-    cooldownGroup: 1000,
-    duration: 1,
-  }),
 });
 
 const leyLines: CombatAction = createCombatAction({
@@ -476,8 +449,7 @@ const umbralSoul: CombatAction = createCombatAction({
 const scathe: CombatAction = createCombatAction({
   id: ActionId.Scathe,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Scathe, context, { potency: hasBuff(getState(), StatusId.Sharpcast) || rng(20) ? 100 : 200 }));
-    dispatch(removeBuff(StatusId.Sharpcast));
+    dispatch(dmgEvent(ActionId.Scathe, context, { potency: rng(20) ? 100 : 200 }));
   },
   reducedBySpellSpeed: true,
 });
@@ -589,11 +561,6 @@ const thunder4: CombatAction = createCombatAction({
     dispatch(debuff(StatusId.ThunderIV));
     dispatch(removeBuff(StatusId.Thundercloud));
     dispatch(removeDebuff(StatusId.ThunderIII));
-
-    if (hasBuff(getState(), StatusId.Sharpcast)) {
-      dispatch(removeBuff(StatusId.Sharpcast));
-      dispatch(buff(StatusId.Thundercloud));
-    }
   },
   isGlowing: (state) => hasBuff(state, StatusId.Thundercloud),
   castTime: (state, baseCastTime) => (hasBuff(state, StatusId.Thundercloud) ? 0 : baseCastTime),
@@ -621,7 +588,6 @@ export const blmStatuses = [
   enhancedFlareStatus,
   triplecastStatus,
   manawardStatus,
-  sharpcastStatus,
   leyLinesStatus,
   circleOfPowerStatus,
 ];
@@ -638,7 +604,6 @@ export const blm: CombatAction[] = [
   thunder,
   thunder3,
   transpose,
-  sharpcast,
   leyLines,
   triplecast,
   amplifier,

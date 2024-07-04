@@ -402,10 +402,10 @@ const blastingZone: CombatAction = createCombatAction({
   },
 });
 
-const roughDivide: CombatAction = createCombatAction({
-  id: ActionId.RoughDivide,
+const trajectory: CombatAction = createCombatAction({
+  id: ActionId.Trajectory,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RoughDivide, context, { potency: 150 }));
+    dispatch(dmgEvent(ActionId.Trajectory, context, { potency: 150 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 2,
@@ -573,7 +573,7 @@ export const gnb: CombatAction[] = [
   lightningShot,
   dangerZone,
   blastingZone,
-  roughDivide,
+  trajectory,
   bowShock,
   sonicBreak,
   camouflage,

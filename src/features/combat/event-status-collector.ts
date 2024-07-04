@@ -48,12 +48,11 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
     ActionId.BladeofValor
   ),
   [StatusId.DivineMight]: id(ActionId.HolySpirit, ActionId.HolyCircle),
-  [StatusId.SwordOath]: id(ActionId.Atonement),
+  [StatusId.AtonementReady]: id(ActionId.Atonement),
   // WAR
   [StatusId.InnerRelease]: id(ActionId.FellCleave, ActionId.Decimate),
   // DRG
   [StatusId.BattleLitany]: always,
-  [StatusId.RightEye]: always,
   [StatusId.LanceCharge]: always,
   [StatusId.LifeSurge]: weaponskill,
   // MNK
@@ -109,9 +108,6 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
     ].includes(actionId),
   // BLM
   [StatusId.CircleofPower]: always,
-  [StatusId.Sharpcast]: (actionId, state) =>
-    [ActionId.Fire, ActionId.ThunderIII, ActionId.ThunderIV, ActionId.Scathe].includes(actionId) ||
-    (actionId === ActionId.Paradox && buffStacks(state, StatusId.AstralFireActive) > 0),
   // SMN
   [StatusId.SearingLight]: always,
   // RDM

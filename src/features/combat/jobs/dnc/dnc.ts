@@ -321,6 +321,24 @@ const improvisationStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const lastDanceReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.LastDanceReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const finishingMoveReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FinishingMoveReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const danceoftheDawnReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DanceoftheDawnReady,
+  duration: 30,
+  isHarmful: false,
+});
+
 const cascade: CombatAction = createCombatAction({
   id: ActionId.Cascade,
   execute: (dispatch, getState, context) => {
@@ -342,7 +360,7 @@ const cascade: CombatAction = createCombatAction({
 const fountain: CombatAction = createCombatAction({
   id: ActionId.Fountain,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Fountain, context, { potency: 100, comboPotency: 280 }));
+    dispatch(dmgEvent(ActionId.Fountain, context, { potency: 120, comboPotency: 280 }));
 
     if (context.comboed) {
       if (canGetEspritFromWeaponskills(getState())) {
@@ -411,7 +429,12 @@ const standardStep: CombatAction = createCombatAction({
     dispatch(gcd({ time: 1500 }));
   },
   isUsable: (state) => !isDancing(state),
-  redirect: (state) => (hasBuff(state, StatusId.StandardStep) ? ActionId.StandardFinish : ActionId.StandardStep),
+  redirect: (state) =>
+    hasBuff(state, StatusId.FinishingMoveReady)
+      ? ActionId.FinishingMove
+      : hasBuff(state, StatusId.StandardStep)
+      ? ActionId.StandardFinish
+      : ActionId.StandardStep,
   entersCombat: false,
 });
 
@@ -465,7 +488,7 @@ const standardFinishDmgMap: Record<number, { potency: number; actionId: ActionId
     actionId: ActionId.SingleStandardFinish,
   },
   2: {
-    potency: 720,
+    potency: 850,
     actionId: ActionId.DoubleStandardFinish,
   },
 };
@@ -473,18 +496,23 @@ const standardFinishDmgMap: Record<number, { potency: number; actionId: ActionId
 const standardFinish: CombatAction = createCombatAction({
   id: ActionId.StandardFinish,
   execute: (dispatch, getState, context) => {
-    const { actionId, potency } = standardFinishDmgMap[steps(getState())];
+    const stepCount = steps(getState());
+    const { actionId, potency } = standardFinishDmgMap[stepCount];
     dispatch(dmgEvent(actionId, context, { potency }));
 
     dispatch(dance(0));
-    dispatch(removeBuff(StatusId.StandardStep));
 
-    if (hasBuff(getState(), StatusId.TechnicalEsprit)) {
-      dispatch(removeBuff(StatusId.TechnicalEsprit));
+    if (stepCount > 0) {
+      dispatch(removeBuff(StatusId.StandardStep));
+
+      if (hasBuff(getState(), StatusId.TechnicalEsprit)) {
+        dispatch(removeBuff(StatusId.TechnicalEsprit));
+      }
+
+      dispatch(buff(StatusId.StandardFinish));
+      dispatch(buff(StatusId.LastDanceReady));
+      dispatch(buff(StatusId.Esprit));
     }
-
-    dispatch(buff(StatusId.StandardFinish));
-    dispatch(buff(StatusId.Esprit));
   },
   isUsable: (state) => hasBuff(state, StatusId.StandardStep),
   isGlowing: (state) => isDanceComplete(state),
@@ -592,7 +620,7 @@ const technicalFinishDmgMap: Record<number, { potency: number; actionId: ActionI
     actionId: ActionId.TripleTechnicalFinish,
   },
   4: {
-    potency: 1200,
+    potency: 1300,
     actionId: ActionId.QuadrupleTechnicalFinish,
   },
 };
@@ -600,15 +628,20 @@ const technicalFinishDmgMap: Record<number, { potency: number; actionId: ActionI
 const technicalFinish: CombatAction = createCombatAction({
   id: ActionId.TechnicalFinish,
   execute: (dispatch, getState, context) => {
-    const { actionId, potency } = technicalFinishDmgMap[steps(getState())];
+    const stepCount = steps(getState());
+    const { actionId, potency } = technicalFinishDmgMap[stepCount];
     dispatch(dmgEvent(actionId, context, { potency }));
 
     dispatch(removeBuff(StatusId.TechnicalStep));
-    dispatch(buff(StatusId.TechnicalFinish));
-    dispatch(buff(StatusId.FlourishingFinish));
 
-    if (!hasBuff(getState(), StatusId.Esprit)) {
-      dispatch(buff(StatusId.TechnicalEsprit));
+    if (stepCount > 0) {
+      dispatch(buff(StatusId.TechnicalFinish));
+      dispatch(buff(StatusId.FlourishingFinish));
+      dispatch(buff(StatusId.DanceoftheDawnReady));
+
+      if (!hasBuff(getState(), StatusId.Esprit)) {
+        dispatch(buff(StatusId.TechnicalEsprit));
+      }
     }
   },
   isUsable: (state) => hasBuff(state, StatusId.TechnicalStep),
@@ -618,8 +651,9 @@ const technicalFinish: CombatAction = createCombatAction({
 const tilliana: CombatAction = createCombatAction({
   id: ActionId.Tillana,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Tillana, context, { potency: 360 }));
+    dispatch(dmgEvent(ActionId.Tillana, context, { potency: 600 }));
     dispatch(removeBuff(StatusId.FlourishingFinish));
+    dispatch(addEsprit(50));
   },
   isUsable: (state) => hasBuff(state, StatusId.FlourishingFinish),
   isGlowing: (state) => hasBuff(state, StatusId.FlourishingFinish),
@@ -633,6 +667,7 @@ const flourish: CombatAction = createCombatAction({
     dispatch(buff(StatusId.FlourishingSymmetry));
     dispatch(buff(StatusId.ThreefoldFanDance));
     dispatch(buff(StatusId.FourfoldFanDance));
+    dispatch(buff(StatusId.FinishingMoveReady));
   },
   isUsable: (state) => !isDancing(state) && inCombat(state),
   entersCombat: false,
@@ -649,12 +684,13 @@ const starfallDance: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
 });
 
-const saberdance: CombatAction = createCombatAction({
+const saberDance: CombatAction = createCombatAction({
   id: ActionId.SaberDance,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SaberDance, context, { potency: 480 }));
+    dispatch(dmgEvent(ActionId.SaberDance, context, { potency: 520 }));
   },
   isUsable: (state) => !isDancing(state) && esprit(state) >= 50,
+  redirect: (state) => (hasBuff(state, StatusId.DanceoftheDawnReady) ? ActionId.DanceoftheDawn : ActionId.SaberDance),
   reducedBySkillSpeed: true,
 });
 
@@ -820,6 +856,48 @@ const bloodshower: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
 });
 
+const lastDance: CombatAction = createCombatAction({
+  id: ActionId.LastDance,
+  execute: (dispatch, _, contenxt) => {
+    dispatch(dmgEvent(ActionId.LastDance, contenxt, { potency: 520 }));
+    dispatch(removeBuff(StatusId.LastDanceReady));
+  },
+  reducedBySkillSpeed: true,
+  isUsable: (state) => hasBuff(state, StatusId.LastDanceReady) && !isDancing(state),
+  isGlowing: (state) => hasBuff(state, StatusId.LastDanceReady),
+});
+
+const finishingMove: CombatAction = createCombatAction({
+  id: ActionId.FinishingMove,
+  execute: (dispatch, getState, contenxt) => {
+    dispatch(dmgEvent(ActionId.FinishingMove, contenxt, { potency: 850 }));
+    dispatch(removeBuff(StatusId.FinishingMoveReady));
+
+    dispatch(gcd({ reducedBySkillSpeed: true }));
+
+    if (hasBuff(getState(), StatusId.TechnicalEsprit)) {
+      dispatch(removeBuff(StatusId.TechnicalEsprit));
+    }
+
+    dispatch(buff(StatusId.StandardFinish));
+    dispatch(buff(StatusId.LastDanceReady));
+    dispatch(buff(StatusId.Esprit));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.FinishingMoveReady) && !isDancing(state),
+  isGlowing: (state) => hasBuff(state, StatusId.FinishingMoveReady),
+});
+
+const danceOfTheDawn: CombatAction = createCombatAction({
+  id: ActionId.DanceoftheDawn,
+  execute: (dispatch, _, contenxt) => {
+    dispatch(dmgEvent(ActionId.DanceoftheDawn, contenxt, { potency: 1000 }));
+    dispatch(removeBuff(StatusId.DanceoftheDawnReady));
+  },
+  reducedBySkillSpeed: true,
+  isUsable: (state) => hasBuff(state, StatusId.DanceoftheDawnReady) && !isDancing(state),
+  isGlowing: (state) => hasBuff(state, StatusId.DanceoftheDawnReady),
+});
+
 export const dncStatuses: CombatStatus[] = [
   silkenFlowStatus,
   silkenSymmetryStatus,
@@ -842,6 +920,9 @@ export const dncStatuses: CombatStatus[] = [
   flourishingFinishStatus,
   closedPositionStatus,
   risingRhythmStatus,
+  lastDanceReadyStatus,
+  finishingMoveReadyStatus,
+  danceoftheDawnReadyStatus,
 ];
 
 export const dnc: CombatAction[] = [
@@ -865,7 +946,7 @@ export const dnc: CombatAction[] = [
   tilliana,
   flourish,
   starfallDance,
-  saberdance,
+  saberDance,
   closedPosition,
   ending,
   improvisation,
@@ -877,6 +958,9 @@ export const dnc: CombatAction[] = [
   bladeshower,
   bloodshower,
   enAvant,
+  lastDance,
+  finishingMove,
+  danceOfTheDawn,
 ];
 
 export const dncEpics = combineEpics(

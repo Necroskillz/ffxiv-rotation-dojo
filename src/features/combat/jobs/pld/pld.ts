@@ -67,8 +67,8 @@ const divineMightStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const swordOathStatus: CombatStatus = createCombatStatus({
-  id: StatusId.SwordOath,
+const atonementReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.AtonementReady,
   duration: 30,
   isHarmful: false,
   initialStacks: 3,
@@ -195,7 +195,7 @@ const royalAuthority: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 140, comboPotency: 400 }));
 
     if (context.comboed) {
-      dispatch(buff(StatusId.SwordOath));
+      dispatch(buff(StatusId.AtonementReady));
       dispatch(buff(StatusId.DivineMight));
     }
   },
@@ -241,10 +241,10 @@ const atonement: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Atonement, context, { potency: 400, mana: 400 }));
 
-    dispatch(removeBuffStack(StatusId.SwordOath));
+    dispatch(removeBuffStack(StatusId.AtonementReady));
   },
-  isUsable: (state) => hasBuff(state, StatusId.SwordOath),
-  isGlowing: (state) => hasBuff(state, StatusId.SwordOath),
+  isUsable: (state) => hasBuff(state, StatusId.AtonementReady),
+  isGlowing: (state) => hasBuff(state, StatusId.AtonementReady),
   reducedBySkillSpeed: true,
 });
 
@@ -582,7 +582,7 @@ export const pldStatuses: CombatStatus[] = [
   passageOfArmsStatus,
   ironWillStatus,
   fightOrFlightStatus,
-  swordOathStatus,
+  atonementReadyStatus,
   confiteorReadyStatus,
   circleOfScornStatus,
 ];

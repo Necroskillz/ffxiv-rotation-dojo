@@ -292,8 +292,8 @@ const wardensPaeanStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const shadowbiteReadyStatus: CombatStatus = createCombatStatus({
-  id: StatusId.ShadowbiteReady,
+const hawksEyeStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HawksEye,
   duration: 30,
   isHarmful: false,
 });
@@ -621,7 +621,7 @@ const ladonsbite: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Ladonsbite, context, { potency: 130 }));
     if (rng(35)) {
-      dispatch(buff(StatusId.ShadowbiteReady));
+      dispatch(buff(StatusId.HawksEye));
     }
   },
   reducedBySkillSpeed: true,
@@ -631,11 +631,11 @@ const shadowbite: CombatAction = createCombatAction({
   id: ActionId.Shadowbite,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Shadowbite, context, { potency: 170 }));
-    dispatch(removeBuff(StatusId.ShadowbiteReady));
+    dispatch(removeBuff(StatusId.HawksEye));
   },
   reducedBySkillSpeed: true,
-  isUsable: (state) => hasBuff(state, StatusId.ShadowbiteReady),
-  isGlowing: (state) => hasBuff(state, StatusId.ShadowbiteReady),
+  isUsable: (state) => hasBuff(state, StatusId.HawksEye),
+  isGlowing: (state) => hasBuff(state, StatusId.HawksEye),
 });
 
 const repellingShot: CombatAction = createCombatAction({
@@ -672,7 +672,7 @@ export const brdStatuses = [
   magesBalladActive,
   wanderersMinuetActive,
   naturesMinneStatus,
-  shadowbiteReadyStatus,
+  hawksEyeStatus,
   troubadourStatus,
   armysMuseStatus,
   armysEthosStatus,

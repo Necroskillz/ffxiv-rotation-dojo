@@ -125,12 +125,6 @@ const lanceChargeStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const rightEyeStatus: CombatStatus = createCombatStatus({
-  id: StatusId.RightEye,
-  duration: 20,
-  isHarmful: false,
-});
-
 const battleLitanyStatus: CombatStatus = createCombatStatus({
   id: StatusId.BattleLitany,
   duration: 15,
@@ -305,14 +299,6 @@ const lanceCharge: CombatAction = createCombatAction({
   },
 });
 
-const dragonSight: CombatAction = createCombatAction({
-  id: ActionId.DragonSight,
-  execute: (dispatch) => {
-    dispatch(ogcdLock());
-    dispatch(buff(StatusId.RightEye));
-  },
-});
-
 const battleLitany: CombatAction = createCombatAction({
   id: ActionId.BattleLitany,
   execute: (dispatch) => {
@@ -381,11 +367,10 @@ const stardiver: CombatAction = createCombatAction({
   animationLock: OGCDLockDuration.Long,
 });
 
-const spineshatterDive: CombatAction = createCombatAction({
-  id: ActionId.SpineshatterDive,
-  execute: (dispatch, _, context) => {
+const wingedGlide: CombatAction = createCombatAction({
+  id: ActionId.WingedGlide,
+  execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.SpineshatterDive, context, { potency: 250 }));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -484,7 +469,6 @@ export const drgStatuses: CombatStatus[] = [
   wheelinMotionStatus,
   fangandClawBaredStatus,
   battleLitanyStatus,
-  rightEyeStatus,
   lifeoftheDragonActiveStatus,
   diveReadyStatus,
   chaoticSpringStatus,
@@ -504,7 +488,6 @@ export const drg: CombatAction[] = [
   heavensThrust,
   lifeSurge,
   lanceCharge,
-  dragonSight,
   battleLitany,
   jump,
   highJump,
@@ -512,7 +495,7 @@ export const drg: CombatAction[] = [
   geirskogul,
   nastrond,
   stardiver,
-  spineshatterDive,
+  wingedGlide,
   dragonfireDive,
   wyrmwindThrust,
   piercingTalong,

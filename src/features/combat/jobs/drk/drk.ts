@@ -68,7 +68,7 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(() => {
       return of([
         { actionId: ActionId.AbyssalDrain, type: DamageType.Magical, delay: 4500 },
-        { actionId: ActionId.Plunge, type: DamageType.Physical, delay: 2500 },
+        { actionId: ActionId.Shadowstride, type: DamageType.Physical, delay: 2500 },
         { actionId: ActionId.Quietus, type: DamageType.Physical, delay: 2500 },
         { actionId: ActionId.FloodofShadow, type: DamageType.Magical, delay: 2500 },
         { actionId: ActionId.EdgeofShadow, type: DamageType.Magical, delay: 2500 },
@@ -276,11 +276,10 @@ const carveAndSpit: CombatAction = createCombatAction({
   },
 });
 
-const plunge: CombatAction = createCombatAction({
-  id: ActionId.Plunge,
-  execute: (dispatch, _, context) => {
+const shadowstride: CombatAction = createCombatAction({
+  id: ActionId.Shadowstride,
+  execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Plunge, context, { potency: 150 }));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -483,7 +482,7 @@ export const drk: CombatAction[] = [
   edgeOfDarkness,
   edgeOfShadow,
   carveAndSpit,
-  plunge,
+  shadowstride,
   livingShadow,
   shadowbringer,
   unmend,
