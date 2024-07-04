@@ -198,10 +198,28 @@ const flamethrowerStatus: CombatStatus = createCombatStatus({
   id: StatusId.Flamethrower,
   duration: 10,
   isHarmful: false,
-  tick: (dispatch) => dispatch(event(0, { potency: 100 })),
+  tick: (dispatch) => dispatch(event(0, { potency: 80 })),
   ticksImmediately: true,
   initialDelay: 900,
   interval: 1000,
+});
+
+const fullMetalMachinistStatus: CombatStatus = createCombatStatus({
+  id: StatusId.FullMetalMachinist,
+  duration: 30,
+  isHarmful: false,
+});
+
+const hyperchargedStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Hypercharged,
+  duration: 30,
+  isHarmful: false,
+});
+
+const excavatorReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ExcavatorReady,
+  duration: 30,
+  isHarmful: false,
 });
 
 const splitShot: CombatAction = createCombatAction({
@@ -214,7 +232,7 @@ const splitShot: CombatAction = createCombatAction({
 const heatedSplitShot: CombatAction = createCombatAction({
   id: ActionId.HeatedSplitShot,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.HeatedSplitShot, context, { potency: adjustedPotency(getState(), 200) }));
+    dispatch(dmgEvent(ActionId.HeatedSplitShot, context, { potency: adjustedPotency(getState(), 220) }));
     dispatch(combo(ActionId.SplitShot));
     dispatch(addHeat(5));
   },
@@ -233,8 +251,8 @@ const heatedSlugShot: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.HeatedSlugShot, context, {
-        potency: adjustedPotency(getState(), 120),
-        comboPotency: adjustedPotency(getState(), 300),
+        potency: adjustedPotency(getState(), 140),
+        comboPotency: adjustedPotency(getState(), 320),
       })
     );
     if (context.comboed) {
@@ -258,8 +276,8 @@ const heatedCleanShot: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.HeatedCleanShot, context, {
-        potency: adjustedPotency(getState(), 120),
-        comboPotency: adjustedPotency(getState(), 380),
+        potency: adjustedPotency(getState(), 140),
+        comboPotency: adjustedPotency(getState(), 400),
       })
     );
 
@@ -279,6 +297,7 @@ const drill: CombatAction = createCombatAction({
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   reducedBySkillSpeed: true,
+  maxCharges: () => 2,
 });
 
 const hotShot: CombatAction = createCombatAction({
@@ -304,8 +323,22 @@ const chainsaw: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
+    dispatch(buff(StatusId.ExcavatorReady));
   },
   reducedBySkillSpeed: true,
+  redirect: (state) => (hasBuff(state, StatusId.ExcavatorReady) ? ActionId.Excavator : ActionId.ChainSaw),
+});
+
+const excavator: CombatAction = createCombatAction({
+  id: ActionId.Excavator,
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Excavator, context, { potency: adjustedPotency(getState(), 600) }));
+    dispatch(gcd({ reducedBySkillSpeed: true }));
+    dispatch(addBattery(20));
+    dispatch(removeBuff(StatusId.ExcavatorReady));
+  },
+  reducedBySkillSpeed: true,
+  isGlowing: () => true,
 });
 
 const reassemble: CombatAction = createCombatAction({
@@ -324,21 +357,20 @@ const reassemble: CombatAction = createCombatAction({
 
 const ricochet: CombatAction = createCombatAction({
   id: ActionId.Ricochet,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Ricochet, context, { potency: adjustedPotency(getState(), 130) }));
-    dispatch(ogcdLock());
-  },
-  maxCharges: () => 3,
-  extraCooldown: () => ({
-    cooldownGroup: 1000,
-    duration: 1,
-  }),
+  execute: () => {},
+  redirect: () => ActionId.DoubleCheck,
 });
 
 const gaussRound: CombatAction = createCombatAction({
   id: ActionId.GaussRound,
+  execute: () => {},
+  redirect: () => ActionId.Checkmate,
+});
+
+const doubleCheck: CombatAction = createCombatAction({
+  id: ActionId.DoubleCheck,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.GaussRound, context, { potency: adjustedPotency(getState(), 130) }));
+    dispatch(dmgEvent(ActionId.GaussRound, context, { potency: 160 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -348,13 +380,40 @@ const gaussRound: CombatAction = createCombatAction({
   }),
 });
 
+const checkmate: CombatAction = createCombatAction({
+  id: ActionId.Checkmate,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Checkmate, context, { potency: 160 }));
+    dispatch(ogcdLock());
+  },
+  maxCharges: () => 3,
+  extraCooldown: () => ({
+    cooldownGroup: 1000,
+    duration: 1,
+  }),
+});
+
 const barrelStabilizer: CombatAction = createCombatAction({
   id: ActionId.BarrelStabilizer,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(addHeat(50));
+    dispatch(buff(StatusId.Hypercharged));
+    dispatch(buff(StatusId.FullMetalMachinist));
   },
   isUsable: (state) => inCombat(state),
+  redirect: (state) => (hasBuff(state, StatusId.FullMetalMachinist) ? ActionId.FullMetalField : ActionId.BarrelStabilizer),
+});
+
+const fullMetalField: CombatAction = createCombatAction({
+  id: ActionId.FullMetalField,
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.FullMetalField, context, { potency: adjustedPotency(getState(), 700) }));
+    dispatch(gcd({ reducedBySkillSpeed: true }));
+    dispatch(removeBuff(StatusId.FullMetalMachinist));
+  },
+  reducedBySkillSpeed: true,
+  isUsable: (state) => hasBuff(state, StatusId.FullMetalMachinist),
+  isGlowing: (state) => hasBuff(state, StatusId.FullMetalMachinist),
 });
 
 const wildfire: CombatAction = createCombatAction({
@@ -382,18 +441,26 @@ const hypercharge: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Overheated));
+    dispatch(removeBuff(StatusId.Hypercharged));
   },
-  isUsable: (state) => heat(state) >= 50,
-  isGlowing: (state) => heat(state) >= 50,
+  isUsable: (state) => heat(state) >= 50 || hasBuff(state, StatusId.Hypercharged),
+  isGlowing: (state) => heat(state) >= 50 || hasBuff(state, StatusId.Hypercharged),
+  cost: (state) => (hasBuff(state, StatusId.Hypercharged) ? 0 : 50),
   entersCombat: false,
 });
 
 const heatBlast: CombatAction = createCombatAction({
   id: ActionId.HeatBlast,
+  execute: () => {},
+  redirect: () => ActionId.BlazingShot,
+});
+
+const blazingShot: CombatAction = createCombatAction({
+  id: ActionId.BlazingShot,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.HeatBlast, context, { potency: adjustedPotency(getState(), 200) }));
-    dispatch(modifyCooldown(10, -15000));
-    dispatch(modifyCooldown(11, -15000));
+    dispatch(dmgEvent(ActionId.BlazingShot, context, { potency: adjustedPotency(getState(), 220) }));
+    dispatch(modifyCooldown(15, -15000));
+    dispatch(modifyCooldown(16, -15000));
   },
   isUsable: (state) => hasBuff(state, StatusId.Overheated),
   isGlowing: (state) => hasBuff(state, StatusId.Overheated),
@@ -456,7 +523,7 @@ const spreadShot: CombatAction = createCombatAction({
 const scattergun: CombatAction = createCombatAction({
   id: ActionId.Scattergun,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: adjustedPotency(getState(), 150) }));
+    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: adjustedPotency(getState(), 160) }));
 
     dispatch(addHeat(10));
   },
@@ -475,7 +542,7 @@ const bioblaster: CombatAction = createCombatAction({
 
 const flamethrower: CombatAction = createCombatAction({
   id: ActionId.Flamethrower,
-  execute: (dispatch, _, context) => {
+  execute: (dispatch) => {
     dispatch(buff(StatusId.Flamethrower));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
@@ -526,6 +593,9 @@ export const mchStatuses: CombatStatus[] = [
   flamethrowerStatus,
   wildfireBuffStatus,
   wildfireStatus,
+  excavatorReadyStatus,
+  fullMetalMachinistStatus,
+  hyperchargedStatus,
 ];
 
 export const mch: CombatAction[] = [
@@ -563,6 +633,11 @@ export const mch: CombatAction[] = [
   pileBunker,
   crownedCollider,
   autoCrossbow,
+  blazingShot,
+  doubleCheck,
+  checkmate,
+  excavator,
+  fullMetalField,
 ];
 
 export const mchEpics = combineEpics(

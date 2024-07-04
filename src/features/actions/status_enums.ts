@@ -80,6 +80,8 @@ export enum StatusId {
   Flamethrower = 1205,
   Wildfire = 861,
   WildfireBuff = 1946,
+  Hypercharged = 3864,
+  ExcavatorReady = 3865,
   FullMetalMachinist = 3866,
   InnerRelease = 1177,
   InnerStrength = 2663,

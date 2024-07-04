@@ -200,6 +200,7 @@ export enum ActionId {
   RollerDash = 17206,
   PileBunker = 16503,
   CrownedCollider = 25787,
+  BlazingShot = 36978,
   DoubleCheck = 36979,
   Checkmate = 36980,
   Excavator = 36981,

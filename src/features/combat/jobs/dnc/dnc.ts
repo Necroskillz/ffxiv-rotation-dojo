@@ -883,8 +883,8 @@ const finishingMove: CombatAction = createCombatAction({
     dispatch(buff(StatusId.LastDanceReady));
     dispatch(buff(StatusId.Esprit));
   },
-  isUsable: (state) => hasBuff(state, StatusId.FinishingMoveReady) && !isDancing(state),
-  isGlowing: (state) => hasBuff(state, StatusId.FinishingMoveReady),
+  isUsable: (state) => !isDancing(state),
+  isGlowing: () => true,
 });
 
 const danceOfTheDawn: CombatAction = createCombatAction({
@@ -894,8 +894,8 @@ const danceOfTheDawn: CombatAction = createCombatAction({
     dispatch(removeBuff(StatusId.DanceoftheDawnReady));
   },
   reducedBySkillSpeed: true,
-  isUsable: (state) => hasBuff(state, StatusId.DanceoftheDawnReady) && !isDancing(state),
-  isGlowing: (state) => hasBuff(state, StatusId.DanceoftheDawnReady),
+  isUsable: (state) => !isDancing(state),
+  isGlowing: () => true,
 });
 
 export const dncStatuses: CombatStatus[] = [
