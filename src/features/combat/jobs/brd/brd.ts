@@ -27,6 +27,7 @@ import {
   addSoulVoice,
   dmgEvent,
   event,
+  buffStacks,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -42,8 +43,12 @@ function wandererRepertoire(state: RootState) {
   return resource(state, 'wandererRepertoire');
 }
 
+function coda(state: RootState): number {
+  return resource(state, 'wandererCoda') + resource(state, 'mageCoda') + resource(state, 'armyCoda');
+}
+
 function hasCoda(state: RootState): boolean {
-  return !!(resource(state, 'wandererCoda') || resource(state, 'mageCoda') || resource(state, 'armyCoda'));
+  return coda(state) > 0;
 }
 
 const consumeBarrageEpic: Epic<any, any, RootState> = (action$, state$) =>
@@ -52,11 +57,7 @@ const consumeBarrageEpic: Epic<any, any, RootState> = (action$, state$) =>
       (a) =>
         a.type === executeAction.type &&
         [
-          ActionId.BurstShot,
           ActionId.RefulgentArrow,
-          ActionId.IronJaws,
-          ActionId.CausticBite,
-          ActionId.Stormbite,
           ActionId.Shadowbite,
         ].includes(a.payload.id)
     ),
@@ -204,7 +205,7 @@ const magesBalladActive: CombatStatus = createCombatStatus({
   isHarmful: false,
   isVisible: false,
   tick: (dispatch) => {
-    dispatch(modifyCooldown(5, -7500));
+    dispatch(modifyCooldown(10, -7500));
     dispatch(addSoulVoice(5));
   },
   onExpire: (dispatch, getState) => {
@@ -296,6 +297,25 @@ const hawksEyeStatus: CombatStatus = createCombatStatus({
   id: StatusId.HawksEye,
   duration: 30,
   isHarmful: false,
+});
+
+const resonantArrowReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ResonantArrowReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const radiantEncoreReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RadiantEncoreReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const radiantEncoreCodaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RadiantEncoreCoda,
+  duration: 30,
+  isHarmful: false,
+  isVisible: false,
 });
 
 const straightShot: CombatAction = createCombatAction({
@@ -402,8 +422,21 @@ const barrage: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Barrage));
     dispatch(buff(StatusId.StraightShotReady));
+    dispatch(buff(StatusId.ResonantArrowReady));
   },
   entersCombat: false,
+  redirect: (state) => (hasBuff(state, StatusId.ResonantArrowReady) ? ActionId.ResonantArrow : ActionId.Barrage),
+});
+
+const resonantArrow: CombatAction = createCombatAction({
+  id: ActionId.ResonantArrow,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ResonantArrow, context, { potency: 600 }));
+    dispatch(removeBuff(StatusId.ResonantArrowReady));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.ResonantArrowReady),
+  isGlowing: (state) => hasBuff(state, StatusId.ResonantArrowReady),
+  reducedBySkillSpeed: true,
 });
 
 const wanderersMinuet: CombatAction = createCombatAction({
@@ -486,8 +519,14 @@ const pitchPerfect: CombatAction = createCombatAction({
 
 const bloodletter: CombatAction = createCombatAction({
   id: ActionId.Bloodletter,
+  execute: () => {},
+  redirect: () => ActionId.HeartbreakShot,
+});
+
+const heartbreakShot: CombatAction = createCombatAction({
+  id: ActionId.HeartbreakShot,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Bloodletter, context, { potency: 110 }));
+    dispatch(dmgEvent(ActionId.HeartbreakShot, context, { potency: 180 }));
 
     dispatch(ogcdLock());
   },
@@ -498,7 +537,7 @@ const bloodletter: CombatAction = createCombatAction({
 const sidewinder: CombatAction = createCombatAction({
   id: ActionId.Sidewinder,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Sidewinder, context, { potency: 320 }));
+    dispatch(dmgEvent(ActionId.Sidewinder, context, { potency: 400 }));
 
     dispatch(ogcdLock());
   },
@@ -514,7 +553,7 @@ const empyrealArrow: CombatAction = createCombatAction({
       dispatch(addWandererRepertiore(1));
       dispatch(addSoulVoice(5));
     } else if (hasBuff(getState(), StatusId.MagesBalladActive)) {
-      dispatch(modifyCooldown(5, -7500));
+      dispatch(modifyCooldown(10, -7500));
       dispatch(addSoulVoice(5));
     } else if (hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       dispatch(addArmyRepertiore(1));
@@ -545,7 +584,7 @@ const ironJaws: CombatAction = createCombatAction({
 const apexArrow: CombatAction = createCombatAction({
   id: ActionId.ApexArrow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 400 + 100 }));
+    dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 480 + 120 }));
     if (context.cost >= 80) {
       dispatch(buff(StatusId.BlastArrowReady));
     }
@@ -569,17 +608,42 @@ const blastArrow: CombatAction = createCombatAction({
 
 const radiantFinale: CombatAction = createCombatAction({
   id: ActionId.RadiantFinale,
-  execute: (dispatch) => {
+  execute: (dispatch, getState) => {
     dispatch(ogcdLock());
+
+    const codaCount = coda(getState());
+
     dispatch(setArmyCoda(0));
     dispatch(setMageCoda(0));
     dispatch(setWandererCoda(0));
     dispatch(buff(StatusId.RadiantFinale));
     dispatch(buff(StatusId.PlayingRadiantFinale));
+    dispatch(buff(StatusId.RadiantEncoreReady));
+    dispatch(buff(StatusId.RadiantEncoreCoda, { stacks: codaCount }));
   },
   isUsable: (state) => hasCoda(state),
   isGlowing: (state) => hasCoda(state),
+  redirect: (state) => (hasBuff(state, StatusId.RadiantEncoreReady) ? ActionId.RadiantEncore : ActionId.RadiantFinale),
   entersCombat: false,
+});
+
+const radiantEncoreDmgMap: Record<number, number> = {
+  1: 500,
+  2: 600,
+  3: 900,
+};
+
+const radiantEncore: CombatAction = createCombatAction({
+  id: ActionId.RadiantEncore,
+  execute: (dispatch, getState, context) => {
+    const codaCount = buffStacks(getState(), StatusId.RadiantEncoreCoda);
+
+    dispatch(dmgEvent(ActionId.RadiantEncore, context, { potency: radiantEncoreDmgMap[codaCount] }));
+    dispatch(removeBuff(StatusId.RadiantEncoreReady));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.RadiantEncoreReady),
+  isGlowing: (state) => hasBuff(state, StatusId.RadiantEncoreReady),
+  reducedBySkillSpeed: true,
 });
 
 const troubadour: CombatAction = createCombatAction({
@@ -624,6 +688,13 @@ const ladonsbite: CombatAction = createCombatAction({
       dispatch(buff(StatusId.HawksEye));
     }
   },
+  reducedBySkillSpeed: true,
+});
+
+const wideVolley: CombatAction = createCombatAction({
+  id: ActionId.WideVolley,
+  execute: () => {},
+  redirect: () => ActionId.Shadowbite,
   reducedBySkillSpeed: true,
 });
 
@@ -677,6 +748,9 @@ export const brdStatuses = [
   armysMuseStatus,
   armysEthosStatus,
   blastArrowReadyStatus,
+  resonantArrowReadyStatus,
+  radiantEncoreCodaStatus,
+  radiantEncoreReadyStatus,
 ];
 
 export const brd: CombatAction[] = [
@@ -710,11 +784,10 @@ export const brd: CombatAction[] = [
   shadowbite,
   repellingShot,
   raidOfDeath,
+  heartbreakShot,
+  wideVolley,
+  resonantArrow,
+  radiantEncore,
 ];
 
-export const brdEpics = combineEpics(
-  consumeBarrageEpic,
-  endArmysPaeonEpic,
-  endMagesBalladEpic,
-  endWanderersMinuetEpic,
-);
+export const brdEpics = combineEpics(consumeBarrageEpic, endArmysPaeonEpic, endMagesBalladEpic, endWanderersMinuetEpic);

@@ -337,4 +337,5 @@ export enum StatusId {
   AstralFireActive = 999018,
   UmbralIceActive = 999019,
   SlipstreamActive = 999020,
+  RadiantEncoreCoda = 999021,
 }

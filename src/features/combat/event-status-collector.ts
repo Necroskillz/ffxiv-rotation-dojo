@@ -133,14 +133,7 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   [StatusId.BattleVoice]: always,
   [StatusId.RadiantFinale]: always,
   [StatusId.RagingStrikes]: always,
-  [StatusId.Barrage]: id(
-    ActionId.BurstShot,
-    ActionId.RefulgentArrow,
-    ActionId.IronJaws,
-    ActionId.CausticBite,
-    ActionId.Stormbite,
-    ActionId.Shadowbite
-  ),
+  [StatusId.Barrage]: id(ActionId.RefulgentArrow, ActionId.Shadowbite),
   // DNC
   [StatusId.TechnicalFinish]: always,
   [StatusId.Devilment]: always,
