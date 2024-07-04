@@ -237,6 +237,7 @@ const heatedSplitShot: CombatAction = createCombatAction({
     dispatch(addHeat(5));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const slugShot: CombatAction = createCombatAction({
@@ -262,6 +263,7 @@ const heatedSlugShot: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SlugShot),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const cleanShot: CombatAction = createCombatAction({
@@ -288,6 +290,7 @@ const heatedCleanShot: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.CleanShot),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const drill: CombatAction = createCombatAction({

@@ -12,7 +12,6 @@ export interface ActionInfo {
   level: number;
   cost: number;
   costType: string | null;
-  preservesCombo: boolean;
   maxCharges: number;
   job: string[];
   comboAction: number | null;

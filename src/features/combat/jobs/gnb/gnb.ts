@@ -183,6 +183,7 @@ const keenEdge: CombatAction = createCombatAction({
     dispatch(combo(ActionId.KeenEdge));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const brutalShell: CombatAction = createCombatAction({
@@ -197,6 +198,7 @@ const brutalShell: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.BrutalShell),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const solidBarrel: CombatAction = createCombatAction({
@@ -210,6 +212,7 @@ const solidBarrel: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SolidBarrel),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const noMercy: CombatAction = createCombatAction({

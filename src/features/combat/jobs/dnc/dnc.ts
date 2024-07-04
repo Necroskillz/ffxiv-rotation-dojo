@@ -355,6 +355,7 @@ const cascade: CombatAction = createCombatAction({
   isUsable: (state) => !isDancing(state),
   redirect: (state) => (isDancing(state) ? ActionId.Emboite : ActionId.Cascade),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const fountain: CombatAction = createCombatAction({
@@ -375,6 +376,7 @@ const fountain: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.Fountain),
   redirect: (state) => (isDancing(state) ? ActionId.Entrechat : ActionId.Fountain),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const reverseCascade: CombatAction = createCombatAction({

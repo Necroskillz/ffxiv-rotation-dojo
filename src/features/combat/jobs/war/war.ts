@@ -23,6 +23,8 @@ import {
   debuff,
   event,
   dmgEvent,
+  buffStacks,
+  addBuffStack,
 } from '../../combatSlice';
 
 function beast(state: RootState) {
@@ -90,14 +92,8 @@ const thrillofBattleStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const vulnerabilityDownStatus: CombatStatus = createCombatStatus({
-  id: StatusId.VulnerabilityDown,
-  duration: 15,
-  isHarmful: false,
-});
-
-const vengeanceStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Vengeance,
+const damnationStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Damnation,
   duration: 15,
   isHarmful: false,
 });
@@ -151,6 +147,24 @@ const shakeItOffStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const burgeoningFuryStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BurgeoningFury,
+  duration: 30,
+  isHarmful: false,
+});
+
+const wratfulStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Wrathful,
+  duration: 30,
+  isHarmful: false,
+});
+
+const primalRuinationReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PrimalRuinationReady,
+  duration: 30,
+  isHarmful: false,
+});
+
 const shakeItOffOverTimeStatus: CombatStatus = createCombatStatus({
   id: StatusId.ShakeItOffOverTime,
   duration: 15,
@@ -161,16 +175,17 @@ const shakeItOffOverTimeStatus: CombatStatus = createCombatStatus({
 const heavySwing: CombatAction = createCombatAction({
   id: ActionId.HeavySwing,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HeavySwing, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.HeavySwing, context, { potency: 220 }));
     dispatch(combo(ActionId.HeavySwing));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const maim: CombatAction = createCombatAction({
   id: ActionId.Maim,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Maim, context, { potency: 150, comboPotency: 300 }));
+    dispatch(dmgEvent(ActionId.Maim, context, { potency: 190, comboPotency: 340 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.Maim));
@@ -179,12 +194,13 @@ const maim: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Maim),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const stormsPath: CombatAction = createCombatAction({
   id: ActionId.StormsPath,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 160, comboPotency: 440, healthPotency: 250 }));
+    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 200, comboPotency: 480, healthPotency: 250 }));
 
     if (context.comboed) {
       dispatch(addBeast(20));
@@ -192,12 +208,13 @@ const stormsPath: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.StormsPath),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const stormsEye: CombatAction = createCombatAction({
   id: ActionId.StormsEye,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 160, comboPotency: 440 }));
+    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 200, comboPotency: 480 }));
 
     if (context.comboed) {
       dispatch(addBeast(10));
@@ -206,6 +223,7 @@ const stormsEye: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.StormsEye),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const innerBeast: CombatAction = createCombatAction({
@@ -217,10 +235,21 @@ const innerBeast: CombatAction = createCombatAction({
 
 const fellCleave: CombatAction = createCombatAction({
   id: ActionId.FellCleave,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 520 }));
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 580 }));
 
     dispatch(modifyCooldown(20, -5000));
+
+    const state = getState();
+
+    if (hasBuff(state, StatusId.InnerRelease)) {
+      if (buffStacks(state, StatusId.BurgeoningFury) >= 2) {
+        dispatch(removeBuff(StatusId.BurgeoningFury));
+        dispatch(buff(StatusId.Wrathful));
+      } else {
+        dispatch(addBuffStack(StatusId.BurgeoningFury));
+      }
+    }
   },
   reducedBySkillSpeed: true,
   isUsable: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
@@ -294,6 +323,17 @@ const innerRelease: CombatAction = createCombatAction({
     }
   },
   entersCombat: false,
+  redirect: (state) => (hasBuff(state, StatusId.Wrathful) ? ActionId.PrimalWrath : ActionId.InnerRelease),
+});
+
+const primalWrath: CombatAction = createCombatAction({
+  id: ActionId.PrimalWrath,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.PrimalWrath, context, { potency: 700 }));
+    dispatch(removeBuff(StatusId.Wrathful));
+  },
+  isGlowing: () => true,
 });
 
 const primalRend: CombatAction = createCombatAction({
@@ -302,11 +342,24 @@ const primalRend: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.PrimalRend, context, { potency: 700 }));
 
     dispatch(removeBuff(StatusId.PrimalRendReady));
+    dispatch(buff(StatusId.PrimalRuinationReady));
   },
   reducedBySkillSpeed: true,
   isUsable: (state) => hasBuff(state, StatusId.PrimalRendReady),
   isGlowing: (state) => hasBuff(state, StatusId.PrimalRendReady),
   animationLock: 1200,
+  redirect: (state) => (hasBuff(state, StatusId.PrimalRuinationReady) ? ActionId.PrimalRuination : ActionId.PrimalRend),
+});
+
+const primalRuination: CombatAction = createCombatAction({
+  id: ActionId.PrimalRuination,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.PrimalRend, context, { potency: 740 }));
+
+    dispatch(removeBuff(StatusId.PrimalRuinationReady));
+  },
+  reducedBySkillSpeed: true,
+  isGlowing: () => true,
 });
 
 const onslaught: CombatAction = createCombatAction({
@@ -351,7 +404,7 @@ const overpower: CombatAction = createCombatAction({
 const mythrilTempest: CombatAction = createCombatAction({
   id: ActionId.MythrilTempest,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.MythrilTempest, context, { potency: 100, comboPotency: 150 }));
+    dispatch(dmgEvent(ActionId.MythrilTempest, context, { potency: 100, comboPotency: 140 }));
 
     if (context.comboed) {
       dispatch(addBeast(20));
@@ -372,7 +425,7 @@ const steelCyclone: CombatAction = createCombatAction({
 const decimate: CombatAction = createCombatAction({
   id: ActionId.Decimate,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Decimate, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.Decimate, context, { potency: 180 }));
   },
   reducedBySkillSpeed: true,
   isUsable: (state) => beast(state) >= 50 || hasBuff(state, StatusId.InnerRelease),
@@ -414,10 +467,15 @@ const thrillofBattle: CombatAction = createCombatAction({
 
 const vengeance: CombatAction = createCombatAction({
   id: ActionId.Vengeance,
+  execute: () => {},
+  redirect: () => ActionId.Damnation,
+});
+
+const damnation: CombatAction = createCombatAction({
+  id: ActionId.Damnation,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Vengeance));
-    dispatch(buff(StatusId.VulnerabilityDown));
+    dispatch(buff(StatusId.Damnation));
   },
   entersCombat: false,
 });
@@ -480,8 +538,7 @@ const shakeItOff: CombatAction = createCombatAction({
     dispatch(buff(StatusId.ShakeItOff));
     dispatch(buff(StatusId.ShakeItOffOverTime));
     dispatch(removeBuff(StatusId.ThrillofBattle));
-    dispatch(removeBuff(StatusId.Vengeance));
-    dispatch(removeBuff(StatusId.VulnerabilityDown));
+    dispatch(removeBuff(StatusId.Damnation));
     dispatch(removeBuff(StatusId.Bloodwhetting));
   },
   entersCombat: false,
@@ -499,13 +556,15 @@ export const warStatuses: CombatStatus[] = [
   holmgangStatus,
   holmgangDebuffStatus,
   thrillofBattleStatus,
-  vengeanceStatus,
-  vulnerabilityDownStatus,
   stemtheFlowStatus,
   stemtheTideStatus,
   defianceStatus,
   primalRendReadyStatus,
   innerStrengthStatus,
+  damnationStatus,
+  burgeoningFuryStatus,
+  wratfulStatus,
+  primalRuinationReadyStatus,
 ];
 
 export const war: CombatAction[] = [
@@ -539,6 +598,9 @@ export const war: CombatAction[] = [
   bloodwhetting,
   equilibrium,
   shakeItOff,
+  damnation,
+  primalWrath,
+  primalRuination,
 ];
 
 export const warEpics = combineEpics(decreaseInnerReleaseEpic, bloodwhettingEpic);
