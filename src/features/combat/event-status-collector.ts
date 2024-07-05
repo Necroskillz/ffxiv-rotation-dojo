@@ -35,7 +35,7 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   [StatusId.Medicated]: always,
   // DRK
   [StatusId.BloodWeapon]: (id) => weaponskill(id) || spell(id),
-  [StatusId.Delirium]: id(ActionId.Bloodspiller, ActionId.Quietus),
+  [StatusId.Delirium]: id(ActionId.ScarletDelirium, ActionId.Comeuppance, ActionId.Torcleaver, ActionId.Impalement),
   // GNB
   [StatusId.NoMercy]: always,
   // PLD

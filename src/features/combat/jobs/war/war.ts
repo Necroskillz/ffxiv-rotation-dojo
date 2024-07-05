@@ -399,6 +399,7 @@ const overpower: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Overpower));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const mythrilTempest: CombatAction = createCombatAction({
@@ -413,6 +414,7 @@ const mythrilTempest: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.MythrilTempest),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const steelCyclone: CombatAction = createCombatAction({

@@ -52,7 +52,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           action,
           status: this.props.addType.includes(action.type) ? getStatusById(action.payload.id) : getStatusById(action.payload),
         })),
-        filter(({ status }) => status.icon.length > 0),
+        filter(({ status }) => status.icon.length > 0 && statuses[status.id].isVisible),
         filter(({ action }) => {
           if (action.payload.stacks != null) {
             const previousStacks = this.stackCache.get(action.payload.id) || 0;
@@ -69,7 +69,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           ...status,
           direction: this.props.addType.includes(action.type) ? '+' : '-',
           stacks: this.stackCache.get(status.id) || null,
-          isHarmful: statuses[status.id].isHarmful
+          isHarmful: statuses[status.id].isHarmful,
         })),
         tap((item) => {
           if (item.direction === '-') {
@@ -89,7 +89,7 @@ export class StatusScrollingText extends React.Component<StatusScrollingTextProp
           removedText: `- ${removed.length === 1 ? removed[0].name : this.props.multipleText}`,
           addedIcons: added.map((i) => statusIcon(i.icon, i.stacks)),
           removedIcons: removed.map((i) => statusIcon(i.icon, i.stacks)),
-          addedColor: added.some(i => i.isHarmful) ? 'text-xiv-offensive' : 'text-teal-300',
+          addedColor: added.some((i) => i.isHarmful) ? 'text-xiv-offensive' : 'text-teal-300',
           ref: createRef<HTMLDivElement>(),
         };
 

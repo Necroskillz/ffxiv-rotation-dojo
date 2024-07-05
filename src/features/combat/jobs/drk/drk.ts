@@ -44,14 +44,6 @@ const consumeBloodWeaponEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(([a]) => of(removeBuffStack(StatusId.BloodWeapon), event(a.payload.id, { mana: 600 }), addBlood(10)))
   );
 
-const consumeDeliriumEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === executeAction.type && [ActionId.Bloodspiller, ActionId.Quietus].includes(a.payload.id)),
-    withLatestFrom(state$),
-    filter(([_, state]) => hasBuff(state, StatusId.Delirium)),
-    switchMap(([a]) => of(removeBuffStack(StatusId.Delirium), event(a.payload.id, { mana: 200 })))
-  );
-
 const popTBNEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.BlackestNight),
@@ -67,20 +59,19 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.SimulacrumActive),
     switchMap(() => {
       return of([
-        { actionId: ActionId.AbyssalDrain, type: DamageType.Magical, delay: 4500 },
-        { actionId: ActionId.Shadowstride, type: DamageType.Physical, delay: 2500 },
-        { actionId: ActionId.Quietus, type: DamageType.Physical, delay: 2500 },
-        { actionId: ActionId.FloodofShadow, type: DamageType.Magical, delay: 2500 },
-        { actionId: ActionId.EdgeofShadow, type: DamageType.Magical, delay: 2500 },
-        { actionId: ActionId.Bloodspiller, type: DamageType.Physical, delay: 2500 },
-        { actionId: ActionId.CarveandSpit, type: DamageType.Physical, delay: 2500 },
+        { actionId: ActionId.AbyssalDrain, type: DamageType.Magical, delay: 6000, potency: 420 },
+        { actionId: ActionId.Shadowstride, type: DamageType.Physical, delay: 2500, potency: 0 },
+        { actionId: ActionId.Shadowbringer, type: DamageType.Magical, delay: 2500, potency: 570 },
+        { actionId: ActionId.EdgeofShadow, type: DamageType.Magical, delay: 2500, potency: 420 },
+        { actionId: ActionId.Bloodspiller, type: DamageType.Physical, delay: 2500, potency: 420 },
+        { actionId: ActionId.Disesteem, type: DamageType.Physical, delay: 2500, potency: 620 },
       ]).pipe(
         mergeMap((a) => from(a)),
         concatMap((a) => of(a).pipe(delay(a.delay))),
         withLatestFrom(state$),
         map(([a, state]) =>
           event(a.actionId, {
-            potency: 350,
+            potency: a.potency,
             type: a.type,
             statuses: [{ id: StatusId.SimulacrumActive, stacks: null }],
           })
@@ -93,7 +84,7 @@ const bloodWeaponStatus: CombatStatus = createCombatStatus({
   id: StatusId.BloodWeapon,
   duration: 15,
   isHarmful: false,
-  initialStacks: 5,
+  initialStacks: 3,
 });
 
 const deliriumStatus: CombatStatus = createCombatStatus({
@@ -131,17 +122,8 @@ const saltedEarthStatus: CombatStatus = createCombatStatus({
   tick: (dispatch) => dispatch(event(0, { potency: 50 })),
 });
 
-const hardSlash: CombatAction = createCombatAction({
-  id: ActionId.HardSlash,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HardSlash, context, { potency: 170 }));
-    dispatch(combo(ActionId.HardSlash));
-  },
-  reducedBySkillSpeed: true,
-});
-
-const shadowWallStatus: CombatStatus = createCombatStatus({
-  id: StatusId.ShadowWall,
+const shadowedVigilStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShadowedVigil,
   duration: 15,
   isHarmful: false,
 });
@@ -176,10 +158,26 @@ const darkMissionaryStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const scornStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Scorn,
+  duration: 30,
+  isHarmful: false,
+});
+
+const hardSlash: CombatAction = createCombatAction({
+  id: ActionId.HardSlash,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.HardSlash, context, { potency: 260 }));
+    dispatch(combo(ActionId.HardSlash));
+  },
+  reducedBySkillSpeed: true,
+  preservesCombo: false,
+});
+
 const syphonStrike: CombatAction = createCombatAction({
   id: ActionId.SyphonStrike,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SyphonStrike, context, { potency: 120, comboPotency: 260, comboMana: 600 }));
+    dispatch(dmgEvent(ActionId.SyphonStrike, context, { potency: 220, comboPotency: 360, comboMana: 600 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.SyphonStrike));
@@ -187,12 +185,13 @@ const syphonStrike: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.SyphonStrike),
+  preservesCombo: false,
 });
 
 const souleater: CombatAction = createCombatAction({
   id: ActionId.Souleater,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Souleater, context, { potency: 120, comboPotency: 340, comboHealthPotency: 300 }));
+    dispatch(dmgEvent(ActionId.Souleater, context, { potency: 240, comboPotency: 460, comboHealthPotency: 300 }));
 
     if (context.comboed) {
       dispatch(addBlood(20));
@@ -200,25 +199,61 @@ const souleater: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.Souleater),
+  preservesCombo: false,
 });
 
 const bloodWeapon: CombatAction = createCombatAction({
   id: ActionId.BloodWeapon,
-  execute: (dispatch) => {
-    dispatch(ogcdLock());
-    dispatch(buff(StatusId.BloodWeapon));
-  },
-  entersCombat: false,
+  execute: () => {},
+  redirect: () => ActionId.Delirium,
 });
 
 const bloodspiller: CombatAction = createCombatAction({
   id: ActionId.Bloodspiller,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Bloodspiller, context, { potency: 500 }));
+    dispatch(dmgEvent(ActionId.Bloodspiller, context, { potency: 580 }));
   },
-  cost: (state) => (hasBuff(state, StatusId.Delirium) ? 0 : 50),
-  isUsable: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
-  isGlowing: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
+  isGlowing: (state) => blood(state) >= 50,
+  reducedBySkillSpeed: true,
+  redirect: (state) =>
+    hasBuff(state, StatusId.Delirium)
+      ? hasCombo(state, ActionId.Comeuppance)
+        ? ActionId.Comeuppance
+        : hasCombo(state, ActionId.Torcleaver)
+        ? ActionId.Torcleaver
+        : ActionId.ScarletDelirium
+      : ActionId.Bloodspiller,
+});
+
+const scarletDelirium: CombatAction = createCombatAction({
+  id: ActionId.ScarletDelirium,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ScarletDelirium, context, { potency: 600, mana: 200 }));
+    dispatch(removeBuffStack(StatusId.Delirium));
+    dispatch(combo(ActionId.ScarletDelirium));
+  },
+  isGlowing: () => true,
+  reducedBySkillSpeed: true,
+});
+
+const comeuppance: CombatAction = createCombatAction({
+  id: ActionId.Comeuppance,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Comeuppance, context, { potency: 700, comboMana: 200 }));
+    dispatch(removeBuffStack(StatusId.Delirium));
+    dispatch(combo(ActionId.Comeuppance));
+  },
+  isGlowing: () => true,
+  reducedBySkillSpeed: true,
+});
+
+const torcleaver: CombatAction = createCombatAction({
+  id: ActionId.Torcleaver,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Torcleaver, context, { potency: 800, comboMana: 200 }));
+    dispatch(removeBuffStack(StatusId.Delirium));
+  },
+  isGlowing: () => true,
   reducedBySkillSpeed: true,
 });
 
@@ -246,6 +281,7 @@ const delirium: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Delirium));
+    dispatch(buff(StatusId.BloodWeapon));
   },
   entersCombat: false,
 });
@@ -293,7 +329,20 @@ const livingShadow: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SimulacrumActive));
+    dispatch(buff(StatusId.Scorn));
   },
+  redirect: (state) => (hasBuff(state, StatusId.Scorn) ? ActionId.Disesteem : ActionId.LivingShadow),
+});
+
+const disesteem: CombatAction = createCombatAction({
+  id: ActionId.Disesteem,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Disesteem, context, { potency: 800 }));
+    dispatch(removeBuff(StatusId.Scorn));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.Scorn),
+  isGlowing: (state) => hasBuff(state, StatusId.Scorn),
+  reducedBySkillSpeed: true,
 });
 
 const shadowbringer: CombatAction = createCombatAction({
@@ -314,7 +363,7 @@ const unmend: CombatAction = createCombatAction({
   id: ActionId.Unmend,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Unmend, context, { potency: 150 }));
-    dispatch(modifyCooldown(10, -5000));
+    dispatch(modifyCooldown(8, -5000));
   },
   reducedBySpellSpeed: true,
 });
@@ -339,9 +388,15 @@ const saltAndDarkness: CombatAction = createCombatAction({
 
 const shadowWall: CombatAction = createCombatAction({
   id: ActionId.ShadowWall,
+  execute: () => {},
+  redirect: () => ActionId.ShadowedVigil,
+});
+
+const shadowedVigil: CombatAction = createCombatAction({
+  id: ActionId.ShadowedVigil,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.ShadowWall));
+    dispatch(buff(StatusId.ShadowedVigil));
   },
   entersCombat: false,
 });
@@ -403,12 +458,13 @@ const unleash: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Unleash));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const stalwartSoul: CombatAction = createCombatAction({
   id: ActionId.StalwartSoul,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StalwartSoul, context, { potency: 100, comboPotency: 140, comboMana: 600 }));
+    dispatch(dmgEvent(ActionId.StalwartSoul, context, { potency: 120, comboPotency: 160, comboMana: 600 }));
 
     if (context.comboed) {
       dispatch(addBlood(20));
@@ -416,16 +472,26 @@ const stalwartSoul: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.StalwartSoul),
+  preservesCombo: false,
 });
 
 const quietus: CombatAction = createCombatAction({
   id: ActionId.Quietus,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Quietus, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.Quietus, context, { potency: 240 }));
   },
-  cost: (state) => (hasBuff(state, StatusId.Delirium) ? 0 : 50),
-  isUsable: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
-  isGlowing: (state) => blood(state) >= 50 || hasBuff(state, StatusId.Delirium),
+  isGlowing: (state) => blood(state) >= 50,
+  reducedBySkillSpeed: true,
+  redirect: (state) => (hasBuff(state, StatusId.Delirium) ? ActionId.Impalement : ActionId.Quietus),
+});
+
+const impalement: CombatAction = createCombatAction({
+  id: ActionId.Impalement,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Impalement, context, { potency: 320, mana: 200 }));
+    dispatch(removeBuffStack(StatusId.Delirium));
+  },
+  isGlowing: () => true,
   reducedBySkillSpeed: true,
 });
 
@@ -456,18 +522,19 @@ const floodOfShadow: CombatAction = createCombatAction({
 });
 
 export const drkStatuses: CombatStatus[] = [
-  bloodWeaponStatus,
   deliriumStatus,
   darksideActiveStatus,
   simulacrumActiveStatus,
   gritStatus,
   saltedEarthStatus,
-  shadowWallStatus,
+  shadowedVigilStatus,
   darkMindStatus,
   theBlackestNightStatus,
   oblationStatus,
   darkMissionaryStatus,
   livingDeadStatus,
+  scornStatus,
+  bloodWeaponStatus,
 ];
 
 export const drk: CombatAction[] = [
@@ -500,6 +567,12 @@ export const drk: CombatAction[] = [
   abyssalDrain,
   floodofDarkness,
   floodOfShadow,
+  shadowedVigil,
+  scarletDelirium,
+  comeuppance,
+  torcleaver,
+  disesteem,
+  impalement,
 ];
 
-export const drkEpics = combineEpics(consumeBloodWeaponEpic, consumeDeliriumEpic, popTBNEpic, livingShadowEpic);
+export const drkEpics = combineEpics(consumeBloodWeaponEpic, popTBNEpic, livingShadowEpic);

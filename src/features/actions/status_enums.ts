@@ -212,7 +212,6 @@ export enum StatusId {
   WindsRumination = 3842,
   FiresRumination = 3843,
   Grit = 743,
-  ShadowWall = 747,
   DarkMind = 746,
   BloodWeapon = 742,
   LivingDead = 810,

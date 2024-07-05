@@ -614,6 +614,7 @@ const demonSlice: CombatAction = createCombatAction({
     dispatch(combo(ActionId.DemonSlice));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const demonSlaughter: CombatAction = createCombatAction({
@@ -627,6 +628,7 @@ const demonSlaughter: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.DemonSlaughter),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const fatedCircle: CombatAction = createCombatAction({

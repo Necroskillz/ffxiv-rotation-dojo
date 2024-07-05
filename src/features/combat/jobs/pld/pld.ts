@@ -14,7 +14,6 @@ import {
   removeBuff,
   resource,
   removeBuffStack,
-  gcd,
   debuff,
   addBuff,
   executeAction,
@@ -71,7 +70,18 @@ const atonementReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.AtonementReady,
   duration: 30,
   isHarmful: false,
-  initialStacks: 3,
+});
+
+const supplicationReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SupplicationReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const sepulchreReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SepulchreReady,
+  duration: 30,
+  isHarmful: false,
 });
 
 const requiescatStatus: CombatStatus = createCombatStatus({
@@ -118,8 +128,8 @@ const knightsBenedictionStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const sentinelStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Sentinel,
+const guardianStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Guardian,
   duration: 15,
   isHarmful: false,
 });
@@ -160,19 +170,32 @@ const fightOrFlightStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const bladeOfHonorReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.BladeofHonorReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const goringBladeReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.GoringBladeReady,
+  duration: 30,
+  isHarmful: false,
+});
+
 const fastBlade: CombatAction = createCombatAction({
   id: ActionId.FastBlade,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FastBlade, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.FastBlade, context, { potency: 220 }));
     dispatch(combo(ActionId.FastBlade));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const riotBlade: CombatAction = createCombatAction({
   id: ActionId.RiotBlade,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RiotBlade, context, { potency: 140, comboPotency: 300, comboMana: 1000 }));
+    dispatch(dmgEvent(ActionId.RiotBlade, context, { potency: 170, comboPotency: 330, comboMana: 1000 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.RiotBlade));
@@ -180,6 +203,7 @@ const riotBlade: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.RiotBlade),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const rageOfHalone: CombatAction = createCombatAction({
@@ -192,7 +216,7 @@ const rageOfHalone: CombatAction = createCombatAction({
 const royalAuthority: CombatAction = createCombatAction({
   id: ActionId.RoyalAuthority,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 140, comboPotency: 400 }));
+    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 180, comboPotency: 440 }));
 
     if (context.comboed) {
       dispatch(buff(StatusId.AtonementReady));
@@ -201,17 +225,18 @@ const royalAuthority: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.RoyalAuthority),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const holySpirit: CombatAction = createCombatAction({
   id: ActionId.HolySpirit,
   execute: (dispatch, getState, context) => {
     if (hasBuff(getState(), StatusId.DivineMight)) {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 450, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 470, healthPotency: 400, type: DamageType.Magical }));
     } else if (hasBuff(getState(), StatusId.Requiescat)) {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 650, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 670, healthPotency: 400, type: DamageType.Magical }));
     } else {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 350, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 370, healthPotency: 400, type: DamageType.Magical }));
     }
 
     if (hasBuff(getState(), StatusId.DivineMight)) {
@@ -228,23 +253,60 @@ const holySpirit: CombatAction = createCombatAction({
 
 const requiescat: CombatAction = createCombatAction({
   id: ActionId.Requiescat,
+  execute: () => {},
+  redirect: (state) => (hasBuff(state, StatusId.BladeofHonorReady) ? ActionId.BladeofHonor : ActionId.Imperator),
+});
+
+const imperator: CombatAction = createCombatAction({
+  id: ActionId.Imperator,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Requiescat, context, { potency: 320, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.Requiescat, context, { potency: 580, type: DamageType.Magical }));
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Requiescat));
     dispatch(buff(StatusId.ConfiteorReady));
   },
+  redirect: (state) => (hasBuff(state, StatusId.BladeofHonorReady) ? ActionId.BladeofHonor : ActionId.Imperator),
 });
 
 const atonement: CombatAction = createCombatAction({
   id: ActionId.Atonement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 400, mana: 400 }));
+    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 440, mana: 400 }));
 
-    dispatch(removeBuffStack(StatusId.AtonementReady));
+    dispatch(removeBuff(StatusId.AtonementReady));
+    dispatch(buff(StatusId.SupplicationReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.AtonementReady),
   isGlowing: (state) => hasBuff(state, StatusId.AtonementReady),
+  reducedBySkillSpeed: true,
+  redirect: (state) =>
+    hasBuff(state, StatusId.SupplicationReady)
+      ? ActionId.Supplication
+      : hasBuff(state, StatusId.SepulchreReady)
+      ? ActionId.Sepulchre
+      : ActionId.Atonement,
+});
+
+const supplication: CombatAction = createCombatAction({
+  id: ActionId.Supplication,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Supplication, context, { potency: 460, mana: 400 }));
+
+    dispatch(removeBuff(StatusId.SupplicationReady));
+    dispatch(buff(StatusId.SepulchreReady));
+  },
+  isGlowing: () => true,
+  reducedBySkillSpeed: true,
+});
+
+const sepulchre: CombatAction = createCombatAction({
+  id: ActionId.Sepulchre,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Sepulchre, context, { potency: 480, mana: 400 }));
+
+    dispatch(removeBuff(StatusId.SepulchreReady));
+  },
+  isGlowing: () => true,
   reducedBySkillSpeed: true,
 });
 
@@ -253,8 +315,8 @@ const confiteor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.Confiteor, context, {
-        potency: 420,
-        enhancedPotency: 920,
+        potency: 440,
+        enhancedPotency: 940,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -284,8 +346,8 @@ const bladeofFaith: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofFaith, context, {
-        potency: 220,
-        enhancedPotency: 720,
+        potency: 240,
+        enhancedPotency: 740,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -305,8 +367,8 @@ const bladeofTruth: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofTruth, context, {
-        potency: 320,
-        enhancedPotency: 820,
+        potency: 340,
+        enhancedPotency: 840,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -326,8 +388,8 @@ const bladeOfValor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofValor, context, {
-        potency: 420,
-        enhancedPotency: 920,
+        potency: 440,
+        enhancedPotency: 940,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -335,10 +397,27 @@ const bladeOfValor: CombatAction = createCombatAction({
     );
 
     dispatch(removeBuffStack(StatusId.Requiescat));
+    dispatch(buff(StatusId.BladeofHonorReady));
   },
   cost: (_, baseCost) => baseCost / 2,
   isGlowing: () => true,
   reducedBySpellSpeed: true,
+});
+
+const bladeOfHonor: CombatAction = createCombatAction({
+  id: ActionId.BladeofHonor,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(
+      dmgEvent(ActionId.BladeofHonor, context, {
+        potency: 1000,
+        type: DamageType.Magical,
+      })
+    );
+
+    dispatch(removeBuff(StatusId.BladeofHonorReady));
+  },
+  isGlowing: () => true,
 });
 
 const fightOrFlight: CombatAction = createCombatAction({
@@ -346,6 +425,7 @@ const fightOrFlight: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.FightorFlight));
+    dispatch(buff(StatusId.GoringBladeReady));
   },
   entersCombat: false,
 });
@@ -368,8 +448,10 @@ const goringBlade: CombatAction = createCombatAction({
   id: ActionId.GoringBlade,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.GoringBlade, context, { potency: 700 }));
-    dispatch(gcd({ reducedBySkillSpeed: true }));
+    dispatch(removeBuff(StatusId.GoringBladeReady));
   },
+  isUsable: (state) => hasBuff(state, StatusId.GoringBladeReady),
+  isGlowing: (state) => hasBuff(state, StatusId.GoringBladeReady),
 });
 
 const intervene: CombatAction = createCombatAction({
@@ -437,6 +519,7 @@ const totalEclipse: CombatAction = createCombatAction({
     dispatch(combo(ActionId.TotalEclipse));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const prominence: CombatAction = createCombatAction({
@@ -450,6 +533,7 @@ const prominence: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Prominence),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const holyCircle: CombatAction = createCombatAction({
@@ -504,9 +588,15 @@ const intervention: CombatAction = createCombatAction({
 
 const sentinel: CombatAction = createCombatAction({
   id: ActionId.Sentinel,
+  execute: () => {},
+  redirect: () => ActionId.Guardian,
+});
+
+const guardian: CombatAction = createCombatAction({
+  id: ActionId.Guardian,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Sentinel));
+    dispatch(buff(StatusId.Guardian));
   },
   entersCombat: false,
 });
@@ -574,7 +664,7 @@ export const pldStatuses: CombatStatus[] = [
   holySheltronStatus,
   knightsResolveStatus,
   knightsBenedictionStatus,
-  sentinelStatus,
+  guardianStatus,
   coverStatus,
   hallowedGroundStatus,
   bulwarkStatus,
@@ -585,6 +675,11 @@ export const pldStatuses: CombatStatus[] = [
   atonementReadyStatus,
   confiteorReadyStatus,
   circleOfScornStatus,
+  goringBladeReadyStatus,
+  bladeOfHonorReadyStatus,
+  guardianStatus,
+  supplicationReadyStatus,
+  sepulchreReadyStatus,
 ];
 
 export const pld: CombatAction[] = [
@@ -622,6 +717,11 @@ export const pld: CombatAction[] = [
   divineVeil,
   clemency,
   passageOfArms,
+  supplication,
+  sepulchre,
+  guardian,
+  imperator,
+  bladeOfHonor,
 ];
 
 export const pldEpics = combineEpics(passageOfArmsStopEpic, autoAttackEpic);

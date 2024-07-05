@@ -531,6 +531,7 @@ const scattergun: CombatAction = createCombatAction({
     dispatch(addHeat(10));
   },
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const bioblaster: CombatAction = createCombatAction({

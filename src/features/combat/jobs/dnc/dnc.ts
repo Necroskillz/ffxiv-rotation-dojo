@@ -794,6 +794,7 @@ const windmill: CombatAction = createCombatAction({
   isGlowing: () => false,
   redirect: (state) => (isDancing(state) ? ActionId.Emboite : ActionId.Windmill),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const bladeshower: CombatAction = createCombatAction({
@@ -812,6 +813,7 @@ const bladeshower: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.Bladeshower),
   redirect: (state) => (isDancing(state) ? ActionId.Entrechat : ActionId.Bladeshower),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const risingWindmill: CombatAction = createCombatAction({
