@@ -437,7 +437,7 @@ const decimate: CombatAction = createCombatAction({
 const chaoticCyclone: CombatAction = createCombatAction({
   id: ActionId.ChaoticCyclone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 320 }));
+    dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 300 }));
 
     dispatch(removeBuff(StatusId.NascentChaos));
     dispatch(modifyCooldown(20, -5000));
