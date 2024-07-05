@@ -75,6 +75,10 @@ const cleanupEnshrouded: Epic<any, any, RootState> = (action$, state$) =>
         actions.push(removeBuff(StatusId.EnhancedVoidReaping));
       }
 
+      if (hasBuff(state, StatusId.Oblatio)) {
+        actions.push(removeBuff(StatusId.Oblatio));
+      }
+
       actions.push(removeLemure(lemure(state)));
       actions.push(removeVoid(voidShroud(state)));
 
@@ -103,10 +107,10 @@ const removeSoulReaverEpic: Epic<any, any, RootState> = (action$, state$) =>
         ),
         withLatestFrom(state$),
         map(([, state]) => state),
-        takeWhile((state) => hasBuff(state, StatusId.SoulReaver))
+        takeWhile((state) => hasBuff(state, StatusId.SoulReaver) || hasBuff(state, StatusId.Executioner))
       )
     ),
-    map(() => removeBuff(StatusId.SoulReaver))
+    switchMap(() => of(removeBuff(StatusId.SoulReaver), removeBuff(StatusId.Executioner)))
   );
 
 const consumeCircleOfSacrificeEpic: Epic<any, any, RootState> = (action$) =>
@@ -242,10 +246,40 @@ const crestofTimeBorrowedStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const oblatioStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Oblatio,
+  duration: 30,
+  isHarmful: false,
+});
+
+const perfectioOccultaStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PerfectioOcculta,
+  duration: 30,
+  isHarmful: false,
+});
+
+const perfectioParataStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PerfectioParata,
+  duration: 30,
+  isHarmful: false,
+});
+
+const idealHostStatus: CombatStatus = createCombatStatus({
+  id: StatusId.IdealHost,
+  duration: 30,
+  isHarmful: false,
+});
+
+const executionerStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Executioner,
+  duration: 30,
+  isHarmful: false,
+});
+
 const slice: CombatAction = createCombatAction({
   id: ActionId.Slice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Slice, context, { potency: 320 }));
+    dispatch(dmgEvent(ActionId.Slice, context, { potency: 420 }));
     dispatch(combo(ActionId.Slice));
 
     dispatch(addSoul(10));
@@ -257,7 +291,7 @@ const slice: CombatAction = createCombatAction({
 const waxingSlice: CombatAction = createCombatAction({
   id: ActionId.WaxingSlice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.WaxingSlice, context, { potency: 160, comboPotency: 400 }));
+    dispatch(dmgEvent(ActionId.WaxingSlice, context, { potency: 260, comboPotency: 500 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.WaxingSlice));
@@ -272,7 +306,7 @@ const waxingSlice: CombatAction = createCombatAction({
 const infernalSlice: CombatAction = createCombatAction({
   id: ActionId.InfernalSlice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.InfernalSlice, context, { potency: 180, comboPotency: 500 }));
+    dispatch(dmgEvent(ActionId.InfernalSlice, context, { potency: 280, comboPotency: 600 }));
 
     if (context.comboed) {
       dispatch(addSoul(10));
@@ -297,6 +331,7 @@ const harpe: CombatAction = createCombatAction({
   id: ActionId.Harpe,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Harpe, context, { potency: 300 }));
+    dispatch(addSoul(10));
 
     if (hasBuff(getState(), StatusId.EnhancedHarpe)) {
       dispatch(removeBuff(StatusId.EnhancedHarpe));
@@ -359,7 +394,7 @@ const bloodStalk: CombatAction = createCombatAction({
 const unveiledGallows: CombatAction = createCombatAction({
   id: ActionId.UnveiledGallows,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.UnveiledGallows, context, { potency: 400 }));
+    dispatch(dmgEvent(ActionId.UnveiledGallows, context, { potency: 440 }));
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
@@ -369,7 +404,7 @@ const unveiledGallows: CombatAction = createCombatAction({
 const unveiledGibbet: CombatAction = createCombatAction({
   id: ActionId.UnveiledGibbet,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.UnveiledGibbet, context, { potency: 400 }));
+    dispatch(dmgEvent(ActionId.UnveiledGibbet, context, { potency: 440 }));
     dispatch(ogcdLock());
     dispatch(buff(StatusId.SoulReaver, { stacks: 1 }));
   },
@@ -391,10 +426,10 @@ const gibbet: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.Gibbet, context, {
-        potency: 400,
-        rearPotency: 460,
-        enhancedPotency: 460,
-        rearEnhancedPotency: 520,
+        potency: 500,
+        flankPotency: 560,
+        enhancedPotency: 560,
+        flankEnhancedPotency: 620,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedGibbet),
       })
     );
@@ -413,7 +448,12 @@ const gibbet: CombatAction = createCombatAction({
   isGlowing: (state) =>
     (hasBuff(state, StatusId.SoulReaver) && !hasBuff(state, StatusId.EnhancedGallows)) || hasBuff(state, StatusId.EnhancedGibbet),
   reducedBySkillSpeed: true,
-  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.VoidReaping : ActionId.Gibbet),
+  redirect: (state) =>
+    hasBuff(state, StatusId.Enshrouded)
+      ? ActionId.VoidReaping
+      : hasBuff(state, StatusId.Executioner)
+      ? ActionId.ExecutionersGibbet
+      : ActionId.Gibbet,
 });
 
 const gallows: CombatAction = createCombatAction({
@@ -421,10 +461,10 @@ const gallows: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.Gallows, context, {
-        potency: 400,
-        flankPotency: 460,
-        enhancedPotency: 460,
-        flankEnhancedPotency: 520,
+        potency: 500,
+        rearPotency: 560,
+        enhancedPotency: 560,
+        rearEnhancedPotency: 620,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedGallows),
       })
     );
@@ -443,7 +483,66 @@ const gallows: CombatAction = createCombatAction({
   isGlowing: (state) =>
     (hasBuff(state, StatusId.SoulReaver) && !hasBuff(state, StatusId.EnhancedGibbet)) || hasBuff(state, StatusId.EnhancedGallows),
   reducedBySkillSpeed: true,
-  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.CrossReaping : ActionId.Gallows),
+  redirect: (state) =>
+    hasBuff(state, StatusId.Enshrouded)
+      ? ActionId.CrossReaping
+      : hasBuff(state, StatusId.Executioner)
+      ? ActionId.ExecutionersGallows
+      : ActionId.Gallows,
+});
+
+const executionersGibbet: CombatAction = createCombatAction({
+  id: ActionId.ExecutionersGibbet,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.ExecutionersGibbet, context, {
+        potency: 700,
+        flankPotency: 760,
+        enhancedPotency: 760,
+        flankEnhancedPotency: 820,
+        isEnhanced: hasBuff(getState(), StatusId.EnhancedGibbet),
+      })
+    );
+
+    dispatch(removeBuffStack(StatusId.Executioner));
+
+    if (hasBuff(getState(), StatusId.EnhancedGibbet)) {
+      dispatch(removeBuff(StatusId.EnhancedGibbet));
+    }
+
+    dispatch(buff(StatusId.EnhancedGallows));
+
+    dispatch(addShroud(10));
+  },
+  isGlowing: (state) => !hasBuff(state, StatusId.EnhancedGallows) || hasBuff(state, StatusId.EnhancedGibbet),
+  reducedBySkillSpeed: true,
+});
+
+const executionersGallows: CombatAction = createCombatAction({
+  id: ActionId.ExecutionersGallows,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.ExecutionersGallows, context, {
+        potency: 700,
+        rearPotency: 760,
+        enhancedPotency: 760,
+        rearEnhancedPotency: 820,
+        isEnhanced: hasBuff(getState(), StatusId.EnhancedGallows),
+      })
+    );
+
+    dispatch(removeBuffStack(StatusId.Executioner));
+
+    if (hasBuff(getState(), StatusId.EnhancedGallows)) {
+      dispatch(removeBuff(StatusId.EnhancedGallows));
+    }
+
+    dispatch(buff(StatusId.EnhancedGibbet));
+
+    dispatch(addShroud(10));
+  },
+  isGlowing: (state) => !hasBuff(state, StatusId.EnhancedGibbet) || hasBuff(state, StatusId.EnhancedGallows),
+  reducedBySkillSpeed: true,
 });
 
 const gluttony: CombatAction = createCombatAction({
@@ -451,10 +550,21 @@ const gluttony: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Gluttony, context, { potency: 520 }));
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.SoulReaver, { stacks: 2 }));
+    dispatch(buff(StatusId.Executioner, { stacks: 2 }));
   },
   isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
   isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && soul(state) >= 50,
+  redirect: (state) => (hasBuff(state, StatusId.Oblatio) ? ActionId.Sacrificium : ActionId.Gluttony),
+});
+
+const sacrificium: CombatAction = createCombatAction({
+  id: ActionId.Sacrificium,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Sacrificium, context, { potency: 530 }));
+    dispatch(ogcdLock());
+    dispatch(removeBuff(StatusId.Oblatio));
+  },
+  isGlowing: () => true,
 });
 
 const enshround: CombatAction = createCombatAction({
@@ -462,10 +572,13 @@ const enshround: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Enshrouded));
+    dispatch(buff(StatusId.Oblatio));
+    dispatch(removeBuff(StatusId.IdealHost));
     dispatch(addLemure(5));
   },
+  cost: (state, baseCost) => (hasBuff(state, StatusId.IdealHost) ? 0 : baseCost),
   isUsable: (state) => !hasBuff(state, StatusId.Enshrouded),
-  isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && shroud(state) >= 50,
+  isGlowing: (state) => !hasBuff(state, StatusId.Enshrouded) && (shroud(state) >= 50 || hasBuff(state, StatusId.IdealHost)),
 });
 
 const crossReaping: CombatAction = createCombatAction({
@@ -473,7 +586,7 @@ const crossReaping: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.CrossReaping, context, {
-        potency: 460,
+        potency: 500,
         enhancedPotency: 520,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedCrossReaping),
       })
@@ -497,7 +610,7 @@ const voidReaping: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.VoidReaping, context, {
-        potency: 460,
+        potency: 500,
         enhancedPotency: 520,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedVoidReaping),
       })
@@ -519,7 +632,7 @@ const voidReaping: CombatAction = createCombatAction({
 const lemuresSlice: CombatAction = createCombatAction({
   id: ActionId.LemuresSlice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.LemuresSlice, context, { potency: 240 }));
+    dispatch(dmgEvent(ActionId.LemuresSlice, context, { potency: 280 }));
     dispatch(ogcdLock());
   },
   isGlowing: (state) => voidShroud(state) >= 2,
@@ -541,8 +654,9 @@ const plentifulHarvest: CombatAction = createCombatAction({
     dispatch(
       dmgEvent(ActionId.PlentifulHarvest, context, { potency: 720 + 0.125 * buffStacks(getState(), StatusId.ImmortalSacrifice) * 280 })
     );
-    dispatch(addShroud(50));
     dispatch(removeBuff(StatusId.ImmortalSacrifice));
+    dispatch(buff(StatusId.IdealHost));
+    dispatch(buff(StatusId.PerfectioOcculta));
   },
   isUsable: (state) =>
     !hasBuff(state, StatusId.BloodsownCircle) && hasBuff(state, StatusId.ImmortalSacrifice) && !hasBuff(state, StatusId.Enshrouded),
@@ -554,9 +668,27 @@ const communio: CombatAction = createCombatAction({
   id: ActionId.Communio,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Communio, context, { potency: 1100 }));
-    dispatch(removeLemure(lemure(getState())));
+
+    const state = getState();
+
+    dispatch(removeLemure(lemure(state)));
+    if (hasBuff(state, StatusId.PerfectioOcculta)) {
+      dispatch(removeBuff(StatusId.PerfectioOcculta));
+      dispatch(buff(StatusId.PerfectioParata));
+    }
   },
   isGlowing: (state) => lemure(state) === 1,
+  reducedBySkillSpeed: true,
+  redirect: (state) => (hasBuff(state, StatusId.PerfectioParata) ? ActionId.Perfectio : ActionId.Communio),
+});
+
+const perfectio: CombatAction = createCombatAction({
+  id: ActionId.Perfectio,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Perfectio, context, { potency: 1200 }));
+    dispatch(removeBuff(StatusId.PerfectioParata));
+  },
+  isGlowing: () => true,
   reducedBySkillSpeed: true,
 });
 
@@ -574,7 +706,7 @@ const soulsow: CombatAction = createCombatAction({
 const harvestMoon: CombatAction = createCombatAction({
   id: ActionId.HarvestMoon,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HarvestMoon, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.HarvestMoon, context, { potency: 800 }));
     dispatch(removeBuff(StatusId.Soulsow));
   },
   isGlowing: (state) => hasBuff(state, StatusId.Soulsow),
@@ -594,7 +726,7 @@ const whorlOfDeath: CombatAction = createCombatAction({
 const spinningScythe: CombatAction = createCombatAction({
   id: ActionId.SpinningScythe,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SpinningScythe, context, { potency: 140 }));
+    dispatch(dmgEvent(ActionId.SpinningScythe, context, { potency: 160 }));
 
     dispatch(combo(ActionId.SpinningScythe));
     dispatch(addSoul(10));
@@ -606,7 +738,7 @@ const spinningScythe: CombatAction = createCombatAction({
 const nightmareScythe: CombatAction = createCombatAction({
   id: ActionId.NightmareScythe,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.NightmareScythe, context, { potency: 120, comboPotency: 180 }));
+    dispatch(dmgEvent(ActionId.NightmareScythe, context, { potency: 140, comboPotency: 200 }));
 
     if (context.comboed) {
       dispatch(addSoul(10));
@@ -639,7 +771,24 @@ const guillotine: CombatAction = createCombatAction({
   isUsable: (state) => hasBuff(state, StatusId.SoulReaver),
   isGlowing: (state) => hasBuff(state, StatusId.SoulReaver),
   reducedBySkillSpeed: true,
-  redirect: (state) => (hasBuff(state, StatusId.Enshrouded) ? ActionId.GrimReaping : ActionId.Guillotine),
+  redirect: (state) =>
+    hasBuff(state, StatusId.Enshrouded)
+      ? ActionId.GrimReaping
+      : hasBuff(state, StatusId.Executioner)
+      ? ActionId.ExecutionersGuillotine
+      : ActionId.Guillotine,
+});
+
+const executionersGuillotine: CombatAction = createCombatAction({
+  id: ActionId.ExecutionersGuillotine,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ExecutionersGuillotine, context, { potency: 300 }));
+
+    dispatch(removeBuffStack(StatusId.Executioner));
+    dispatch(addShroud(10));
+  },
+  isGlowing: () => true,
+  reducedBySkillSpeed: true,
 });
 
 const grimReaping: CombatAction = createCombatAction({
@@ -698,6 +847,11 @@ export const rprStatuses: CombatStatus[] = [
   bloodsownCircleStatus,
   circleOfSacrificeStatus,
   soulsowStatus,
+  oblatioStatus,
+  perfectioOccultaStatus,
+  perfectioParataStatus,
+  executionerStatus,
+  idealHostStatus,
 ];
 
 export const rpr: CombatAction[] = [
@@ -734,6 +888,11 @@ export const rpr: CombatAction[] = [
   arcaneCrest,
   unveiledGallows,
   unveiledGibbet,
+  executionersGallows,
+  executionersGibbet,
+  executionersGuillotine,
+  sacrificium,
+  perfectio,
 ];
 
 export const rprEpics = combineEpics(
