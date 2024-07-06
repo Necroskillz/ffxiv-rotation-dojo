@@ -21,8 +21,8 @@ import { PowderGauge } from '../combat/jobs/gnb/PowderGauge';
 import { HeatGauge } from '../combat/jobs/mch/HeatGauge';
 import { ChakraGauge } from '../combat/jobs/mnk/ChakraGauge';
 import { MastersGauge } from '../combat/jobs/mnk/MastersGauge';
-import { HutonGauge } from '../combat/jobs/nin/HutonGauge';
 import { NinkiGauge } from '../combat/jobs/nin/NinkiGauge';
+import { KazematoiGauge } from '../combat/jobs/nin/KazematoiGauge';
 import { OathGauge } from '../combat/jobs/pld/OathGauge';
 import { BalanceGauge } from '../combat/jobs/rdm/BalanceGauge';
 import { DeathGauge } from '../combat/jobs/rpr/DeathGauge';
@@ -79,7 +79,7 @@ export class Hud extends React.Component {
         <BeastGauge />
         <SongGauge />
         <NinkiGauge />
-        <HutonGauge />
+        <KazematoiGauge />
         <DragonGauge />
         <BalanceGauge />
         <SenGauge />

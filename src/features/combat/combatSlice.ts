@@ -42,9 +42,7 @@ export function recastTime(state: RootState, time: number, type: string, subType
       typeZ = armysMuse ? museMap[armyRepertoire] : armysPaeonActive ? armyRepertoire * 4 : 0;
       break;
     case 'NIN':
-      const huton = selectBuff(state, StatusId.HutonActive);
-
-      typeZ = huton ? 15 : 0;
+      typeZ = 15;
       break;
     case 'SAM':
       const fuka = selectBuff(state, StatusId.Fuka);
@@ -160,6 +158,7 @@ const initialState: CombatState = {
     armyRepertoire: 0,
     ninki: 0,
     mudra: 0,
+    kazematoi: 0,
     firstmindsFocus: 0,
     whiteMana: 0,
     blackMana: 0,
@@ -420,6 +419,7 @@ export const selectArmyCoda = (state: RootState) => state.combat.resources.armyC
 export const selectWandererRepertoire = (state: RootState) => state.combat.resources.wandererRepertoire;
 export const selectArmyRepertoire = (state: RootState) => state.combat.resources.armyRepertoire;
 export const selectNinki = (state: RootState) => state.combat.resources.ninki;
+export const selectKazematoi = (state: RootState) => state.combat.resources.kazematoi;
 export const selectFirstmindsFocus = (state: RootState) => state.combat.resources.firstmindsFocus;
 export const selectBlackMana = (state: RootState) => state.combat.resources.blackMana;
 export const selectWhiteMana = (state: RootState) => state.combat.resources.whiteMana;
@@ -540,7 +540,7 @@ export const removeDebuff =
   };
 
 export const extendableBuff =
-(id: StatusId, duration?: number): AppThunk =>
+  (id: StatusId, duration?: number): AppThunk =>
   (dispatch, getState) => {
     statuses[id].extend(dispatch as any, getState, { duration });
   };
@@ -795,8 +795,9 @@ export const removeResourceFactory =
   (amount: number): AppThunk =>
   (dispatch, getState) => {
     const resources = selectResources(getState());
+    const value = Math.max(resources[resourceType] - amount, 0);
 
-    dispatch(setResource({ resourceType, amount: resources[resourceType] - amount }));
+    dispatch(setResource({ resourceType, amount: value }));
   };
 
 export const addMana = addResourceFactory('mana', 10000);
@@ -832,6 +833,8 @@ export const setWandererCoda = setResourceFactory('wandererCoda');
 export const setMageCoda = setResourceFactory('mageCoda');
 export const setArmyCoda = setResourceFactory('armyCoda');
 export const addNinki = addResourceFactory('ninki', 100);
+export const addKazematoi = addResourceFactory('kazematoi', 5);
+export const removeKazematoi = removeResourceFactory('kazematoi');
 export const setMudra = setResourceFactory('mudra');
 export const addFirstmindsFocus = addResourceFactory('firstmindsFocus', 2);
 export const setFirstmindsFocus = setResourceFactory('firstmindsFocus');

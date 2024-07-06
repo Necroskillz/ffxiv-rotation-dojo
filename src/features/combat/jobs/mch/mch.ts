@@ -71,7 +71,19 @@ const removeFlamethrowerEpic: Epic<any, any, RootState> = (action$, state$) =>
 
 const removeOverheatedEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill'),
+    filter(
+      (a) =>
+        a.type === executeAction.type &&
+        [
+          ActionId.BlazingShot,
+          ActionId.AutoCrossbow,
+          ActionId.Drill,
+          ActionId.AirAnchor,
+          ActionId.HeatedSplitShot,
+          ActionId.HeatedSlugShot,
+          ActionId.HeatedCleanShot,
+        ].includes(a.payload.id)
+    ),
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => hasBuff(state, StatusId.Overheated)),
@@ -80,7 +92,7 @@ const removeOverheatedEpic: Epic<any, any, RootState> = (action$, state$) =>
 
 const stackWildfireEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill'),
+    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill' && a.payload.id !== ActionId.Flamethrower),
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => hasBuff(state, StatusId.WildfireBuff)),

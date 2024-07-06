@@ -10,6 +10,7 @@ import {
   addBuff,
   addBuffStack,
   addEvent,
+  addKazematoi,
   addNinki,
   buff,
   buffStacks,
@@ -20,7 +21,6 @@ import {
   event,
   EventStatus,
   executeAction,
-  extendableBuff,
   gcd,
   hasBuff,
   hasCombo,
@@ -31,6 +31,7 @@ import {
   removeBuffAction,
   removeBuffStack,
   removeDebuff,
+  removeKazematoi,
   resource,
   setCombat,
   setMudra,
@@ -42,6 +43,10 @@ function ninki(state: RootState) {
 
 function mudra(state: RootState) {
   return resource(state, 'mudra');
+}
+
+function kazematoi(state: RootState) {
+  return resource(state, 'kazematoi');
 }
 
 const mudraMap: Record<number, number> = { [ActionId.Ten]: 1, [ActionId.Chi]: 2, [ActionId.Jin]: 3, [ActionId.RabbitMedium]: 4 };
@@ -114,6 +119,7 @@ const bunshinDamageEpic: Epic<any, any, RootState> = (action$, state$) =>
     map(([a, state]) =>
       addEvent({
         ...a.payload,
+        potency: [ActionId.DeathBlossom, ActionId.HakkeMujinsatsu].includes(a.payload.actionId) ? 80 : 160,
         statuses: [...a.payload.statuses, { id: StatusId.Bunshin, stacks: buffStacks(state, StatusId.Bunshin) }],
       })
     )
@@ -170,7 +176,7 @@ const endTenChiJinEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(() =>
       action$.pipe(
         withLatestFrom(state$),
-        filter(([aa, state]) => aa.type === executeAction.type && mudra(state) > 100),
+        filter(([aa, state]) => aa.type === executeAction.type && (mudra(state) > 100 || getActionById(aa.payload.id).type === 'Movement')),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, StatusId.TenChiJin))
       )
@@ -216,16 +222,8 @@ const dotonHeavyStatus: CombatStatus = createCombatStatus({
   isHarmful: true,
 });
 
-const hutonActiveStatus: CombatStatus = createCombatStatus({
-  id: StatusId.HutonActive,
-  duration: 60,
-  isHarmful: false,
-  isVisible: false,
-  maxDuration: 60,
-});
-
-const vulnerabilityUpStatus: CombatStatus = createCombatStatus({
-  id: StatusId.VulnerabilityUp,
+const dokumoriStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Dokumori,
   duration: 20,
   isHarmful: true,
 });
@@ -270,8 +268,8 @@ const dotonStatus: CombatStatus = createCombatStatus({
   ticksImmediately: true,
 });
 
-const suitonStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Suiton,
+const shadowWalkerStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ShadowWalker,
   duration: 20,
   isHarmful: false,
 });
@@ -282,8 +280,8 @@ const hiddenStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const trickAttackStatus: CombatStatus = createCombatStatus({
-  id: StatusId.TrickAttack,
+const kunaisBaneStatus: CombatStatus = createCombatStatus({
+  id: StatusId.KunaisBane,
   duration: 15,
   isHarmful: true,
 });
@@ -306,22 +304,35 @@ const shadeShiftStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const tenriJindoReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TenriJindoReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const higiStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Higi,
+  duration: 30,
+  isHarmful: false,
+});
+
 const spinningEdge: CombatAction = createCombatAction({
   id: ActionId.SpinningEdge,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SpinningEdge, context, { potency: 220 }));
+    dispatch(dmgEvent(ActionId.SpinningEdge, context, { potency: 300 }));
     dispatch(combo(ActionId.SpinningEdge));
 
     dispatch(addNinki(5));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const gustSlash: CombatAction = createCombatAction({
   id: ActionId.GustSlash,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.GustSlash, context, { potency: 160, comboPotency: 320 }));
+    dispatch(dmgEvent(ActionId.GustSlash, context, { potency: 220, comboPotency: 380 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.GustSlash));
@@ -331,12 +342,26 @@ const gustSlash: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.GustSlash),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const aeolianEdge: CombatAction = createCombatAction({
   id: ActionId.AeolianEdge,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.AeolianEdge, context, { potency: 140, rearPotency: 200, comboPotency: 380, rearComboPotency: 440 }));
+  execute: (dispatch, getState, context) => {
+    const bonus = kazematoi(getState()) > 0 ? 100 : 0;
+
+    if (bonus) {
+      dispatch(removeKazematoi(1));
+    }
+
+    dispatch(
+      dmgEvent(ActionId.AeolianEdge, context, {
+        potency: 200 + bonus,
+        rearPotency: 260 + bonus,
+        comboPotency: 380 + bonus,
+        rearComboPotency: 440 + bonus,
+      })
+    );
 
     if (context.comboed) {
       dispatch(addNinki(15));
@@ -345,32 +370,38 @@ const aeolianEdge: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.AeolianEdge),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const armorCrush: CombatAction = createCombatAction({
   id: ActionId.ArmorCrush,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 140, comboPotency: 200, flankPotency: 360, flankComboPotency: 420 }));
+    dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 220, comboPotency: 280, flankPotency: 420, flankComboPotency: 480 }));
 
     if (context.comboed) {
       dispatch(addNinki(15));
-
-      if (hasBuff(getState(), StatusId.HutonActive)) {
-        dispatch(extendableBuff(StatusId.HutonActive, 30));
-      }
+      dispatch(addKazematoi(2));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.ArmorCrush),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const mug: CombatAction = createCombatAction({
   id: ActionId.Mug,
+  execute: () => {},
+  redirect: () => ActionId.Dokumori,
+});
+
+const dokumori: CombatAction = createCombatAction({
+  id: ActionId.Dokumori,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Mug, context, { potency: 150 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.VulnerabilityUp));
+    dispatch(dmgEvent(ActionId.Dokumori, context, { potency: 300 }));
+    dispatch(debuff(StatusId.Dokumori));
+    dispatch(buff(StatusId.Higi));
     dispatch(addNinki(40));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -401,13 +432,10 @@ const bunshin: CombatAction = createCombatAction({
 
 const phantomKamaitachi: CombatAction = createCombatAction({
   id: ActionId.PhantomKamaitachi,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.PhantomKamaitachi, context, { potency: 600 }));
     dispatch(removeBuff(StatusId.PhantomKamaitachiReady));
     dispatch(addNinki(10));
-    if (hasBuff(getState(), StatusId.HutonActive)) {
-      dispatch(extendableBuff(StatusId.HutonActive, 10));
-    }
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGlowing: () => true,
@@ -425,7 +453,7 @@ const ten: CombatAction = createCombatAction({
   },
   maxCharges: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0 : 2),
   cooldown: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0.5 : 20),
-  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 9),
+  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 4),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGcdAction: true,
   entersCombat: false,
@@ -460,7 +488,7 @@ const chi: CombatAction = createCombatAction({
   },
   maxCharges: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0 : 2),
   cooldown: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0.5 : 20),
-  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 9),
+  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 4),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGcdAction: true,
   entersCombat: false,
@@ -495,7 +523,7 @@ const jin: CombatAction = createCombatAction({
   },
   maxCharges: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0 : 2),
   cooldown: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 0.5 : 20),
-  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 9),
+  cooldownGroup: (state) => (hasBuff(state, StatusId.Mudra) || hasBuff(state, StatusId.Kassatsu) ? 58 : 4),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGcdAction: true,
   entersCombat: false,
@@ -580,7 +608,7 @@ const ninjutsu: CombatAction = createCombatAction({
 const fumaShuriken: CombatAction = createCombatAction({
   id: ActionId.FumaShuriken,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.FumaShuriken, context, { potency: 450 }));
+    dispatch(dmgEvent(ActionId.FumaShuriken, context, { potency: 500 }));
     dispatch(gcd({ time: 1500 }));
 
     if (hasBuff(getState(), StatusId.TenChiJin)) {
@@ -596,7 +624,7 @@ const fumaShuriken: CombatAction = createCombatAction({
 const fumaShurikenChi: CombatAction = createCombatAction({
   id: ActionId.FumaShurikenChi,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FumaShurikenChi, context, { potency: 450 }));
+    dispatch(dmgEvent(ActionId.FumaShurikenChi, context, { potency: 500 }));
     dispatch(addMudra(ActionId.Chi));
   },
   isGcdAction: true,
@@ -605,7 +633,7 @@ const fumaShurikenChi: CombatAction = createCombatAction({
 const fumaShurikenJin: CombatAction = createCombatAction({
   id: ActionId.FumaShurikenJin,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FumaShurikenJin, context, { potency: 450 }));
+    dispatch(dmgEvent(ActionId.FumaShurikenJin, context, { potency: 500 }));
     dispatch(addMudra(ActionId.Jin));
   },
   isGcdAction: true,
@@ -640,7 +668,7 @@ const katon: CombatAction = createCombatAction({
 const raiton: CombatAction = createCombatAction({
   id: ActionId.Raiton,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Raiton, context, { potency: 650, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.Raiton, context, { potency: 740, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
     dispatch(addBuffStack(StatusId.RaijuReady));
 
@@ -657,7 +685,7 @@ const raiton: CombatAction = createCombatAction({
 const fleetingRaiju: CombatAction = createCombatAction({
   id: ActionId.FleetingRaiju,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FleetingRaiju, context, { potency: 560, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.FleetingRaiju, context, { potency: 640, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.RaijuReady));
     dispatch(addNinki(5));
   },
@@ -669,7 +697,7 @@ const fleetingRaiju: CombatAction = createCombatAction({
 const forkedRaiju: CombatAction = createCombatAction({
   id: ActionId.ForkedRaiju,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ForkedRaiju, context, { potency: 560, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.ForkedRaiju, context, { potency: 640, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.RaijuReady));
     dispatch(addNinki(5));
   },
@@ -683,6 +711,7 @@ const hyoton: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.Hyoton, context, { potency: 350, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
+    dispatch(debuff(StatusId.Bind, { duration: 15 }));
 
     if (hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(addMudra(ActionId.Jin));
@@ -696,9 +725,10 @@ const hyoton: CombatAction = createCombatAction({
 
 const huton: CombatAction = createCombatAction({
   id: ActionId.Huton,
-  execute: (dispatch, getState) => {
+  execute: (dispatch, getState, context) => {
+    dispatch(dmgEvent(ActionId.Huton, context, { potency: 240, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.HutonActive));
+    dispatch(buff(StatusId.ShadowWalker));
 
     if (!hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(removeBuff(StatusId.Mudra));
@@ -713,7 +743,7 @@ const huton: CombatAction = createCombatAction({
 
 const doton: CombatAction = createCombatAction({
   id: ActionId.Doton,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, getState) => {
     dispatch(gcd({ time: 1500 }));
     dispatch(buff(StatusId.Doton));
 
@@ -735,9 +765,9 @@ const doton: CombatAction = createCombatAction({
 const suiton: CombatAction = createCombatAction({
   id: ActionId.Suiton,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Suiton, context, { potency: 500, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.Suiton, context, { potency: 580, type: DamageType.Magical }));
     dispatch(gcd({ time: 1500 }));
-    dispatch(buff(StatusId.Suiton));
+    dispatch(buff(StatusId.ShadowWalker));
 
     if (!hasBuff(getState(), StatusId.TenChiJin)) {
       dispatch(removeBuff(StatusId.Mudra));
@@ -779,7 +809,7 @@ const hide: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Hidden));
     dispatch(removeBuff(StatusId.Doton));
-    dispatch(modifyCooldown(9, -40000));
+    dispatch(modifyCooldown(4, -40000));
   },
   entersCombat: false,
   isUsable: (state) => !inCombat(state) && !hasBuff(state, StatusId.TenChiJin),
@@ -787,13 +817,19 @@ const hide: CombatAction = createCombatAction({
 
 const trickAttack: CombatAction = createCombatAction({
   id: ActionId.TrickAttack,
+  execute: () => {},
+  redirect: () => ActionId.KunaisBane,
+});
+
+const kunaisBane: CombatAction = createCombatAction({
+  id: ActionId.KunaisBane,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.TrickAttack, context, { potency: 300, rearPotency: 400 }));
     dispatch(ogcdLock());
-    dispatch(debuff(StatusId.TrickAttack));
-    dispatch(removeBuff(StatusId.Suiton));
+    dispatch(dmgEvent(ActionId.KunaisBane, context, { potency: 600 }));
+    dispatch(debuff(StatusId.KunaisBane));
+    dispatch(removeBuff(StatusId.ShadowWalker));
   },
-  isUsable: (state) => (hasBuff(state, StatusId.Hidden) || hasBuff(state, StatusId.Suiton)) && !hasBuff(state, StatusId.TenChiJin),
+  isUsable: (state) => (hasBuff(state, StatusId.Hidden) || hasBuff(state, StatusId.ShadowWalker)) && !hasBuff(state, StatusId.TenChiJin),
 });
 
 const tenChiJin: CombatAction = createCombatAction({
@@ -801,40 +837,78 @@ const tenChiJin: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.TenChiJin));
+    dispatch(buff(StatusId.TenriJindoReady));
     dispatch(setMudra(0));
     dispatch(removeBuff(StatusId.Mudra));
   },
   isUsable: (state) => !hasBuff(state, StatusId.Kassatsu),
+  redirect: (state) => (hasBuff(state, StatusId.TenriJindoReady) ? ActionId.TenriJindo : ActionId.TenChiJin),
+});
+
+const tenriJindo: CombatAction = createCombatAction({
+  id: ActionId.TenriJindo,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(
+      dmgEvent(ActionId.TenriJindo, context, {
+        potency: 1000,
+        type: DamageType.Magical,
+      })
+    );
+    dispatch(removeBuff(StatusId.TenriJindoReady));
+  },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
+  isGlowing: () => true,
 });
 
 const meisui: CombatAction = createCombatAction({
   id: ActionId.Meisui,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(removeBuff(StatusId.Suiton));
+    dispatch(removeBuff(StatusId.ShadowWalker));
     dispatch(buff(StatusId.Meisui));
     dispatch(addNinki(50));
   },
-  isUsable: (state) => hasBuff(state, StatusId.Suiton) && !hasBuff(state, StatusId.TenChiJin),
+  isUsable: (state) => hasBuff(state, StatusId.ShadowWalker) && !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
 });
 
 const bhavacakra: CombatAction = createCombatAction({
   id: ActionId.Bhavacakra,
   execute: (dispatch, getState, context) => {
+    dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.Bhavacakra, context, {
-        potency: 350,
-        enhancedPotency: 500,
+        potency: 380,
+        enhancedPotency: 530,
         isEnhanced: hasBuff(getState(), StatusId.Meisui),
         type: DamageType.Magical,
       })
     );
-    dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.Meisui));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGlowing: (state) => ninki(state) >= 50,
+  redirect: (state) => (hasBuff(state, StatusId.Higi) ? ActionId.ZeshoMeppo : ActionId.Bhavacakra),
+});
+
+const zeshoMeppo: CombatAction = createCombatAction({
+  id: ActionId.ZeshoMeppo,
+  execute: (dispatch, getState, context) => {
+    dispatch(ogcdLock());
+    dispatch(
+      dmgEvent(ActionId.ZeshoMeppo, context, {
+        potency: 550,
+        enhancedPotency: 700,
+        isEnhanced: hasBuff(getState(), StatusId.Meisui),
+        type: DamageType.Magical,
+      })
+    );
+    dispatch(removeBuff(StatusId.Meisui));
+    dispatch(removeBuff(StatusId.Higi));
+  },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
+  isGlowing: () => true,
 });
 
 const assassinate: CombatAction = createCombatAction({
@@ -894,6 +968,7 @@ const deathBlossom: CombatAction = createCombatAction({
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const hakkeMujinsatsu: CombatAction = createCombatAction({
@@ -903,25 +978,12 @@ const hakkeMujinsatsu: CombatAction = createCombatAction({
 
     if (context.comboed) {
       dispatch(addNinki(5));
-      if (hasBuff(getState(), StatusId.HutonActive)) {
-        dispatch(extendableBuff(StatusId.HutonActive, 10));
-      }
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.HakkeMujinsatsu),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-});
-
-const hurajin: CombatAction = createCombatAction({
-  id: ActionId.Huraijin,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Huraijin, context, { potency: 200 }));
-    dispatch(addNinki(5));
-    dispatch(buff(StatusId.HutonActive));
-  },
-  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
-  reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const hellfrogMedium: CombatAction = createCombatAction({
@@ -932,6 +994,23 @@ const hellfrogMedium: CombatAction = createCombatAction({
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   isGlowing: (state) => ninki(state) >= 50,
+  redirect: (state) => (hasBuff(state, StatusId.Higi) ? ActionId.DeathfrogMedium : ActionId.HellfrogMedium),
+});
+
+const deathfrogMedium: CombatAction = createCombatAction({
+  id: ActionId.DeathfrogMedium,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(
+      dmgEvent(ActionId.ZeshoMeppo, context, {
+        potency: 300,
+        type: DamageType.Magical,
+      })
+    );
+    dispatch(removeBuff(StatusId.Higi));
+  },
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
+  isGlowing: () => true,
 });
 
 const hollowNozuchi: CombatAction = createCombatAction({
@@ -941,13 +1020,12 @@ const hollowNozuchi: CombatAction = createCombatAction({
 
 export const ninStatuses: CombatStatus[] = [
   dotonHeavyStatus,
-  hutonActiveStatus,
-  vulnerabilityUpStatus,
+  dokumoriStatus,
   kassatsuStatus,
   tenChiJinStatus,
-  suitonStatus,
+  shadowWalkerStatus,
   meisuiStatus,
-  trickAttackStatus,
+  kunaisBaneStatus,
   shadeShiftStatus,
   bunshinStatus,
   phantomKamaitachiReadyStatus,
@@ -955,6 +1033,10 @@ export const ninStatuses: CombatStatus[] = [
   raijuReadyStatus,
   dotonStatus,
   hiddenStatus,
+  dokumoriStatus,
+  kunaisBaneStatus,
+  tenriJindoReadyStatus,
+  higiStatus,
 ];
 
 export const nin: CombatAction[] = [
@@ -996,9 +1078,13 @@ export const nin: CombatAction[] = [
   shukkuchi,
   deathBlossom,
   hakkeMujinsatsu,
-  hurajin,
   hellfrogMedium,
   hollowNozuchi,
+  dokumori,
+  kunaisBane,
+  zeshoMeppo,
+  deathfrogMedium,
+  tenriJindo,
 ];
 
 export const ninEpics = combineEpics(
@@ -1010,5 +1096,5 @@ export const ninEpics = combineEpics(
   endTenChiJinEpic,
   bunshinDamageEpic,
   hollowNozuchiEpic,
-  dreamWithinADreamEpic,
+  dreamWithinADreamEpic
 );

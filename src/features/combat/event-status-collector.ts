@@ -82,8 +82,8 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   ),
   [StatusId.LeadenFist]: id(ActionId.Bootshine),
   // NIN
-  [StatusId.VulnerabilityUp]: always,
-  [StatusId.TrickAttack]: always,
+  [StatusId.Dokumori]: always,
+  [StatusId.KunaisBane]: always,
   [StatusId.Meisui]: id(ActionId.Bhavacakra),
   // RPR
   [StatusId.ArcaneCircle]: always,

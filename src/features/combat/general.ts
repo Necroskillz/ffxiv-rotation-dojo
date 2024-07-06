@@ -25,7 +25,6 @@ import {
   selectCast,
   setCast,
 } from './combatSlice';
-import { OGCDLockDuration } from './enums';
 
 const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(

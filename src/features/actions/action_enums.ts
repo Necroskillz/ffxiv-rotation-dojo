@@ -291,7 +291,6 @@ export enum ActionId {
   HakkeMujinsatsu = 16488,
   ArmorCrush = 3563,
   DreamWithinaDream = 3566,
-  Huraijin = 25876,
   HellfrogMedium = 7401,
   Bhavacakra = 7402,
   TenChiJin = 7403,
