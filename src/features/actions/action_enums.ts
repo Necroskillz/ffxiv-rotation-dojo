@@ -421,7 +421,6 @@ export enum ActionId {
   Higanbana = 7489,
   TenkaGoken = 7488,
   MidareSetsugekka = 7487,
-  KaeshiHiganbana = 16484,
   KaeshiGoken = 16485,
   KaeshiSetsugekka = 16486,
   KaeshiNamikiri = 25782,

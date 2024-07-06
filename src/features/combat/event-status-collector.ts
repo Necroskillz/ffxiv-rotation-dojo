@@ -101,7 +101,6 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
       ActionId.MidareSetsugekka,
       ActionId.TenkaGoken,
       ActionId.KaeshiNamikiri,
-      ActionId.KaeshiHiganbana,
       ActionId.KaeshiSetsugekka,
       ActionId.KaeshiGoken,
       ActionId.Enpi,
