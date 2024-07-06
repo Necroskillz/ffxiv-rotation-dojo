@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, first, map, of, switchMap, takeUntil, withLatestFrom } from 'rxjs';
+import { filter, first, map, switchMap, takeUntil } from 'rxjs';
 import { RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -8,10 +8,10 @@ import { CombatAction, createCombatAction } from '../../combat-action';
 import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
-  addEyeOfTheDragon,
   addFirstmindsFocus,
   buff,
   combo,
+  cooldown,
   debuff,
   dmgEvent,
   event,
@@ -21,22 +21,13 @@ import {
   ogcdLock,
   removeBuff,
   removeBuffAction,
+  removeBuffStack,
   resource,
-  setEyeOfTheDragon,
-  setThrust,
 } from '../../combatSlice';
 import { OGCDLockDuration } from '../../enums';
 
 function firstmindsFocus(state: RootState) {
   return resource(state, 'firstmindsFocus');
-}
-
-function eyeOfTheDragon(state: RootState) {
-  return resource(state, 'eyeOfTheDragon');
-}
-
-function thrust(state: RootState) {
-  return resource(state, 'thrust');
 }
 
 const consumeLifeSurgeEpic: Epic<any, any, RootState> = (action$) =>
@@ -49,37 +40,6 @@ const consumeLifeSurgeEpic: Epic<any, any, RootState> = (action$) =>
       )
     ),
     map(() => removeBuff(StatusId.LifeSurge))
-  );
-
-const removeThrustBuffsEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter(
-      (a) =>
-        a.type === executeAction.type &&
-        [
-          ActionId.TrueThrust,
-          ActionId.Disembowel,
-          ActionId.VorpalThrust,
-          ActionId.DoomSpike,
-          ActionId.SonicThrust,
-          ActionId.CoerthanTorment,
-        ].includes(a.payload.id)
-    ),
-    withLatestFrom(state$),
-    map(([, state]) => state),
-    switchMap((state) => {
-      const actions = [];
-
-      if (hasBuff(state, StatusId.WheelinMotion)) {
-        actions.push(removeBuff(StatusId.WheelinMotion));
-      }
-
-      if (hasBuff(state, StatusId.FangandClawBared)) {
-        actions.push(removeBuff(StatusId.FangandClawBared));
-      }
-
-      return of(...actions);
-    })
   );
 
 const powerSurgeStatus: CombatStatus = createCombatStatus({
@@ -105,12 +65,14 @@ const wheelinMotionStatus: CombatStatus = createCombatStatus({
   id: StatusId.WheelinMotion,
   duration: 30,
   isHarmful: false,
+  isVisible: false,
 });
 
 const fangandClawBaredStatus: CombatStatus = createCombatStatus({
   id: StatusId.FangandClawBared,
   duration: 30,
   isHarmful: false,
+  isVisible: false,
 });
 
 const draconianFireStatus: CombatStatus = createCombatStatus({
@@ -136,10 +98,30 @@ const lifeoftheDragonActiveStatus: CombatStatus = createCombatStatus({
   duration: 30,
   isHarmful: false,
   isVisible: false,
+  onExpire: (dispatch) => dispatch(removeBuff(StatusId.StarcrossReady)),
 });
 
 const diveReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.DiveReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const nastrondReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.NastrondReady,
+  duration: 30,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const starcrossReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.StarcrossReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const dragonsFlightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.DragonsFlight,
   duration: 30,
   isHarmful: false,
 });
@@ -152,20 +134,29 @@ const trueThrust: CombatAction = createCombatAction({
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.RaidenThrust : ActionId.TrueThrust),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const disembowel: CombatAction = createCombatAction({
   id: ActionId.Disembowel,
+  execute: () => {},
+  reducedBySkillSpeed: true,
+  redirect: () => ActionId.SpiralBlow,
+});
+
+const spiralBlow: CombatAction = createCombatAction({
+  id: ActionId.SpiralBlow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Disembowel, context, { potency: 140 }));
+    dispatch(dmgEvent(ActionId.SpiralBlow, context, { potency: 140, comboPotency: 300 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.Disembowel));
       dispatch(buff(StatusId.PowerSurge));
     }
   },
-  isGlowing: (state) => hasCombo(state, ActionId.Disembowel),
+  isGlowing: (state) => hasCombo(state, ActionId.SpiralBlow),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const chaosThrust: CombatAction = createCombatAction({
@@ -178,73 +169,89 @@ const chaosThrust: CombatAction = createCombatAction({
 const chaoticSpring: CombatAction = createCombatAction({
   id: ActionId.ChaoticSpring,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ChaoticSpring, context, { potency: 100, comboPotency: 260, rearComboPotency: 300 }));
+    dispatch(dmgEvent(ActionId.ChaoticSpring, context, { potency: 140, rearPotency: 180, comboPotency: 300, rearComboPotency: 340 }));
 
     if (context.comboed) {
       dispatch(debuff(StatusId.ChaoticSpring));
-      dispatch(buff(StatusId.WheelinMotion));
-      dispatch(setThrust(0));
-    } else {
-      dispatch(removeBuff(StatusId.WheelinMotion));
-      dispatch(removeBuff(StatusId.FangandClawBared));
+      dispatch(combo(ActionId.ChaosThrust));
     }
   },
-  isGlowing: (state) => hasCombo(state, ActionId.ChaosThrust),
+  isGlowing: (state) => hasCombo(state, ActionId.ChaoticSpring),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const wheelingThrust: CombatAction = createCombatAction({
   id: ActionId.WheelingThrust,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.WheelingThrust, context, { potency: 260, rearPotency: 300 }));
-    dispatch(removeBuff(StatusId.WheelinMotion));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.WheelingThrust, context, { potency: 140, rearPotency: 180, comboPotency: 300, rearComboPotency: 340 }));
 
-    if (thrust(getState()) === 1) {
-      dispatch(buff(StatusId.DraconianFire));
-    } else {
-      dispatch(buff(StatusId.FangandClawBared));
-      dispatch(setThrust(1));
+    if (context.comboed) {
+      dispatch(combo(ActionId.FangandClaw));
+      dispatch(buff(StatusId.WheelinMotion));
+      dispatch(removeBuff(StatusId.FangandClawBared));
     }
   },
-  isGlowing: (state) => hasBuff(state, StatusId.WheelinMotion),
-  isUsable: (state) => hasBuff(state, StatusId.WheelinMotion),
+  isGlowing: (state) => hasCombo(state, ActionId.WheelingThrust),
   reducedBySkillSpeed: true,
+  redirect: (state) =>
+    hasCombo(state, ActionId.Drakesbane) && hasBuff(state, StatusId.FangandClawBared) ? ActionId.Drakesbane : ActionId.WheelingThrust,
+  preservesCombo: false,
 });
 
 const fangAndClaw: CombatAction = createCombatAction({
   id: ActionId.FangandClaw,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.FangandClaw, context, { potency: 260, flankPotency: 300 }));
-    dispatch(removeBuff(StatusId.FangandClawBared));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.WheelingThrust, context, { potency: 140, flankPotency: 180, comboPotency: 300, flankComboPotency: 340 }));
 
-    if (thrust(getState()) === 1) {
-      dispatch(buff(StatusId.DraconianFire));
-    } else {
-      dispatch(buff(StatusId.WheelinMotion));
-      dispatch(setThrust(1));
+    if (context.comboed) {
+      dispatch(combo(ActionId.FangandClaw));
+      dispatch(buff(StatusId.FangandClawBared));
+      dispatch(removeBuff(StatusId.WheelinMotion));
     }
   },
-  isGlowing: (state) => hasBuff(state, StatusId.FangandClawBared),
-  isUsable: (state) => hasBuff(state, StatusId.FangandClawBared),
+  isGlowing: (state) => hasCombo(state, ActionId.FangandClaw),
   reducedBySkillSpeed: true,
+  redirect: (state) =>
+    hasCombo(state, ActionId.Drakesbane) && hasBuff(state, StatusId.WheelinMotion) ? ActionId.Drakesbane : ActionId.FangandClaw,
+  preservesCombo: false,
+});
+
+const drakesbane: CombatAction = createCombatAction({
+  id: ActionId.Drakesbane,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Drakesbane, context, { potency: 440 }));
+    dispatch(buff(StatusId.DraconianFire));
+  },
+  isGlowing: () => true,
+  reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const raidenThrust: CombatAction = createCombatAction({
   id: ActionId.RaidenThrust,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RaidenThrust, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.RaidenThrust, context, { potency: 320 }));
     dispatch(removeBuff(StatusId.DraconianFire));
     dispatch(combo(ActionId.TrueThrust));
     dispatch(addFirstmindsFocus(1));
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const vorpalThrust: CombatAction = createCombatAction({
   id: ActionId.VorpalThrust,
+  execute: () => {},
+  reducedBySkillSpeed: true,
+  redirect: () => ActionId.LanceBarrage,
+});
+
+const lanceBarrage: CombatAction = createCombatAction({
+  id: ActionId.LanceBarrage,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.VorpalThrust, context, { potency: 130, comboPotency: 280 }));
+    dispatch(dmgEvent(ActionId.LanceBarrage, context, { potency: 130, comboPotency: 340 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.VorpalThrust));
@@ -252,6 +259,7 @@ const vorpalThrust: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.VorpalThrust),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const fullThrust: CombatAction = createCombatAction({
@@ -264,18 +272,15 @@ const fullThrust: CombatAction = createCombatAction({
 const heavensThrust: CombatAction = createCombatAction({
   id: ActionId.HeavensThrust,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HeavensThrust, context, { potency: 100, comboPotency: 480 }));
+    dispatch(dmgEvent(ActionId.HeavensThrust, context, { potency: 140, comboPotency: 440 }));
 
     if (context.comboed) {
-      dispatch(buff(StatusId.FangandClawBared));
-      dispatch(setThrust(0));
-    } else {
-      dispatch(removeBuff(StatusId.WheelinMotion));
-      dispatch(removeBuff(StatusId.FangandClawBared));
+      dispatch(combo(ActionId.FullThrust));
     }
   },
-  isGlowing: (state) => hasCombo(state, ActionId.FullThrust),
+  isGlowing: (state) => hasCombo(state, ActionId.HeavensThrust),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const lifeSurge: CombatAction = createCombatAction({
@@ -320,6 +325,7 @@ const highJump: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.HighJump, context, { potency: 400 }));
     dispatch(buff(StatusId.DiveReady));
   },
+  redirect: (state) => (hasBuff(state, StatusId.DiveReady) ? ActionId.MirageDive : ActionId.HighJump),
 });
 
 const mirageDive: CombatAction = createCombatAction({
@@ -328,7 +334,6 @@ const mirageDive: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.MirageDive, context, { potency: 200 }));
     dispatch(removeBuff(StatusId.DiveReady));
-    dispatch(addEyeOfTheDragon(1));
   },
   isUsable: (state) => hasBuff(state, StatusId.DiveReady),
   isGlowing: (state) => hasBuff(state, StatusId.DiveReady),
@@ -336,17 +341,14 @@ const mirageDive: CombatAction = createCombatAction({
 
 const geirskogul: CombatAction = createCombatAction({
   id: ActionId.Geirskogul,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Geirskogul, context, { potency: 260 }));
-
-    if (eyeOfTheDragon(getState()) === 2) {
-      dispatch(buff(StatusId.LifeoftheDragonActive));
-      dispatch(setEyeOfTheDragon(0));
-    }
+    dispatch(dmgEvent(ActionId.Geirskogul, context, { potency: 280 }));
+    dispatch(buff(StatusId.LifeoftheDragonActive));
+    dispatch(buff(StatusId.NastrondReady));
+    dispatch(cooldown(4, 1000));
   },
-  isGlowing: (state) => eyeOfTheDragon(state) === 2,
-  redirect: (state) => (hasBuff(state, StatusId.LifeoftheDragonActive) ? ActionId.Nastrond : ActionId.Geirskogul),
+  redirect: (state) => (hasBuff(state, StatusId.NastrondReady) ? ActionId.Nastrond : ActionId.Geirskogul),
 });
 
 const nastrond: CombatAction = createCombatAction({
@@ -354,6 +356,7 @@ const nastrond: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Nastrond, context, { potency: 360 }));
+    dispatch(removeBuffStack(StatusId.NastrondReady));
   },
 });
 
@@ -362,9 +365,21 @@ const stardiver: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 620 }));
+    dispatch(buff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
   animationLock: OGCDLockDuration.Long,
+  redirect: (state) => (hasBuff(state, StatusId.StarcrossReady) ? ActionId.Starcross : ActionId.Stardiver),
+});
+
+const starcross: CombatAction = createCombatAction({
+  id: ActionId.Starcross,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Starcross, context, { potency: 700 }));
+    dispatch(removeBuff(StatusId.StarcrossReady));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.StarcrossReady),
 });
 
 const wingedGlide: CombatAction = createCombatAction({
@@ -383,16 +398,27 @@ const dragonfireDive: CombatAction = createCombatAction({
   id: ActionId.DragonfireDive,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.DragonfireDive, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.DragonfireDive, context, { potency: 500 }));
+    dispatch(buff(StatusId.DragonsFlight));
   },
   animationLock: OGCDLockDuration.Long,
+  redirect: (state) => (hasBuff(state, StatusId.DragonsFlight) ? ActionId.RiseoftheDragon : ActionId.DragonfireDive),
+});
+
+const riseOfTheDragon: CombatAction = createCombatAction({
+  id: ActionId.RiseoftheDragon,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.RiseoftheDragon, context, { potency: 550 }));
+    dispatch(removeBuff(StatusId.DragonsFlight));
+  },
 });
 
 const wyrmwindThrust: CombatAction = createCombatAction({
   id: ActionId.WyrmwindThrust,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.WyrmwindThrust, context, { potency: 420 }));
+    dispatch(dmgEvent(ActionId.WyrmwindThrust, context, { potency: 440 }));
   },
   isUsable: (state) => firstmindsFocus(state) === 2,
   isGlowing: (state) => firstmindsFocus(state) === 2,
@@ -414,6 +440,7 @@ const doomSpike: CombatAction = createCombatAction({
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.DraconianFury : ActionId.DoomSpike),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const draconianFury: CombatAction = createCombatAction({
@@ -426,6 +453,7 @@ const draconianFury: CombatAction = createCombatAction({
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const sonicThrust: CombatAction = createCombatAction({
@@ -440,6 +468,7 @@ const sonicThrust: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SonicThrust),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const coerthanTorment: CombatAction = createCombatAction({
@@ -453,6 +482,7 @@ const coerthanTorment: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.CoerthanTorment),
   reducedBySkillSpeed: true,
+  preservesCombo: false,
 });
 
 const elusiveJump: CombatAction = createCombatAction({
@@ -473,6 +503,9 @@ export const drgStatuses: CombatStatus[] = [
   diveReadyStatus,
   chaoticSpringStatus,
   draconianFireStatus,
+  nastrondReadyStatus,
+  starcrossReadyStatus,
+  dragonsFlightStatus,
 ];
 
 export const drg: CombatAction[] = [
@@ -504,6 +537,11 @@ export const drg: CombatAction[] = [
   sonicThrust,
   coerthanTorment,
   elusiveJump,
+  drakesbane,
+  lanceBarrage,
+  spiralBlow,
+  riseOfTheDragon,
+  starcross,
 ];
 
-export const drgEpics = combineEpics(consumeLifeSurgeEpic, removeThrustBuffsEpic);
+export const drgEpics = combineEpics(consumeLifeSurgeEpic);

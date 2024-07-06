@@ -611,6 +611,7 @@ const ikishoten: CombatAction = createCombatAction({
     dispatch(buff(StatusId.ZanshinReady));
   },
   isUsable: (state) => inCombat(state),
+  redirect: (state) => (hasBuff(state, StatusId.ZanshinReady) ? ActionId.Zanshin : ActionId.Ikishoten),
 });
 
 const zanshin: CombatAction = createCombatAction({
@@ -875,4 +876,11 @@ export const sam: CombatAction[] = [
   tendoKaeshiSetsugekka,
 ];
 
-export const samEpics = combineEpics(popTengetsuEpic, consumeMeikyoEpic, removeKaeshiEpic, removeKaeshiNamikiriEpic, meditateEpic, meditateStopEpic);
+export const samEpics = combineEpics(
+  popTengetsuEpic,
+  consumeMeikyoEpic,
+  removeKaeshiEpic,
+  removeKaeshiNamikiriEpic,
+  meditateEpic,
+  meditateStopEpic
+);

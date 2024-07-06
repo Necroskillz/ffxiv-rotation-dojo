@@ -161,8 +161,6 @@ const initialState: CombatState = {
     ninki: 0,
     mudra: 0,
     firstmindsFocus: 0,
-    eyeOfTheDragon: 0,
-    thrust: 0,
     whiteMana: 0,
     blackMana: 0,
     manaStack: 0,
@@ -422,7 +420,6 @@ export const selectArmyCoda = (state: RootState) => state.combat.resources.armyC
 export const selectWandererRepertoire = (state: RootState) => state.combat.resources.wandererRepertoire;
 export const selectArmyRepertoire = (state: RootState) => state.combat.resources.armyRepertoire;
 export const selectNinki = (state: RootState) => state.combat.resources.ninki;
-export const selectEyeOfTheDragon = (state: RootState) => state.combat.resources.eyeOfTheDragon;
 export const selectFirstmindsFocus = (state: RootState) => state.combat.resources.firstmindsFocus;
 export const selectBlackMana = (state: RootState) => state.combat.resources.blackMana;
 export const selectWhiteMana = (state: RootState) => state.combat.resources.whiteMana;
@@ -836,11 +833,8 @@ export const setMageCoda = setResourceFactory('mageCoda');
 export const setArmyCoda = setResourceFactory('armyCoda');
 export const addNinki = addResourceFactory('ninki', 100);
 export const setMudra = setResourceFactory('mudra');
-export const addEyeOfTheDragon = addResourceFactory('eyeOfTheDragon', 2);
-export const setEyeOfTheDragon = setResourceFactory('eyeOfTheDragon');
 export const addFirstmindsFocus = addResourceFactory('firstmindsFocus', 2);
 export const setFirstmindsFocus = setResourceFactory('firstmindsFocus');
-export const setThrust = setResourceFactory('thrust');
 export const addManaStack = addResourceFactory('manaStack', 3);
 export const setManaStack = setResourceFactory('manaStack');
 export const setSen = setResourceFactory('sen');

@@ -170,7 +170,7 @@ const moveRight: CombatAction = createCombatAction({
 const tinctureOfDexterity: CombatAction = createCombatAction({
   id: ActionId.Grade8TinctureofDexterity,
   execute: (dispatch) => {
-    dispatch(ogcdLock(OGCDLockDuration.Potion));
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -180,7 +180,7 @@ const tinctureOfDexterity: CombatAction = createCombatAction({
 const tinctureOfMind: CombatAction = createCombatAction({
   id: ActionId.Grade8TinctureofMind,
   execute: (dispatch) => {
-    dispatch(ogcdLock(OGCDLockDuration.Potion));
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
   },
   entersCombat: false,
@@ -189,7 +189,7 @@ const tinctureOfMind: CombatAction = createCombatAction({
 const tinctureOfStrength: CombatAction = createCombatAction({
   id: ActionId.Grade8TinctureofStrength,
   execute: (dispatch) => {
-    dispatch(ogcdLock(OGCDLockDuration.Potion));
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
   },
   entersCombat: false,
@@ -198,7 +198,7 @@ const tinctureOfStrength: CombatAction = createCombatAction({
 const tinctureOfIntelligence: CombatAction = createCombatAction({
   id: ActionId.Grade8TinctureofIntelligence,
   execute: (dispatch) => {
-    dispatch(ogcdLock(OGCDLockDuration.Potion));
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
   },
   entersCombat: false,
