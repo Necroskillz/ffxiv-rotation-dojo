@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { useAppSelector } from '../../../../app/hooks';
-import { selectBeastChakra, selectLunarNadi, selectSolarNadi } from '../../combatSlice';
+import { selectBeastChakra, selectCoeurlsFury, selectLunarNadi, selectOpooposFury, selectRaptorsFury, selectSolarNadi } from '../../combatSlice';
 import { HudItem } from '../../../hud/HudItem';
 import { BeastChakra } from './mnk';
 
@@ -8,6 +8,7 @@ import style from './MastersGauge.module.css';
 import clsx from 'clsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { GaugeCircle } from '../../GaugeCircle';
 
 type BeastChakraIconProps = {
   fill: BeastChakra;
@@ -43,9 +44,17 @@ export const MastersGauge = () => {
   const solarNadi = useAppSelector(selectSolarNadi);
   const lunarNadi = useAppSelector(selectLunarNadi);
 
+  const opooposFury = useAppSelector(selectOpooposFury);
+  const raptorsFury = useAppSelector(selectRaptorsFury);
+  const coeurlsFury = useAppSelector(selectCoeurlsFury);
+
   const solarNadiFillColor = '#F8F2BF';
   const lunarNadiFillColor = '#EDB1DD';
   const emptyNadiFillColor = '#0D1932';
+
+  const opooposFuryFillColor = '#FF9DED';
+  const raptorsFuryFillColor = '#BB89FF';
+  const coeurlsFuryFillColor = '#00FFFF';
 
   return (
     <HudItem name="MastersGauge" defaultPosition={{ x: 20, y: 90 }}>
@@ -56,6 +65,14 @@ export const MastersGauge = () => {
           <BeastChakraIcon fill={beastChakra[2]} />
           <FontAwesomeIcon className="ml-1" icon={faCircle} color={lunarNadi ? lunarNadiFillColor : emptyNadiFillColor} />
           <FontAwesomeIcon className="-ml-1" icon={faCircle} color={solarNadi ? solarNadiFillColor : emptyNadiFillColor} />
+        </div>
+        <div className="grid grid-flow-col auto-cols-max gap-1.5 mt-2 justify-center">
+          <GaugeCircle fill={opooposFury > 0} fillColor={opooposFuryFillColor} />
+          <GaugeCircle fill={raptorsFury > 0} fillColor={raptorsFuryFillColor} />
+          <GaugeCircle fill={raptorsFury > 1} fillColor={raptorsFuryFillColor} />
+          <GaugeCircle fill={coeurlsFury > 0} fillColor={coeurlsFuryFillColor} />
+          <GaugeCircle fill={coeurlsFury > 1} fillColor={coeurlsFuryFillColor} />
+          <GaugeCircle fill={coeurlsFury > 2} fillColor={coeurlsFuryFillColor} />
         </div>
       </div>
     </HudItem>

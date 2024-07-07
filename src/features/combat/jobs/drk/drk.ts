@@ -69,7 +69,7 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
         mergeMap((a) => from(a)),
         concatMap((a) => of(a).pipe(delay(a.delay))),
         withLatestFrom(state$),
-        map(([a, state]) =>
+        map(([a]) =>
           event(a.actionId, {
             potency: a.potency,
             type: a.type,
@@ -488,7 +488,7 @@ const quietus: CombatAction = createCombatAction({
 const impalement: CombatAction = createCombatAction({
   id: ActionId.Impalement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Impalement, context, { potency: 320, mana: 200 }));
+    dispatch(dmgEvent(ActionId.Impalement, context, { potency: 320, mana: 500 }));
     dispatch(removeBuffStack(StatusId.Delirium));
   },
   isGlowing: () => true,

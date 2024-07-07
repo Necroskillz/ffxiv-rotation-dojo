@@ -20,3 +20,11 @@
   width: 14px;
   transform: rotate(45deg);
 }
+
+.circle {
+  background: #0D1932;
+  border: 1px solid #ad925a;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+}

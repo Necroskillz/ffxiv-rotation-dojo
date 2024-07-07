@@ -171,6 +171,9 @@ const initialState: CombatState = {
     beastChakra: 0,
     solarNadi: 0,
     lunarNadi: 0,
+    opooposFury: 0,
+    raptorsFury: 0,
+    coeurlsFury: 0,
     blood: 0,
     polyglot: 0,
     paradox: 0,
@@ -442,6 +445,9 @@ export const selectBeastChakra = (state: RootState) => {
 };
 export const selectSolarNadi = (state: RootState) => state.combat.resources.solarNadi;
 export const selectLunarNadi = (state: RootState) => state.combat.resources.lunarNadi;
+export const selectOpooposFury = (state: RootState) => state.combat.resources.opooposFury;
+export const selectRaptorsFury = (state: RootState) => state.combat.resources.raptorsFury;
+export const selectCoeurlsFury = (state: RootState) => state.combat.resources.coeurlsFury;
 export const selectBlood = (state: RootState) => state.combat.resources.blood;
 export const selectDarkArts = (state: RootState) => state.combat.resources.darkArts;
 export const selectPolyglot = (state: RootState) => state.combat.resources.polyglot;
@@ -845,10 +851,16 @@ export const addKenki = addResourceFactory('kenki', 100);
 export const addMeditation = addResourceFactory('meditation', 3);
 export const setMeditation = setResourceFactory('meditation');
 export const addCartridge = addResourceFactory('cartridge', 3);
-export const addChakra = addResourceFactory('chakra', 5);
+export const setChakra = setResourceFactory('chakra');
 export const setBeastChakra = setResourceFactory('beastChakra');
 export const setLunarNadi = setResourceFactory('lunarNadi');
 export const setSolarNadi = setResourceFactory('solarNadi');
+export const setOpooposFury = setResourceFactory('opooposFury');
+export const removeOpooposFury = removeResourceFactory('opooposFury');
+export const setRaptorsFury = setResourceFactory('raptorsFury');
+export const removeRaptorsFury = removeResourceFactory('raptorsFury');
+export const setCoeurlsFury = setResourceFactory('coeurlsFury');
+export const removeCoeurlsFury = removeResourceFactory('coeurlsFury');
 export const addBlood = addResourceFactory('blood', 100);
 export const setDarkArts = setResourceFactory('darkArts');
 export const setParadox = setResourceFactory('paradox');

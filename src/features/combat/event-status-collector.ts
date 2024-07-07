@@ -59,9 +59,9 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   [StatusId.Brotherhood]: always,
   [StatusId.RiddleofFire]: always,
   [StatusId.PerfectBalance]: id(
-    ActionId.Bootshine,
-    ActionId.TrueStrike,
-    ActionId.SnapPunch,
+    ActionId.LeapingOpo,
+    ActionId.RisingRaptor,
+    ActionId.PouncingCoeurl,
     ActionId.DragonKick,
     ActionId.TwinSnakes,
     ActionId.Demolish,
@@ -70,9 +70,9 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
     ActionId.FourpointFury
   ),
   [StatusId.FormlessFist]: id(
-    ActionId.Bootshine,
-    ActionId.TrueStrike,
-    ActionId.SnapPunch,
+    ActionId.LeapingOpo,
+    ActionId.RisingRaptor,
+    ActionId.PouncingCoeurl,
     ActionId.DragonKick,
     ActionId.TwinSnakes,
     ActionId.Demolish,
@@ -80,7 +80,7 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
     ActionId.ShadowoftheDestroyer,
     ActionId.FourpointFury
   ),
-  [StatusId.LeadenFist]: id(ActionId.Bootshine),
+  [StatusId.OpoopoForm]: id(ActionId.LeapingOpo, ActionId.ShadowoftheDestroyer),
   // NIN
   [StatusId.Dokumori]: always,
   [StatusId.KunaisBane]: always,

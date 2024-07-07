@@ -311,7 +311,6 @@ const drill: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 600) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
-  reducedBySkillSpeed: true,
   maxCharges: () => 2,
 });
 
