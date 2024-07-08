@@ -160,6 +160,7 @@ export enum StatusId {
   Embolden = 1297,
   Manafication = 1971,
   MagickBarrier = 2707,
+  MagickedSwordplay = 3875,
   ThornedFlourish = 3876,
   GrandImpactReady = 3877,
   PrefulgenceReady = 3878,

@@ -179,7 +179,6 @@ const heavySwing: CombatAction = createCombatAction({
     dispatch(combo(ActionId.HeavySwing));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const maim: CombatAction = createCombatAction({
@@ -194,7 +193,6 @@ const maim: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Maim),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const stormsPath: CombatAction = createCombatAction({
@@ -208,7 +206,6 @@ const stormsPath: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.StormsPath),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const stormsEye: CombatAction = createCombatAction({
@@ -223,7 +220,6 @@ const stormsEye: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.StormsEye),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const innerBeast: CombatAction = createCombatAction({
@@ -399,7 +395,6 @@ const overpower: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Overpower));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const mythrilTempest: CombatAction = createCombatAction({
@@ -414,7 +409,6 @@ const mythrilTempest: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.MythrilTempest),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const steelCyclone: CombatAction = createCombatAction({

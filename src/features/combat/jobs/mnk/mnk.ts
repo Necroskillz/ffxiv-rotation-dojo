@@ -87,7 +87,6 @@ const procChakraEpic: Epic<any, any, RootState> = (action$, state$) =>
       const actions = [];
 
       if (hasBuff(state, StatusId.MeditativeBrotherhood)) {
-        console.log('1');
         actions.push(addChakra(1));
       }
 
@@ -99,7 +98,6 @@ const procChakraEpic: Epic<any, any, RootState> = (action$, state$) =>
           ([ActionId.LeapingOpo, ActionId.ShadowoftheDestroyer].includes(action.payload.actionId) &&
             statuses.some((s: number) => [StatusId.OpoopoForm, StatusId.FormlessFist, StatusId.PerfectBalance].includes(s))))
       ) {
-        console.log('2');
         actions.push(addChakra(1));
       }
 

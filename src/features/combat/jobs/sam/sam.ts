@@ -316,7 +316,6 @@ const gyofu: CombatAction = createCombatAction({
     dispatch(addKenki(5));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const shifu: CombatAction = createCombatAction({
@@ -332,7 +331,6 @@ const shifu: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Shifu) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const kasha: CombatAction = createCombatAction({
@@ -353,7 +351,6 @@ const kasha: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Kasha) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const jinpu: CombatAction = createCombatAction({
@@ -369,7 +366,6 @@ const jinpu: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Jinpu) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const gekko: CombatAction = createCombatAction({
@@ -390,7 +386,6 @@ const gekko: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Gekko) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const yukikaze: CombatAction = createCombatAction({
@@ -405,7 +400,6 @@ const yukikaze: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Yukikaze) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const iaijutsu: CombatAction = createCombatAction({
@@ -756,7 +750,6 @@ const fuko: CombatAction = createCombatAction({
     dispatch(addKenki(10));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const oka: CombatAction = createCombatAction({
@@ -774,7 +767,6 @@ const oka: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Oka) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const mangetsu: CombatAction = createCombatAction({
@@ -792,7 +784,6 @@ const mangetsu: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Mangetsu) || hasBuff(state, StatusId.MeikyoShisui),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const hissatsuKyuten: CombatAction = createCombatAction({

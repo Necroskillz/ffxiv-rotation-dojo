@@ -16,6 +16,7 @@ export interface ActionInfo {
   job: string[];
   comboAction: number | null;
   isAssignableToHotbar: boolean;
+  preservesCombo: boolean;
   range: number | null;
   radius: number | null;
 }

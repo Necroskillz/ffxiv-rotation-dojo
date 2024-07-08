@@ -92,7 +92,9 @@ const removeOverheatedEpic: Epic<any, any, RootState> = (action$, state$) =>
 
 const stackWildfireEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill' && a.payload.id !== ActionId.Flamethrower),
+    filter(
+      (a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Weaponskill' && a.payload.id !== ActionId.Flamethrower
+    ),
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => hasBuff(state, StatusId.WildfireBuff)),
@@ -249,7 +251,6 @@ const heatedSplitShot: CombatAction = createCombatAction({
     dispatch(addHeat(5));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const slugShot: CombatAction = createCombatAction({
@@ -275,7 +276,6 @@ const heatedSlugShot: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SlugShot),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const cleanShot: CombatAction = createCombatAction({
@@ -302,7 +302,6 @@ const heatedCleanShot: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.CleanShot),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const drill: CombatAction = createCombatAction({
@@ -542,7 +541,6 @@ const scattergun: CombatAction = createCombatAction({
     dispatch(addHeat(10));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const bioblaster: CombatAction = createCombatAction({
@@ -552,7 +550,7 @@ const bioblaster: CombatAction = createCombatAction({
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(debuff(StatusId.Bioblaster));
   },
-  reducedBySkillSpeed: true,
+  maxCharges: () => 2,
 });
 
 const flamethrower: CombatAction = createCombatAction({

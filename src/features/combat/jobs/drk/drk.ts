@@ -171,7 +171,6 @@ const hardSlash: CombatAction = createCombatAction({
     dispatch(combo(ActionId.HardSlash));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const syphonStrike: CombatAction = createCombatAction({
@@ -185,7 +184,6 @@ const syphonStrike: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.SyphonStrike),
-  preservesCombo: false,
 });
 
 const souleater: CombatAction = createCombatAction({
@@ -199,7 +197,6 @@ const souleater: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.Souleater),
-  preservesCombo: false,
 });
 
 const bloodWeapon: CombatAction = createCombatAction({
@@ -458,7 +455,6 @@ const unleash: CombatAction = createCombatAction({
     dispatch(combo(ActionId.Unleash));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const stalwartSoul: CombatAction = createCombatAction({
@@ -472,7 +468,6 @@ const stalwartSoul: CombatAction = createCombatAction({
   },
   reducedBySkillSpeed: true,
   isGlowing: (state) => hasCombo(state, ActionId.StalwartSoul),
-  preservesCombo: false,
 });
 
 const quietus: CombatAction = createCombatAction({

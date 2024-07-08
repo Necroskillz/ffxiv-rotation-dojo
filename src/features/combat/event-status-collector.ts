@@ -118,6 +118,18 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
       ActionId.EnchantedZwerchhau,
       ActionId.EnchantedRedoublement,
       ActionId.EnchantedMoulinet,
+      ActionId.EnchantedMoulinetDeux,
+      ActionId.EnchantedMoulinetTrois,
+      ActionId.EnchantedReprise,
+    ].includes(actionId),
+  [StatusId.MagickedSwordplay]: (actionId) =>
+    [
+      ActionId.EnchantedRiposte,
+      ActionId.EnchantedZwerchhau,
+      ActionId.EnchantedRedoublement,
+      ActionId.EnchantedMoulinet,
+      ActionId.EnchantedMoulinetDeux,
+      ActionId.EnchantedMoulinetTrois,
       ActionId.EnchantedReprise,
     ].includes(actionId),
   // BLU

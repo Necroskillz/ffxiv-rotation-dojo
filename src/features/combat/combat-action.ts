@@ -56,7 +56,6 @@ export interface CombatAction {
   cost: (state: RootState) => number;
   get isGcdAction(): boolean;
   bluNo: number;
-  preservesCombo: boolean;
 }
 
 export interface ExtraCooldownOptions {
@@ -89,7 +88,6 @@ export interface CombatActionOptions {
   isGcdAction?: boolean;
   animationLock?: number;
   bluNo?: number;
-  preservesCombo?: boolean;
 }
 
 export function createCombatAction(options: CombatActionOptions): CombatAction {
@@ -114,7 +112,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         }
       }
 
-      if (!combatAction.preservesCombo) {
+      if (!action.preservesCombo) {
         dispatch(breakCombo());
       }
 
@@ -261,7 +259,6 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     cost: (state) => (options.cost ? options.cost(state, action.cost) : action.cost),
     isGcdAction,
     bluNo: options.bluNo ?? 0,
-    preservesCombo: options.preservesCombo ?? true,
   };
 
   return combatAction;

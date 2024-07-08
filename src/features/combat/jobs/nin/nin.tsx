@@ -326,7 +326,6 @@ const spinningEdge: CombatAction = createCombatAction({
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const gustSlash: CombatAction = createCombatAction({
@@ -342,7 +341,6 @@ const gustSlash: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.GustSlash),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const aeolianEdge: CombatAction = createCombatAction({
@@ -370,7 +368,6 @@ const aeolianEdge: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.AeolianEdge),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const armorCrush: CombatAction = createCombatAction({
@@ -386,7 +383,6 @@ const armorCrush: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.ArmorCrush),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const mug: CombatAction = createCombatAction({
@@ -968,7 +964,6 @@ const deathBlossom: CombatAction = createCombatAction({
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const hakkeMujinsatsu: CombatAction = createCombatAction({
@@ -983,7 +978,6 @@ const hakkeMujinsatsu: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.HakkeMujinsatsu),
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const hellfrogMedium: CombatAction = createCombatAction({

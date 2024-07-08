@@ -189,7 +189,6 @@ const fastBlade: CombatAction = createCombatAction({
     dispatch(combo(ActionId.FastBlade));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const riotBlade: CombatAction = createCombatAction({
@@ -203,7 +202,6 @@ const riotBlade: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.RiotBlade),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const rageOfHalone: CombatAction = createCombatAction({
@@ -225,7 +223,6 @@ const royalAuthority: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.RoyalAuthority),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const holySpirit: CombatAction = createCombatAction({
@@ -519,7 +516,6 @@ const totalEclipse: CombatAction = createCombatAction({
     dispatch(combo(ActionId.TotalEclipse));
   },
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const prominence: CombatAction = createCombatAction({
@@ -533,7 +529,6 @@ const prominence: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.Prominence),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const holyCircle: CombatAction = createCombatAction({

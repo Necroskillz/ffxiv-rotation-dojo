@@ -53,14 +53,7 @@ function hasCoda(state: RootState): boolean {
 
 const consumeBarrageEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter(
-      (a) =>
-        a.type === executeAction.type &&
-        [
-          ActionId.RefulgentArrow,
-          ActionId.Shadowbite,
-        ].includes(a.payload.id)
-    ),
+    filter((a) => a.type === executeAction.type && [ActionId.RefulgentArrow, ActionId.Shadowbite].includes(a.payload.id)),
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => hasBuff(state, StatusId.Barrage)),

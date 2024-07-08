@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, switchMap, takeUntil, first, map } from 'rxjs';
+import { filter, switchMap, takeUntil, first, map, of, withLatestFrom } from 'rxjs';
 import { AppThunk, RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -26,6 +26,7 @@ import {
   removeBuffAction,
   dmgEvent,
   DamageType,
+  buffStacks,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -79,7 +80,7 @@ export const addBlackAndWhiteMana =
     dispatch(setResource({ resourceType: 'whiteMana', amount: whiteValue }));
   };
 
-const consumeManaficationEpic: Epic<any, any, RootState> = (action$) =>
+const consumeManaficationEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Manafication),
     switchMap(() =>
@@ -93,13 +94,25 @@ const consumeManaficationEpic: Epic<any, any, RootState> = (action$) =>
                 ActionId.EnchantedZwerchhau,
                 ActionId.EnchantedRedoublement,
                 ActionId.EnchantedMoulinet,
+                ActionId.EnchantedMoulinetDeux,
+                ActionId.EnchantedMoulinetTrois,
                 ActionId.EnchantedReprise,
               ].includes(aa.payload.id))
         ),
         takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === a.payload.id)))
       )
     ),
-    map(() => removeBuffStack(StatusId.Manafication))
+    withLatestFrom(state$),
+    switchMap(([, state]) => {
+      console.log('e');
+      const actions = [removeBuffStack(StatusId.Manafication)];
+
+      if (buffStacks(state, StatusId.Manafication) === 1) {
+        actions.push(buff(StatusId.PrefulgenceReady));
+      }
+
+      return of(...actions);
+    })
   );
 
 const removeManaStackEpic: Epic<any, any, RootState> = (action$) =>
@@ -115,7 +128,13 @@ const removeDualcastWithPotionEpic: Epic<any, any, RootState> = (action$) =>
   );
 
 function joltRedirect(state: RootState) {
-  return hasCombo(state, ActionId.Resolution) ? ActionId.Resolution : hasCombo(state, ActionId.Scorch) ? ActionId.Scorch : ActionId.JoltII;
+  return hasBuff(state, StatusId.GrandImpactReady)
+    ? ActionId.GrandImpact
+    : hasCombo(state, ActionId.Resolution)
+    ? ActionId.Resolution
+    : hasCombo(state, ActionId.Scorch)
+    ? ActionId.Scorch
+    : ActionId.JoltIII;
 }
 
 const dualcastStatus: CombatStatus = createCombatStatus({
@@ -161,6 +180,31 @@ const magickBarrierStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const magickedSwordplayStatus: CombatStatus = createCombatStatus({
+  id: StatusId.MagickedSwordplay,
+  duration: 15,
+  isHarmful: false,
+  initialStacks: 3,
+});
+
+const prefulgeceReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PrefulgenceReady,
+  duration: 30,
+  isHarmful: false,
+});
+
+const thornedFlourishStatus: CombatStatus = createCombatStatus({
+  id: StatusId.ThornedFlourish,
+  duration: 30,
+  isHarmful: false,
+});
+
+const grandImpactReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.GrandImpactReady,
+  duration: 30,
+  isHarmful: false,
+});
+
 const jolt: CombatAction = createCombatAction({
   id: ActionId.Jolt,
   execute: () => {},
@@ -170,8 +214,15 @@ const jolt: CombatAction = createCombatAction({
 
 const jolt2: CombatAction = createCombatAction({
   id: ActionId.JoltII,
+  execute: () => {},
+  redirect: joltRedirect,
+  reducedBySpellSpeed: true,
+});
+
+const jolt3: CombatAction = createCombatAction({
+  id: ActionId.JoltIII,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.JoltII, context, { potency: 320 }));
+    dispatch(dmgEvent(ActionId.JoltIII, context, { potency: 360 }));
     dispatch(addBlackAndWhiteMana(2));
   },
   redirect: joltRedirect,
@@ -262,7 +313,10 @@ const riposte: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Riposte, context, { potency: 130 }));
     dispatch(combo(ActionId.Riposte));
   },
-  redirect: (state) => (whiteMana(state) >= 20 && blackMana(state) >= 20 ? ActionId.EnchantedRiposte : ActionId.Riposte),
+  redirect: (state) =>
+    (whiteMana(state) >= 20 && blackMana(state) >= 20) || hasBuff(state, StatusId.MagickedSwordplay)
+      ? ActionId.EnchantedRiposte
+      : ActionId.Riposte,
   reducedBySkillSpeed: true,
 });
 
@@ -271,8 +325,10 @@ const enchantedRiposte: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnchantedRiposte, context, { potency: 280, type: DamageType.Magical }));
     dispatch(combo(ActionId.Riposte));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
     dispatch(addManaStack(1));
   },
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
 });
 
 const zwerchhau: CombatAction = createCombatAction({
@@ -284,7 +340,10 @@ const zwerchhau: CombatAction = createCombatAction({
       dispatch(combo(ActionId.Zwerchhau));
     }
   },
-  redirect: (state) => (whiteMana(state) >= 15 && blackMana(state) >= 15 ? ActionId.EnchantedZwerchhau : ActionId.Zwerchhau),
+  redirect: (state) =>
+    (whiteMana(state) >= 15 && blackMana(state) >= 15) || hasBuff(state, StatusId.MagickedSwordplay)
+      ? ActionId.EnchantedZwerchhau
+      : ActionId.Zwerchhau,
   isGlowing: (state) => hasCombo(state, ActionId.Zwerchhau),
   reducedBySkillSpeed: true,
 });
@@ -293,6 +352,7 @@ const enchantedZwerchhau: CombatAction = createCombatAction({
   id: ActionId.EnchantedZwerchhau,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnchantedZwerchhau, context, { potency: 150, comboPotency: 340, type: DamageType.Magical }));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
       dispatch(combo(ActionId.Zwerchhau));
@@ -300,6 +360,7 @@ const enchantedZwerchhau: CombatAction = createCombatAction({
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Zwerchhau),
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
 });
 
 const redoublement: CombatAction = createCombatAction({
@@ -307,7 +368,10 @@ const redoublement: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Redoublement, context, { potency: 100, comboPotency: 230 }));
   },
-  redirect: (state) => (whiteMana(state) >= 15 && blackMana(state) >= 15 ? ActionId.EnchantedRedoublement : ActionId.Redoublement),
+  redirect: (state) =>
+    (whiteMana(state) >= 15 && blackMana(state) >= 15) || hasBuff(state, StatusId.MagickedSwordplay)
+      ? ActionId.EnchantedRedoublement
+      : ActionId.Redoublement,
   isGlowing: (state) => hasCombo(state, ActionId.Redoublement),
   reducedBySkillSpeed: true,
 });
@@ -316,12 +380,14 @@ const enchantedRedoublement: CombatAction = createCombatAction({
   id: ActionId.EnchantedRedoublement,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnchantedRedoublement, context, { potency: 130, comboPotency: 500, type: DamageType.Magical }));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
       dispatch(addManaStack(1));
     }
   },
   isGlowing: (state) => hasCombo(state, ActionId.Redoublement),
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
   reducedBySkillSpeed: true,
 });
 
@@ -330,9 +396,20 @@ const manafication: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Manafication));
-    dispatch(addBlackAndWhiteMana(50));
+    dispatch(buff(StatusId.MagickedSwordplay));
   },
   isUsable: (state) => inCombat(state),
+  redirect: (state) => (hasBuff(state, StatusId.PrefulgenceReady) ? ActionId.Prefulgence : ActionId.Manafication),
+});
+
+const prefulgence: CombatAction = createCombatAction({
+  id: ActionId.Prefulgence,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 900 }));
+    dispatch(removeBuff(StatusId.PrefulgenceReady));
+  },
+  isGlowing: () => true,
 });
 
 const verflare: CombatAction = createCombatAction({
@@ -393,6 +470,7 @@ const acceleration: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Acceleration));
+    dispatch(buff(StatusId.GrandImpactReady));
   },
   maxCharges: () => 2,
   extraCooldown: () => ({
@@ -401,27 +479,50 @@ const acceleration: CombatAction = createCombatAction({
   }),
 });
 
+const grandImpact: CombatAction = createCombatAction({
+  id: ActionId.GrandImpact,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.GrandImpact, context, { potency: 600 }));
+    dispatch(removeBuff(StatusId.GrandImpactReady));
+  },
+  isGlowing: () => true,
+  reducedBySpellSpeed: true,
+});
+
 const embolden: CombatAction = createCombatAction({
   id: ActionId.Embolden,
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Embolden));
+    dispatch(buff(StatusId.ThornedFlourish));
   },
+  redirect: (state) => (hasBuff(state, StatusId.ThornedFlourish) ? ActionId.ViceofThorns : ActionId.Embolden),
+});
+
+const viceOfThorns: CombatAction = createCombatAction({
+  id: ActionId.ViceofThorns,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 700 }));
+    dispatch(removeBuff(StatusId.ThornedFlourish));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.ThornedFlourish),
+  isGlowing: (state) => hasBuff(state, StatusId.ThornedFlourish),
 });
 
 const fleche: CombatAction = createCombatAction({
   id: ActionId.Fleche,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Fleche, context, { potency: 460, type: DamageType.Physical }));
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Fleche, context, { potency: 460, type: DamageType.Physical }));
   },
 });
 
 const contreSixte: CombatAction = createCombatAction({
   id: ActionId.ContreSixte,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 380, type: DamageType.Physical }));
     dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 380, type: DamageType.Physical }));
   },
 });
 
@@ -524,7 +625,13 @@ const verthunder2: CombatAction = createCombatAction({
 });
 
 function impactRedirect(state: RootState) {
-  return hasCombo(state, ActionId.Resolution) ? ActionId.Resolution : hasCombo(state, ActionId.Scorch) ? ActionId.Scorch : ActionId.Impact;
+  return hasBuff(state, StatusId.GrandImpactReady)
+    ? ActionId.GrandImpact
+    : hasCombo(state, ActionId.Resolution)
+    ? ActionId.Resolution
+    : hasCombo(state, ActionId.Scorch)
+    ? ActionId.Scorch
+    : ActionId.Impact;
 }
 
 const scatter: CombatAction = createCombatAction({
@@ -556,7 +663,14 @@ const moulinet: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Moulinet, context, { potency: 60 }));
   },
-  redirect: (state) => (whiteMana(state) >= 20 && blackMana(state) >= 20 ? ActionId.EnchantedMoulinet : ActionId.Moulinet),
+  redirect: (state) =>
+    (whiteMana(state) >= 20 && blackMana(state) >= 20) || hasBuff(state, StatusId.MagickedSwordplay)
+      ? hasCombo(state, ActionId.EnchantedMoulinetDeux)
+        ? ActionId.EnchantedMoulinetDeux
+        : hasCombo(state, ActionId.EnchantedMoulinetTrois)
+        ? ActionId.EnchantedMoulinetTrois
+        : ActionId.EnchantedMoulinet
+      : ActionId.Moulinet,
   reducedBySkillSpeed: true,
 });
 
@@ -564,8 +678,32 @@ const enchantedMoulinet: CombatAction = createCombatAction({
   id: ActionId.EnchantedMoulinet,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.EnchantedMoulinet, context, { potency: 130, type: DamageType.Magical }));
+    dispatch(combo(ActionId.EnchantedMoulinet));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
     dispatch(addManaStack(1));
   },
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
+});
+
+const enchantedMoulinetDeux: CombatAction = createCombatAction({
+  id: ActionId.EnchantedMoulinetDeux,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.EnchantedMoulinetDeux, context, { potency: 140, type: DamageType.Magical }));
+    dispatch(combo(ActionId.EnchantedMoulinetDeux));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
+    dispatch(addManaStack(1));
+  },
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
+});
+
+const enchantedMoulinetTrois: CombatAction = createCombatAction({
+  id: ActionId.EnchantedMoulinetTrois,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.EnchantedMoulinetTrois, context, { potency: 150, type: DamageType.Magical }));
+    dispatch(removeBuffStack(StatusId.MagickedSwordplay));
+    dispatch(addManaStack(1));
+  },
+  cost: (state, baseCost) => (hasBuff(state, StatusId.MagickedSwordplay) ? 0 : baseCost),
 });
 
 export const rdmStatuses: CombatStatus[] = [
@@ -576,11 +714,16 @@ export const rdmStatuses: CombatStatus[] = [
   emboldenStatus,
   manaficationStatus,
   magickBarrierStatus,
+  magickedSwordplayStatus,
+  prefulgeceReadyStatus,
+  thornedFlourishStatus,
+  grandImpactReadyStatus,
 ];
 
 export const rdm: CombatAction[] = [
   jolt,
   jolt2,
+  jolt3,
   verthuder,
   verthuder3,
   veraero,
@@ -616,6 +759,11 @@ export const rdm: CombatAction[] = [
   impact,
   moulinet,
   enchantedMoulinet,
+  enchantedMoulinetDeux,
+  enchantedMoulinetTrois,
+  prefulgence,
+  viceOfThorns,
+  grandImpact,
 ];
 
 export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic, removeDualcastWithPotionEpic);

@@ -134,7 +134,6 @@ const trueThrust: CombatAction = createCombatAction({
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.RaidenThrust : ActionId.TrueThrust),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const disembowel: CombatAction = createCombatAction({
@@ -156,7 +155,6 @@ const spiralBlow: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SpiralBlow),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const chaosThrust: CombatAction = createCombatAction({
@@ -178,7 +176,6 @@ const chaoticSpring: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.ChaoticSpring),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const wheelingThrust: CombatAction = createCombatAction({
@@ -196,7 +193,6 @@ const wheelingThrust: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
   redirect: (state) =>
     hasCombo(state, ActionId.Drakesbane) && hasBuff(state, StatusId.FangandClawBared) ? ActionId.Drakesbane : ActionId.WheelingThrust,
-  preservesCombo: false,
 });
 
 const fangAndClaw: CombatAction = createCombatAction({
@@ -214,7 +210,6 @@ const fangAndClaw: CombatAction = createCombatAction({
   reducedBySkillSpeed: true,
   redirect: (state) =>
     hasCombo(state, ActionId.Drakesbane) && hasBuff(state, StatusId.WheelinMotion) ? ActionId.Drakesbane : ActionId.FangandClaw,
-  preservesCombo: false,
 });
 
 const drakesbane: CombatAction = createCombatAction({
@@ -225,7 +220,6 @@ const drakesbane: CombatAction = createCombatAction({
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const raidenThrust: CombatAction = createCombatAction({
@@ -238,7 +232,6 @@ const raidenThrust: CombatAction = createCombatAction({
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const vorpalThrust: CombatAction = createCombatAction({
@@ -259,7 +252,6 @@ const lanceBarrage: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.VorpalThrust),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const fullThrust: CombatAction = createCombatAction({
@@ -280,7 +272,6 @@ const heavensThrust: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.HeavensThrust),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const lifeSurge: CombatAction = createCombatAction({
@@ -440,7 +431,6 @@ const doomSpike: CombatAction = createCombatAction({
   },
   redirect: (state) => (hasBuff(state, StatusId.DraconianFire) ? ActionId.DraconianFury : ActionId.DoomSpike),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const draconianFury: CombatAction = createCombatAction({
@@ -453,7 +443,6 @@ const draconianFury: CombatAction = createCombatAction({
   },
   isGlowing: () => true,
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const sonicThrust: CombatAction = createCombatAction({
@@ -468,7 +457,6 @@ const sonicThrust: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.SonicThrust),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const coerthanTorment: CombatAction = createCombatAction({
@@ -482,7 +470,6 @@ const coerthanTorment: CombatAction = createCombatAction({
   },
   isGlowing: (state) => hasCombo(state, ActionId.CoerthanTorment),
   reducedBySkillSpeed: true,
-  preservesCombo: false,
 });
 
 const elusiveJump: CombatAction = createCombatAction({
