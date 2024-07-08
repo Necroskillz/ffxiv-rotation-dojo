@@ -1,4 +1,3 @@
-- positionals (movement), cancel cast
-- follow list of actions (correct/fail)
-- diminishing returns
-- ping?
+- positionals
+- guaranteed crit/dh
+- setting to not replace followup actions (same as ingame)

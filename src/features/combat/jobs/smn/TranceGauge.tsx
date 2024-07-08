@@ -8,6 +8,7 @@ import { GaugeDiamond } from '../../GaugeDiamond';
 import { GaugeNumber } from '../../GaugeNumber';
 
 export const TranceGauge = () => {
+  const solarBahamut = useAppSelector((state) => selectBuff(state, StatusId.SolarBahamutActive));
   const bahamut = useAppSelector((state) => selectBuff(state, StatusId.BahamutActive));
   const phoenix = useAppSelector((state) => selectBuff(state, StatusId.PhoenixActive));
   const ifrit = useAppSelector((state) => selectBuff(state, StatusId.IfritActive));
@@ -23,6 +24,7 @@ export const TranceGauge = () => {
   const topazFillColor = '#FFE4C3';
   const disabledEmeraldFillColor = '#588051';
   const emeraldFillColor = '#81E677';
+  const solarBahamutTexture = 'linear-gradient(45deg, rgba(85,151,255, 1) 0%, rgba(144,207,255) 50%, rgba(243,255,255) 100%)';
   const bahamutTexture = 'linear-gradient(45deg, rgba(0,149,175, 1) 0%, rgba(0,205,216, 1) 50%, rgba(0,232,232, 1) 100%)';
   const phoenixTexture = 'linear-gradient(45deg, rgba(107,4,0, 1) 0%, rgba(220,122,83, 1) 50%, rgba(247,188,150, 1) 100%)';
 
@@ -32,7 +34,9 @@ export const TranceGauge = () => {
 
   useEffect(() => {
     function set() {
-      if (bahamut) {
+      if (solarBahamut) {
+        setTimer(getRemainingTime(solarBahamut));
+      } else if (bahamut) {
         setTimer(getRemainingTime(bahamut));
       } else if (phoenix) {
         setTimer(getRemainingTime(phoenix));
@@ -51,29 +55,32 @@ export const TranceGauge = () => {
     const timer = setInterval(() => set(), 10);
 
     return () => clearInterval(timer);
-  }, [bahamut, phoenix, ifrit, titan, garuda, setTimer]);
+  }, [bahamut, phoenix, solarBahamut, ifrit, titan, garuda, setTimer]);
 
   return (
     <HudItem name="TranceGauge" defaultPosition={{ x: 20, y: 90 }}>
       <div className="grid w-40 gap-0.5">
         <GaugeBar
-          current={(bahamut || phoenix) && timer ? timer : 0}
+          current={(bahamut || phoenix || solarBahamut) && timer ? timer : 0}
           max={15000}
-          texture={bahamut ? bahamutTexture : phoenixTexture}
+          texture={solarBahamut ? solarBahamutTexture : bahamut ? bahamutTexture : phoenixTexture}
           animate={false}
         />
         <div className="grid grid-flow-col">
           <div className="grid grid-flow-col auto-cols-max gap-1.5 ml-1.5 font-ui-light text-xs font-bold text-center">
             <div className="grid gap-1 grid-flow-row">
-              <GaugeDiamond fill={ruby > 0} fillColor={bahamut || phoenix ? disabledRubyFillColor : rubyFillColor} />
+              <GaugeDiamond fill={ruby > 0} fillColor={bahamut || phoenix || solarBahamut ? disabledRubyFillColor : rubyFillColor} />
               {ifrit && <div>{ruby}</div>}
             </div>
             <div className="grid gap-1 grid-flow-row">
-              <GaugeDiamond fill={topaz > 0} fillColor={bahamut || phoenix ? disabledTopazFillColor : topazFillColor} />
+              <GaugeDiamond fill={topaz > 0} fillColor={bahamut || phoenix || solarBahamut ? disabledTopazFillColor : topazFillColor} />
               {titan && <div>{topaz}</div>}
             </div>
             <div className="grid gap-1 grid-flow-row">
-              <GaugeDiamond fill={emerald > 0} fillColor={bahamut || phoenix ? disabledEmeraldFillColor : emeraldFillColor} />
+              <GaugeDiamond
+                fill={emerald > 0}
+                fillColor={bahamut || phoenix || solarBahamut ? disabledEmeraldFillColor : emeraldFillColor}
+              />
               {garuda && <div>{emerald}</div>}
             </div>
           </div>

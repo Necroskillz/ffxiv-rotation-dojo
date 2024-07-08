@@ -336,4 +336,5 @@ export enum StatusId {
   RadiantEncoreCoda = 999021,
   KaeshiTendoGokenActive = 999022,
   KaeshiTendoSetsugekkaActive = 999023,
+  SolarBahamutActive = 999024,
 }

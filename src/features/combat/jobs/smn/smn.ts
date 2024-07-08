@@ -27,10 +27,10 @@ import {
   setTopaz,
   gcd,
   event,
-  removeBuffAction,
   dmgEvent,
   DamageType,
   debuff,
+  ogcdLock,
 } from '../../combatSlice';
 
 function topaz(state: RootState) {
@@ -49,22 +49,16 @@ function bahamut(state: RootState) {
   return resource(state, 'bahamut');
 }
 
-export const petAfk = (): AppThunk => (dispatch) => {
-  dispatch(setPet(null));
-  setTimeout(() => dispatch(setPet({ name: 'Carbuncle' })), 8000);
-};
+function tranceActive(state: RootState) {
+  return hasBuff(state, StatusId.SolarBahamutActive) || hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive);
+}
 
-const switchToPhoenixEpic: Epic<any, any, RootState> = (action$) =>
-  action$.pipe(
-    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.BahamutActive),
-    map(() => setBahamut(1))
-  );
-
-const switchToBahamutEpic: Epic<any, any, RootState> = (action$) =>
-  action$.pipe(
-    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.PhoenixActive),
-    map(() => setBahamut(0))
-  );
+export const petAfk =
+  (time: number = 8000): AppThunk =>
+  (dispatch) => {
+    dispatch(setPet(null));
+    setTimeout(() => dispatch(setPet({ name: 'Carbuncle' })), time);
+  };
 
 const endTitanEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
@@ -72,7 +66,13 @@ const endTitanEpic: Epic<any, any, RootState> = (action$, state$) =>
       (a) =>
         (a.type === setResource.type && a.payload.resourceType === 'topaz' && a.payload.amount === 0) ||
         (a.type === addBuff.type &&
-          [StatusId.IfritActive, StatusId.GarudaActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id))
+          [
+            StatusId.IfritActive,
+            StatusId.GarudaActive,
+            StatusId.SolarBahamutActive,
+            StatusId.BahamutActive,
+            StatusId.PhoenixActive,
+          ].includes(a.payload.id))
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -86,7 +86,13 @@ const endIfritEpic: Epic<any, any, RootState> = (action$, state$) =>
       (a) =>
         (a.type === setResource.type && a.payload.resourceType === 'ruby' && a.payload.amount === 0) ||
         (a.type === addBuff.type &&
-          [StatusId.TitanActive, StatusId.GarudaActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id))
+          [
+            StatusId.TitanActive,
+            StatusId.GarudaActive,
+            StatusId.SolarBahamutActive,
+            StatusId.BahamutActive,
+            StatusId.PhoenixActive,
+          ].includes(a.payload.id))
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -100,7 +106,13 @@ const endGarudaEpic: Epic<any, any, RootState> = (action$, state$) =>
       (a) =>
         (a.type === setResource.type && a.payload.resourceType === 'emerald' && a.payload.amount === 0) ||
         (a.type === addBuff.type &&
-          [StatusId.IfritActive, StatusId.TitanActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id))
+          [
+            StatusId.IfritActive,
+            StatusId.TitanActive,
+            StatusId.SolarBahamutActive,
+            StatusId.BahamutActive,
+            StatusId.PhoenixActive,
+          ].includes(a.payload.id))
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -113,7 +125,9 @@ const endTitansFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
     filter(
       (a) =>
         a.type === addBuff.type &&
-        [StatusId.IfritActive, StatusId.GarudaActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id)
+        [StatusId.IfritActive, StatusId.GarudaActive, StatusId.SolarBahamutActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(
+          a.payload.id
+        )
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -126,7 +140,9 @@ const endIfritsFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
     filter(
       (a) =>
         a.type === addBuff.type &&
-        [StatusId.TitanActive, StatusId.GarudaActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id)
+        [StatusId.TitanActive, StatusId.GarudaActive, StatusId.SolarBahamutActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(
+          a.payload.id
+        )
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -145,30 +161,14 @@ const endIfritsFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const resetTopazEpic: Epic<any, any, RootState> = (action$) =>
-  action$.pipe(
-    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.TitanActive),
-    map(() => setTopaz(0))
-  );
-
-const resetRubyEpic: Epic<any, any, RootState> = (action$) =>
-  action$.pipe(
-    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.IfritActive),
-    map(() => setRuby(0))
-  );
-
-const resetEmeraldEpic: Epic<any, any, RootState> = (action$) =>
-  action$.pipe(
-    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.GarudaActive),
-    map(() => setEmerald(0))
-  );
-
 const endGarudasFavorEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter(
       (a) =>
         a.type === addBuff.type &&
-        [StatusId.TitanActive, StatusId.IfritActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(a.payload.id)
+        [StatusId.TitanActive, StatusId.IfritActive, StatusId.SolarBahamutActive, StatusId.BahamutActive, StatusId.PhoenixActive].includes(
+          a.payload.id
+        )
     ),
     withLatestFrom(state$),
     map(([, state]) => state),
@@ -182,6 +182,22 @@ const radiantAegisStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const solarBahamutActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.SolarBahamutActive,
+  duration: 15,
+  isHarmful: false,
+  isVisible: false,
+  tick: (dispatch) => dispatch(event(ActionId.Luxwave, { potency: 160, type: DamageType.Magical })),
+  initialDelay: 5000,
+  onExpire: (dispatch, getState) => {
+    if (bahamut(getState()) === 0) {
+      dispatch(setBahamut(1));
+    } else {
+      dispatch(setBahamut(3));
+    }
+  },
+});
+
 const bahamutActiveStatus: CombatStatus = createCombatStatus({
   id: StatusId.BahamutActive,
   duration: 15,
@@ -189,6 +205,7 @@ const bahamutActiveStatus: CombatStatus = createCombatStatus({
   isVisible: false,
   tick: (dispatch) => dispatch(event(ActionId.Wyrmwave, { potency: 150, type: DamageType.Magical })),
   initialDelay: 5000,
+  onExpire: (dispatch) => dispatch(setBahamut(2)),
 });
 
 const phoenixActiveStatus: CombatStatus = createCombatStatus({
@@ -198,6 +215,7 @@ const phoenixActiveStatus: CombatStatus = createCombatStatus({
   isVisible: false,
   tick: (dispatch) => dispatch(event(ActionId.ScarletFlame, { potency: 150, type: DamageType.Magical })),
   initialDelay: 5000,
+  onExpire: (dispatch) => dispatch(setBahamut(0)),
 });
 
 const everlastingFlightStatus: CombatStatus = createCombatStatus({
@@ -211,6 +229,7 @@ const titanActiveStatus: CombatStatus = createCombatStatus({
   duration: 30,
   isHarmful: false,
   isVisible: false,
+  onExpire: (dispatch) => dispatch(setTopaz(0)),
 });
 
 const titansFavorStatus: CombatStatus = createCombatStatus({
@@ -224,6 +243,7 @@ const ifritActiveStatus: CombatStatus = createCombatStatus({
   duration: 30,
   isHarmful: false,
   isVisible: false,
+  onExpire: (dispatch) => dispatch(setRuby(0)),
 });
 
 const ifritsFavorStatus: CombatStatus = createCombatStatus({
@@ -237,6 +257,7 @@ const garudaActiveStatus: CombatStatus = createCombatStatus({
   duration: 30,
   isHarmful: false,
   isVisible: false,
+  onExpire: (dispatch) => dispatch(setEmerald(0)),
 });
 
 const garudasFavorStatus: CombatStatus = createCombatStatus({
@@ -276,12 +297,26 @@ const furtherRuinStatus: CombatStatus = createCombatStatus({
 
 const searingLightStatus: CombatStatus = createCombatStatus({
   id: StatusId.SearingLight,
+  duration: 20,
+  isHarmful: false,
+});
+
+const rubysGlimmerStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RubysGlimmer,
+  duration: 30,
+  isHarmful: false,
+});
+
+const refulgentLuxStatus: CombatStatus = createCombatStatus({
+  id: StatusId.RefulgentLux,
   duration: 30,
   isHarmful: false,
 });
 
 function ruinRedirect(state: RootState) {
-  return hasBuff(state, StatusId.BahamutActive)
+  return hasBuff(state, StatusId.SolarBahamutActive)
+    ? ActionId.UmbralImpulse
+    : hasBuff(state, StatusId.BahamutActive)
     ? ActionId.AstralImpulse
     : hasBuff(state, StatusId.PhoenixActive)
     ? ActionId.FountainofFire
@@ -289,7 +324,9 @@ function ruinRedirect(state: RootState) {
 }
 
 function triDisasterRedirect(state: RootState) {
-  return hasBuff(state, StatusId.BahamutActive)
+  return hasBuff(state, StatusId.SolarBahamutActive)
+    ? ActionId.UmbralFlare
+    : hasBuff(state, StatusId.BahamutActive)
     ? ActionId.AstralFlare
     : hasBuff(state, StatusId.PhoenixActive)
     ? ActionId.BrandofPurgatory
@@ -318,17 +355,43 @@ const radiantAegis: CombatAction = createCombatAction({
   isUsable: (state) => hasPet(state),
 });
 
+const tranceRedirect = (state: RootState) => {
+  switch (bahamut(state)) {
+    case 1:
+      return ActionId.SummonBahamut;
+    case 3:
+      return ActionId.SummonPhoenix;
+    default:
+      return ActionId.SummonSolarBahamut;
+  }
+};
+
 const aethercharge: CombatAction = createCombatAction({
   id: ActionId.Aethercharge,
   execute: () => {},
-  redirect: (state) => (bahamut(state) === 0 ? ActionId.SummonBahamut : ActionId.SummonPhoenix),
+  redirect: tranceRedirect,
   reducedBySpellSpeed: true,
 });
 
 const dreadwyrnTrance: CombatAction = createCombatAction({
   id: ActionId.DreadwyrmTrance,
   execute: () => {},
-  redirect: (state) => (bahamut(state) === 0 ? ActionId.SummonBahamut : ActionId.SummonPhoenix),
+  redirect: tranceRedirect,
+  reducedBySpellSpeed: true,
+});
+
+const summonSolarBahamut: CombatAction = createCombatAction({
+  id: ActionId.SummonSolarBahamut,
+  execute: (dispatch) => {
+    dispatch(buff(StatusId.SolarBahamutActive));
+    dispatch(buff(StatusId.RefulgentLux));
+    dispatch(gcd({ reducedBySpellSpeed: true }));
+    dispatch(petAfk(15000));
+    dispatch(setTopaz(9));
+    dispatch(setRuby(9));
+    dispatch(setEmerald(9));
+  },
+  isUsable: (state) => hasPet(state),
   reducedBySpellSpeed: true,
 });
 
@@ -337,13 +400,13 @@ const summonBahamut: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(buff(StatusId.BahamutActive));
     dispatch(gcd({ reducedBySpellSpeed: true }));
-    dispatch(petAfk());
+    dispatch(petAfk(15000));
     dispatch(setTopaz(9));
     dispatch(setRuby(9));
     dispatch(setEmerald(9));
   },
   isUsable: (state) => hasPet(state),
-  redirect: (state) => (bahamut(state) === 0 ? ActionId.SummonBahamut : ActionId.SummonPhoenix),
+  redirect: tranceRedirect,
   reducedBySpellSpeed: true,
 });
 
@@ -353,7 +416,7 @@ const summonPhoenix: CombatAction = createCombatAction({
     dispatch(buff(StatusId.PhoenixActive));
     dispatch(buff(StatusId.EverlastingFlight));
     dispatch(gcd({ reducedBySpellSpeed: true }));
-    dispatch(petAfk());
+    dispatch(petAfk(15000));
     dispatch(setTopaz(9));
     dispatch(setRuby(9));
     dispatch(setEmerald(9));
@@ -379,7 +442,7 @@ const ruin2: CombatAction = createCombatAction({
 const ruin3: CombatAction = createCombatAction({
   id: ActionId.RuinIII,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RuinIII, context, { potency: 310 }));
+    dispatch(dmgEvent(ActionId.RuinIII, context, { potency: 360 }));
   },
   redirect: ruinRedirect,
   reducedBySpellSpeed: true,
@@ -388,7 +451,15 @@ const ruin3: CombatAction = createCombatAction({
 const astralImpulse: CombatAction = createCombatAction({
   id: ActionId.AstralImpulse,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.AstralImpulse, context, { potency: 440 }));
+    dispatch(dmgEvent(ActionId.AstralImpulse, context, { potency: 500 }));
+  },
+  reducedBySpellSpeed: true,
+});
+
+const umbralImpulse: CombatAction = createCombatAction({
+  id: ActionId.UmbralImpulse,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.UmbralImpulse, context, { potency: 600 }));
   },
   reducedBySpellSpeed: true,
 });
@@ -396,7 +467,7 @@ const astralImpulse: CombatAction = createCombatAction({
 const fountainOfFire: CombatAction = createCombatAction({
   id: ActionId.FountainofFire,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FountainofFire, context, { potency: 540 }));
+    dispatch(dmgEvent(ActionId.FountainofFire, context, { potency: 580 }));
   },
   reducedBySpellSpeed: true,
 });
@@ -418,15 +489,13 @@ const summonTitan: CombatAction = createCombatAction({
 const summonTitan2: CombatAction = createCombatAction({
   id: ActionId.SummonTitanII,
   execute: (dispatch, _, context) => {
-    setTimeout(() => dispatch(dmgEvent(ActionId.EarthenFury, context, { potency: 750 })), 4000);
+    setTimeout(() => dispatch(dmgEvent(ActionId.EarthenFury, context, { potency: 800 })), 4000);
     dispatch(buff(StatusId.TitanActive));
     dispatch(setTopaz(4));
     dispatch(petAfk());
   },
-  isUsable: (state) =>
-    topaz(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
-  isGlowing: (state) =>
-    topaz(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
+  isUsable: (state) => topaz(state) === 9 && hasPet(state) && !tranceActive(state),
+  isGlowing: (state) => topaz(state) === 9 && hasPet(state) && !tranceActive(state),
   reducedBySpellSpeed: true,
 });
 
@@ -447,16 +516,14 @@ const summonIfrit: CombatAction = createCombatAction({
 const summonIfrit2: CombatAction = createCombatAction({
   id: ActionId.SummonIfritII,
   execute: (dispatch, _, context) => {
-    setTimeout(() => dispatch(dmgEvent(ActionId.Inferno, context, { potency: 750 })), 4000);
+    setTimeout(() => dispatch(dmgEvent(ActionId.Inferno, context, { potency: 800 })), 4000);
     dispatch(buff(StatusId.IfritActive));
     dispatch(setRuby(2));
     dispatch(buff(StatusId.IfritsFavor));
     dispatch(petAfk());
   },
-  isUsable: (state) =>
-    ruby(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
-  isGlowing: (state) =>
-    ruby(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
+  isUsable: (state) => ruby(state) === 9 && hasPet(state) && !tranceActive(state),
+  isGlowing: (state) => ruby(state) === 9 && hasPet(state) && !tranceActive(state),
   reducedBySpellSpeed: true,
 });
 
@@ -477,23 +544,21 @@ const summonGaruda: CombatAction = createCombatAction({
 const summonGaruda2: CombatAction = createCombatAction({
   id: ActionId.SummonGarudaII,
   execute: (dispatch, _, context) => {
-    setTimeout(() => dispatch(dmgEvent(ActionId.AerialBlast, context, { potency: 750 })), 4000);
+    setTimeout(() => dispatch(dmgEvent(ActionId.AerialBlast, context, { potency: 800 })), 4000);
     dispatch(buff(StatusId.GarudaActive));
     dispatch(setEmerald(4));
     dispatch(buff(StatusId.GarudasFavor));
     dispatch(petAfk());
   },
-  isUsable: (state) =>
-    emerald(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
-  isGlowing: (state) =>
-    emerald(state) === 9 && hasPet(state) && !(hasBuff(state, StatusId.BahamutActive) || hasBuff(state, StatusId.PhoenixActive)),
+  isUsable: (state) => emerald(state) === 9 && hasPet(state) && !tranceActive(state),
+  isGlowing: (state) => emerald(state) === 9 && hasPet(state) && !tranceActive(state),
   reducedBySpellSpeed: true,
 });
 
 const topazRite: CombatAction = createCombatAction({
   id: ActionId.TopazRite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.TopazRite, context, { potency: 330 }));
+    dispatch(dmgEvent(ActionId.TopazRite, context, { potency: 340 }));
 
     dispatch(buff(StatusId.TitansFavor));
     dispatch(removeTitan(1));
@@ -504,7 +569,7 @@ const topazRite: CombatAction = createCombatAction({
 const emeraldRite: CombatAction = createCombatAction({
   id: ActionId.EmeraldRite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EmeraldRite, context, { potency: 230 }));
+    dispatch(dmgEvent(ActionId.EmeraldRite, context, { potency: 240 }));
 
     dispatch(removeGaruda(1));
   },
@@ -514,7 +579,7 @@ const emeraldRite: CombatAction = createCombatAction({
 const rubyRite: CombatAction = createCombatAction({
   id: ActionId.RubyRite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RubyRite, context, { potency: 510 }));
+    dispatch(dmgEvent(ActionId.RubyRite, context, { potency: 540 }));
 
     dispatch(removeIfrit(1));
   },
@@ -524,7 +589,7 @@ const rubyRite: CombatAction = createCombatAction({
 const slipstream: CombatAction = createCombatAction({
   id: ActionId.Slipstream,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 430 }));
+    dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 490 }));
     dispatch(debuff(StatusId.SlipstreamActive));
 
     dispatch(removeBuff(StatusId.GarudasFavor));
@@ -536,7 +601,7 @@ const slipstream: CombatAction = createCombatAction({
 const crimsonCyclone: CombatAction = createCombatAction({
   id: ActionId.CrimsonCyclone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CrimsonCyclone, context, { potency: 430 }));
+    dispatch(dmgEvent(ActionId.CrimsonCyclone, context, { potency: 490 }));
     dispatch(removeBuff(StatusId.IfritsFavor));
     dispatch(combo(ActionId.CrimsonCyclone));
   },
@@ -547,7 +612,7 @@ const crimsonCyclone: CombatAction = createCombatAction({
 const crimsonStrike: CombatAction = createCombatAction({
   id: ActionId.CrimsonStrike,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CrimsonStrike, context, { potency: 430 }));
+    dispatch(dmgEvent(ActionId.CrimsonStrike, context, { potency: 490 }));
   },
   isGlowing: () => true,
   reducedBySpellSpeed: true,
@@ -558,7 +623,9 @@ const astralFlow: CombatAction = createCombatAction({
   execute: () => {},
   isUsable: () => false,
   redirect: (state) =>
-    hasBuff(state, StatusId.BahamutActive)
+    hasBuff(state, StatusId.SolarBahamutActive)
+      ? ActionId.Sunflare
+      : hasBuff(state, StatusId.BahamutActive)
       ? ActionId.Deathflare
       : hasBuff(state, StatusId.PhoenixActive)
       ? ActionId.Rekindle
@@ -576,7 +643,7 @@ const astralFlow: CombatAction = createCombatAction({
 const mountainBuster: CombatAction = createCombatAction({
   id: ActionId.MountainBuster,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.MountainBuster, context, { potency: 150 }));
+    dispatch(dmgEvent(ActionId.MountainBuster, context, { potency: 160 }));
 
     dispatch(removeBuff(StatusId.TitansFavor));
   },
@@ -599,9 +666,19 @@ const gemshine: CombatAction = createCombatAction({
   reducedBySpellSpeed: true,
 });
 
+const sunflare: CombatAction = createCombatAction({
+  id: ActionId.Sunflare,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Sunflare, context, { potency: 600 }));
+  },
+  isGlowing: () => true,
+});
+
 const deathflare: CombatAction = createCombatAction({
   id: ActionId.Deathflare,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Deathflare, context, { potency: 500 }));
   },
   isGlowing: () => true,
@@ -610,6 +687,7 @@ const deathflare: CombatAction = createCombatAction({
 const rekindle: CombatAction = createCombatAction({
   id: ActionId.Rekindle,
   execute: (dispatch) => {
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.Rekindle));
   },
   isGlowing: () => true,
@@ -619,15 +697,30 @@ const rekindle: CombatAction = createCombatAction({
 const enkidleBahamut: CombatAction = createCombatAction({
   id: ActionId.EnkindleBahamut,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.AkhMorn, context, { potency: 1300 }));
   },
   isUsable: (state) => hasBuff(state, StatusId.BahamutActive),
-  redirect: (state) => (hasBuff(state, StatusId.PhoenixActive) ? ActionId.EnkindlePhoenix : ActionId.EnkindleBahamut),
+  redirect: (state) =>
+    hasBuff(state, StatusId.SolarBahamutActive)
+      ? ActionId.EnkindleSolarBahamut
+      : hasBuff(state, StatusId.PhoenixActive)
+      ? ActionId.EnkindlePhoenix
+      : ActionId.EnkindleBahamut,
+});
+
+const enkidleSolarBahamut: CombatAction = createCombatAction({
+  id: ActionId.EnkindleSolarBahamut,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Exodus, context, { potency: 1400 }));
+  },
 });
 
 const enkidlePhoenix: CombatAction = createCombatAction({
   id: ActionId.EnkindlePhoenix,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Revelation, context, { potency: 1300 }));
   },
 });
@@ -635,6 +728,7 @@ const enkidlePhoenix: CombatAction = createCombatAction({
 const energyDrain: CombatAction = createCombatAction({
   id: ActionId.EnergyDrain,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.EnergyDrain, context, { potency: 200 }));
     dispatch(buff(StatusId.Aetherflow));
     dispatch(buff(StatusId.FurtherRuin));
@@ -644,7 +738,7 @@ const energyDrain: CombatAction = createCombatAction({
 const ruin4: CombatAction = createCombatAction({
   id: ActionId.RuinIV,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RuinIV, context, { potency: 430 }));
+    dispatch(dmgEvent(ActionId.RuinIV, context, { potency: 490 }));
     dispatch(removeBuff(StatusId.FurtherRuin));
   },
   isUsable: (state) => hasBuff(state, StatusId.FurtherRuin),
@@ -654,8 +748,15 @@ const ruin4: CombatAction = createCombatAction({
 
 const fester: CombatAction = createCombatAction({
   id: ActionId.Fester,
+  execute: () => {},
+  redirect: () => ActionId.Necrotize,
+});
+
+const necrotize: CombatAction = createCombatAction({
+  id: ActionId.Necrotize,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Fester, context, { potency: 340 }));
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.Necrotize, context, { potency: 420 }));
     dispatch(removeBuffStack(StatusId.Aetherflow));
   },
   isUsable: (state) => hasBuff(state, StatusId.Aetherflow),
@@ -664,9 +765,26 @@ const fester: CombatAction = createCombatAction({
 const searingLight: CombatAction = createCombatAction({
   id: ActionId.SearingLight,
   execute: (dispatch) => {
+    dispatch(ogcdLock());
     dispatch(buff(StatusId.SearingLight));
+    dispatch(buff(StatusId.RubysGlimmer));
   },
   entersCombat: false,
+  redirect: (state) => (hasBuff(state, StatusId.RubysGlimmer) ? ActionId.SearingFlash : ActionId.SearingLight),
+});
+
+const searingFlash: CombatAction = createCombatAction({
+  id: ActionId.SearingFlash,
+  execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
+    dispatch(dmgEvent(ActionId.SearingFlash, context, { potency: 600 }));
+    dispatch(removeBuff(StatusId.RubysGlimmer));
+  },
+});
+
+const exodus: CombatAction = createCombatAction({
+  id: ActionId.Exodus,
+  execute: () => {},
 });
 
 const akhMorn: CombatAction = createCombatAction({
@@ -676,6 +794,11 @@ const akhMorn: CombatAction = createCombatAction({
 
 const revelation: CombatAction = createCombatAction({
   id: ActionId.Revelation,
+  execute: () => {},
+});
+
+const luxwave: CombatAction = createCombatAction({
+  id: ActionId.Luxwave,
   execute: () => {},
 });
 
@@ -734,6 +857,14 @@ const astralFlare: CombatAction = createCombatAction({
   reducedBySpellSpeed: true,
 });
 
+const umbralFlare: CombatAction = createCombatAction({
+  id: ActionId.UmbralFlare,
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.UmbralFlare, context, { potency: 280 }));
+  },
+  reducedBySpellSpeed: true,
+});
+
 const brandofPurgatory: CombatAction = createCombatAction({
   id: ActionId.BrandofPurgatory,
   execute: (dispatch, _, context) => {
@@ -788,6 +919,7 @@ const rubyCatastrophe: CombatAction = createCombatAction({
 const energySiphon: CombatAction = createCombatAction({
   id: ActionId.EnergySiphon,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.EnergySiphon, context, { potency: 100 }));
     dispatch(buff(StatusId.Aetherflow));
     dispatch(buff(StatusId.FurtherRuin));
@@ -797,14 +929,27 @@ const energySiphon: CombatAction = createCombatAction({
 const painflare: CombatAction = createCombatAction({
   id: ActionId.Painflare,
   execute: (dispatch, _, context) => {
+    dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Painflare, context, { potency: 150 }));
     dispatch(removeBuffStack(StatusId.Aetherflow));
   },
   isUsable: (state) => hasBuff(state, StatusId.Aetherflow),
 });
 
+const luxSolaris: CombatAction = createCombatAction({
+  id: ActionId.LuxSolaris,
+  execute: (dispatch) => {
+    dispatch(ogcdLock());
+    dispatch(event(ActionId.LuxSolaris, { healthPotency: 500 }));
+    dispatch(removeBuff(StatusId.RefulgentLux));
+  },
+  isUsable: (state) => hasBuff(state, StatusId.RefulgentLux),
+  isGlowing: (state) => hasBuff(state, StatusId.RefulgentLux),
+});
+
 export const smnStatuses: CombatStatus[] = [
   radiantAegisStatus,
+  solarBahamutActiveStatus,
   bahamutActiveStatus,
   phoenixActiveStatus,
   titanActiveStatus,
@@ -819,6 +964,8 @@ export const smnStatuses: CombatStatus[] = [
   slipstreamActiveStatus,
   rekindleStatus,
   searingLightStatus,
+  refulgentLuxStatus,
+  rubysGlimmerStatus,
 ];
 
 export const smn: CombatAction[] = [
@@ -876,6 +1023,16 @@ export const smn: CombatAction[] = [
   energySiphon,
   painflare,
   everlastingFlight,
+  necrotize,
+  searingFlash,
+  summonSolarBahamut,
+  luxwave,
+  umbralImpulse,
+  umbralFlare,
+  sunflare,
+  luxSolaris,
+  enkidleSolarBahamut,
+  exodus,
 ];
 
 export const smnEpics = combineEpics(
@@ -884,10 +1041,5 @@ export const smnEpics = combineEpics(
   endGarudaEpic,
   endTitansFavorEpic,
   endIfritsFavorEpic,
-  endGarudasFavorEpic,
-  switchToBahamutEpic,
-  switchToPhoenixEpic,
-  resetTopazEpic,
-  resetRubyEpic,
-  resetEmeraldEpic
+  endGarudasFavorEpic
 );
