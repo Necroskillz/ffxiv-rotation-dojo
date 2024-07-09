@@ -476,6 +476,7 @@ const umbralSoul: CombatAction = createCombatAction({
   execute: (dispatch, getState) => {
     dispatch(setFireIce(0, umbralIce(getState()) + 1));
     dispatch(addUmbralHeart(1));
+    dispatch(event(ActionId.UmbralSoul, { mana: iceMana(getState()) }));
   },
   isUsable: (state) => umbralIce(state) > 0,
   reducedBySpellSpeed: true,
@@ -483,7 +484,7 @@ const umbralSoul: CombatAction = createCombatAction({
 
 const scathe: CombatAction = createCombatAction({
   id: ActionId.Scathe,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Scathe, context, { potency: rng(20) ? 100 : 200 }));
   },
   reducedBySpellSpeed: true,

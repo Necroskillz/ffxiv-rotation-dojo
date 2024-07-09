@@ -96,6 +96,7 @@ const damnationStatus: CombatStatus = createCombatStatus({
   id: StatusId.Damnation,
   duration: 15,
   isHarmful: false,
+  onExpire: (dispatch) => dispatch(buff(StatusId.PrimevalImpulse)),
 });
 
 const holmgangStatus: CombatStatus = createCombatStatus({
@@ -170,6 +171,13 @@ const shakeItOffOverTimeStatus: CombatStatus = createCombatStatus({
   duration: 15,
   isHarmful: false,
   tick: (dispatch) => dispatch(event(0, { healthPotency: 100 })),
+});
+
+const primevalImpulseStatus: CombatStatus = createCombatStatus({
+  id: StatusId.PrimevalImpulse,
+  duration: 15,
+  isHarmful: false,
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 400 })),
 });
 
 const heavySwing: CombatAction = createCombatAction({
@@ -561,6 +569,7 @@ export const warStatuses: CombatStatus[] = [
   burgeoningFuryStatus,
   wratfulStatus,
   primalRuinationReadyStatus,
+  primevalImpulseStatus,
 ];
 
 export const war: CombatAction[] = [

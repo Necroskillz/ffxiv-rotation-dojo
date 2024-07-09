@@ -64,13 +64,13 @@ const bloodbathStatus: CombatStatus = createCombatStatus({
 
 const feintStatus: CombatStatus = createCombatStatus({
   id: StatusId.Feint,
-  duration: 10,
+  duration: 15,
   isHarmful: true,
 });
 
 const addleStatus: CombatStatus = createCombatStatus({
   id: StatusId.Addle,
-  duration: 10,
+  duration: 15,
   isHarmful: true,
 });
 
@@ -94,7 +94,7 @@ const surecastStatus: CombatStatus = createCombatStatus({
 
 const reprisalStatus: CombatStatus = createCombatStatus({
   id: StatusId.Reprisal,
-  duration: 10,
+  duration: 15,
   isHarmful: true,
 });
 
@@ -122,7 +122,7 @@ const secondWind: CombatAction = createCombatAction({
   id: ActionId.SecondWind,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(event(ActionId.SecondWind, { healthPotency: 500 }));
+    dispatch(event(ActionId.SecondWind, { healthPotency: 800 }));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
   entersCombat: false,
@@ -244,6 +244,7 @@ const swiftcast: CombatAction = createCombatAction({
     dispatch(buff(StatusId.Swiftcast));
   },
   entersCombat: false,
+  cooldown: () => 40,
 });
 
 const rampart: CombatAction = createCombatAction({
