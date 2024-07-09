@@ -45,6 +45,7 @@ import { HudEditor } from './HudEditor';
 import { setOffset } from './hudSlice';
 import { Settings } from './Settings';
 import { ImportExport } from './ImportExport';
+import { AstralSoulGauge } from '../combat/jobs/blm/AstralSoulGauge';
 
 export class Hud extends React.Component {
   componentDidMount(): void {
@@ -90,6 +91,7 @@ export class Hud extends React.Component {
         <DarksideGauge />
         <BloodGauge />
         <ElementalGauge />
+        <AstralSoulGauge />
         <OathGauge />
         <MimicryGauge />
         <PotencyPerSecondDisplay />

@@ -81,7 +81,7 @@ function beastChakra(state: RootState) {
 
 const procChakraEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === addEvent.type && getActionById(a.payload.actionId).type === 'Weaponskill'),
+    filter((a) => a.type === addEvent.type && a.payload.actionId !== 0 && getActionById(a.payload.actionId).type === 'Weaponskill'),
     withLatestFrom(state$),
     switchMap(([action, state]) => {
       const actions = [];

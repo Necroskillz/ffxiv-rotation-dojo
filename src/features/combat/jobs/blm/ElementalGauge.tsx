@@ -72,6 +72,7 @@ export const ElementalGauge = () => {
           <div className="grid grid-flow-col auto-cols-max gap-1.5 ml-1.5 mt-[12px]">
             <GaugeDiamond fill={polyglot > 0} fillColor={polyglotFillColor} />
             <GaugeDiamond fill={polyglot > 1} fillColor={polyglotFillColor} />
+            <GaugeDiamond fill={polyglot > 2} fillColor={polyglotFillColor} />
           </div>
         </div>
       </div>

@@ -238,6 +238,8 @@ export enum StatusId {
   CircleofPower = 738,
   EnhancedFlare = 2960,
   Thunderhead = 3870,
+  HighThunder = 3871,
+  HighThunderII = 3872,
   IronWill = 79,
   Sheltron = 1856,
   DivineMight = 2673,

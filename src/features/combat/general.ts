@@ -12,7 +12,6 @@ import {
   addEvent,
   addMana,
   buff,
-  buffStacks,
   DamageType,
   event,
   hasBuff,
@@ -37,21 +36,8 @@ const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
         return addMana(600);
       }
 
-      if (selectJob(state) === 'BLM') {
-        if (hasBuff(state, StatusId.AstralFireActive)) {
-          return addMana(0);
-        }
-
-        switch (buffStacks(state, StatusId.UmbralIceActive)) {
-          case 0:
-            return addMana(200);
-          case 1:
-            return addMana(3200);
-          case 2:
-            return addMana(4700);
-          case 3:
-            return addMana(6200);
-        }
+      if (selectJob(state) === 'BLM' && hasBuff(state, StatusId.AstralFireActive)) {
+        return addMana(0);
       } else {
         return addMana(200);
       }
