@@ -34,6 +34,7 @@ const jobOptions: GroupOption[] = [
       { value: 'NIN', label: 'NIN' },
       { value: 'RPR', label: 'RPR' },
       { value: 'SAM', label: 'SAM' },
+      { value: 'VPR', label: 'VPR' },
     ],
   },
   {

@@ -33,6 +33,7 @@ import {
   selectBuff,
   event,
   DamageType,
+  setBattery,
 } from '../../combatSlice';
 import { collectStatuses } from '../../event-status-collector';
 
@@ -487,11 +488,12 @@ const rookAutoturret: CombatAction = createCombatAction({
 
 const automatonQueen: CombatAction = createCombatAction({
   id: ActionId.AutomatonQueen,
-  execute: (dispatch, _, context) => {
+  execute: (dispatch, getState) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.AutomatonQueenActive, { stacks: context.cost - 50 }));
+    const remainingBattery = battery(getState());
+    dispatch(setBattery(0));
+    dispatch(buff(StatusId.AutomatonQueenActive, { stacks: remainingBattery }));
   },
-  cost: (state) => battery(state),
   isUsable: (state) => battery(state) >= 50 && !hasBuff(state, StatusId.AutomatonQueenActive),
 });
 

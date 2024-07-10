@@ -25,6 +25,7 @@ import {
   selectResources,
   setCast,
   setCombat,
+  setPreviousGCDAction,
   setResource,
 } from './combatSlice';
 import { OGCDLockDuration } from './enums';
@@ -108,7 +109,6 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         const combos = selectCombo(getState());
         if (combos[action.comboAction]) {
           context.comboed = true;
-          dispatch(removeCombo(action.comboAction));
         }
       }
 
@@ -140,6 +140,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
           return;
         }
 
+        if (action.comboAction) {
+          dispatch(removeCombo(action.comboAction));
+        }
+
         if (!selectInCombat(getState()) && options.entersCombat !== false) {
           context.startedCombat = true;
           dispatch(setCombat(true));
@@ -163,6 +167,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
         options.execute(dispatch as any, getState, context);
 
         dispatch(executeAction({ id: options.id }));
+
+        if (combatAction.isGcdAction) {
+          dispatch(setPreviousGCDAction(action.id));
+        }
       }
 
       if (castTime === 0) {

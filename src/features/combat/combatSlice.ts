@@ -45,12 +45,13 @@ export function recastTime(state: RootState, time: number, type: string, subType
       typeZ = 15;
       break;
     case 'SAM':
-      const fuka = selectBuff(state, StatusId.Fuka);
-
-      typeY = fuka ? 13 : 0;
+      typeY = selectBuff(state, StatusId.Fuka) ? 13 : 0;
       break;
     case 'MNK':
       typeZ = 20;
+      break;
+    case 'VPR':
+      typeY = selectBuff(state, StatusId.Swiftscaled) ? 15 : 0;
       break;
     case 'BLM':
       if (hasBuff(state, StatusId.LeyLines)) {
@@ -123,6 +124,7 @@ export interface CombatState {
   pullTimer: number | null;
   cast: CastState | null;
   pet: PetState | null;
+  previousGCDAction: ActionId | null;
 }
 
 const initialState: CombatState = {
@@ -181,6 +183,9 @@ const initialState: CombatState = {
     astralSoul: 0,
     oath: 0,
     mimicry: StatusId.AethericMimicryDPS,
+    rattlingCoil: 0,
+    anguineTribute: 0,
+    serpentsOfferings: 0,
   },
   inCombat: false,
   combo: {},
@@ -192,6 +197,7 @@ const initialState: CombatState = {
   pullTimer: null,
   cast: null,
   pet: null,
+  previousGCDAction: null,
 };
 
 export const ResourceTypes = Object.keys(initialState.resources);
@@ -368,6 +374,9 @@ export const combatSlice = createSlice({
     setPet: (state, action: PayloadAction<PetState | null>) => {
       state.pet = action.payload;
     },
+    setPreviousGCDAction: (state, action: PayloadAction<ActionId | null>) => {
+      state.previousGCDAction = action.payload;
+    },
     addEvent: (state, action: PayloadAction<EventPayload>) => {},
   },
 });
@@ -397,6 +406,7 @@ export const {
   removeDebuff: removeDebuffAction,
   removeBuff: removeBuffAction,
   removePlayerDebuff: removePlayerDebuffAction,
+  setPreviousGCDAction,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
@@ -457,6 +467,10 @@ export const selectUmbralHeart = (state: RootState) => state.combat.resources.um
 export const selectAstralSoul = (state: RootState) => state.combat.resources.astralSoul;
 export const selectOath = (state: RootState) => state.combat.resources.oath;
 export const selectMimicry = (state: RootState) => state.combat.resources.mimicry;
+export const selectRattlingCoil = (state: RootState) => state.combat.resources.rattlingCoil;
+export const selectAnguineTribute = (state: RootState) => state.combat.resources.anguineTribute;
+export const selectSerpentsOfferings = (state: RootState) => state.combat.resources.serpentsOfferings;
+
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
 export const selectCombo = (state: RootState) => state.combat.combo;
@@ -829,6 +843,7 @@ export const removeGaruda = removeResourceFactory('emerald');
 export const setBahamut = setResourceFactory('bahamut');
 export const addHeat = addResourceFactory('heat', 100);
 export const addBattery = addResourceFactory('battery', 100);
+export const setBattery = setResourceFactory('battery');
 export const addWildfire = addResourceFactory('wildfire', 6);
 export const setWildfire = setResourceFactory('wildfire');
 export const addBeast = addResourceFactory('beast', 100);
@@ -873,6 +888,10 @@ export const addAstralSoul = addResourceFactory('astralSoul', 6);
 export const setAstralSoul = setResourceFactory('astralSoul');
 export const addOath = addResourceFactory('oath', 100);
 export const setMimicry = setResourceFactory('mimicry');
+export const addRattlingCoil = addResourceFactory('rattlingCoil', 3);
+export const addAnguineTribute = addResourceFactory('anguineTribute', 5);
+export const setAnguineTribute = setResourceFactory('anguineTribute');
+export const addSerpentsOfferings = addResourceFactory('serpentsOfferings', 100);
 
 export function mana(state: RootState) {
   return resource(state, 'mana');
@@ -923,6 +942,12 @@ export function inCombat(state: RootState) {
   const combat = selectCombat(state);
 
   return combat.inCombat;
+}
+
+export function previousGCDAction(state: RootState) {
+  const combat = selectCombat(state);
+
+  return combat.previousGCDAction;
 }
 
 export default combatSlice.reducer;

@@ -83,6 +83,8 @@ const initialState: HudState = {
     AstralSoulGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLM'] }),
     OathGauge: createDefaultElementPlacement({ isVisible: true, job: ['PLD'] }),
     MimicryGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLU'] }),
+    SerpentsOfferingsGauge: createDefaultElementPlacement({ isVisible: true, job: ['VPR'] }),
+    VipersightGauge: createDefaultElementPlacement({ isVisible: true, job: ['VPR'] }),
   },
 };
 

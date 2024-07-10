@@ -1,0 +1,32 @@
+.vipersight_bar {
+  width: 49px;
+  height: 12px;
+  border: 2px solid #ad925a;
+  background-color: #625349;
+}
+
+.vipersight_bar_left {
+  border-right-width: 1px;
+  border-radius: 6px 0 0 6px;
+}
+
+.vipersight_bar_right {
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+
+.vipersight_bar_fill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.active1 {
+  border-color: #FF533F;
+  border-color: #FF533F;
+}
+
+.active2 {
+  border-color: #4042E5;
+  border-color: #4042E5;
+}

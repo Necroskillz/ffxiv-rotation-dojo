@@ -15,6 +15,7 @@ import { rdmStatuses } from './jobs/rdm/rdm';
 import { rprStatuses } from './jobs/rpr/rpr';
 import { samStatuses } from './jobs/sam/sam';
 import { smnStatuses } from './jobs/smn/smn';
+import { vprStatuses } from './jobs/vpr/vpr';
 import { warStatuses } from './jobs/war/war';
 import { roleStatuses } from './role';
 
@@ -49,5 +50,6 @@ export const statuses = combineStatuses(
   rprStatuses,
   samStatuses,
   smnStatuses,
-  warStatuses
+  warStatuses,
+  vprStatuses
 );

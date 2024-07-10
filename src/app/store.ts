@@ -25,6 +25,7 @@ import { drkEpics } from '../features/combat/jobs/drk/drk';
 import { blmEpics } from '../features/combat/jobs/blm/blm';
 import { pldEpics } from '../features/combat/jobs/pld/pld';
 import { bluEpics } from '../features/combat/jobs/blu/blu';
+import { vprEpics } from '../features/combat/jobs/vpr/vpr';
 
 const rootEpic = combineEpics(
   dncEpics,
@@ -43,6 +44,7 @@ const rootEpic = combineEpics(
   gnbEpics,
   pldEpics,
   warEpics,
+  vprEpics,
   roleEpics,
   generalEpics,
   scriptEngineEpics
