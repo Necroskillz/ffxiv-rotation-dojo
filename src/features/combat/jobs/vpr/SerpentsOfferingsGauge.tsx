@@ -28,7 +28,7 @@ export const SerpentsOfferingsGauge = () => {
           />
         </div>
         <div className="grid grid-flow-col auto-cols-max gap-1.5 justify-start mt-[2px]">
-          <div className="-mt-[7px] -ml-[15px] mr-[5px] w-10">{remainingTime != null && <GaugeNumber number={remainingTime} />}</div>
+          <div className="-mt-[7px] -ml-[15px] mr-[5px] w-10 text-end">{remainingTime != null && <GaugeNumber number={remainingTime} />}</div>
           <GaugeDiamond fill={anguineTribute >= 1} fillColor={anguineTributeFillColor} />
           <GaugeDiamond fill={anguineTribute >= 2} fillColor={anguineTributeFillColor} />
           <GaugeDiamond fill={anguineTribute >= 3} fillColor={anguineTributeFillColor} />

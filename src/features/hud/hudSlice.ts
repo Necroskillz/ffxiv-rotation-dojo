@@ -85,6 +85,8 @@ const initialState: HudState = {
     MimicryGauge: createDefaultElementPlacement({ isVisible: true, job: ['BLU'] }),
     SerpentsOfferingsGauge: createDefaultElementPlacement({ isVisible: true, job: ['VPR'] }),
     VipersightGauge: createDefaultElementPlacement({ isVisible: true, job: ['VPR'] }),
+    PaletteGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
+    CanvasGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
   },
 };
 

@@ -622,7 +622,6 @@ const slither: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
   },
-  reducedBySkillSpeed: true,
   maxCharges: () => 3,
   extraCooldown: () => ({
     cooldownGroup: 1001,
@@ -899,6 +898,8 @@ const reawaken: CombatAction = createCombatAction({
     dispatch(removeBuff(StatusId.ReadytoReawaken));
     dispatch(buff(StatusId.Reawakened));
     dispatch(buff(StatusId.Generation));
+    dispatch(removeCombo(ActionId.Dreadwinder));
+    dispatch(removeCombo(ActionId.PitofDread));
     dispatch(addAnguineTribute(5));
   },
   reducedBySkillSpeed: true,

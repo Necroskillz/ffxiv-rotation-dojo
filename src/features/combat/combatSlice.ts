@@ -12,7 +12,9 @@ import { OGCDLockDuration } from './enums';
 import { collectStatuses } from './event-status-collector';
 import { statuses } from './statuses';
 
+// https://www.akhmorning.com/allagan-studies/modifiers/levelmods/
 const LevelModifiers: Record<number, { SUB: number; DIV: number }> = {
+  100: { SUB: 420, DIV: 2780 },
   90: { SUB: 400, DIV: 1900 },
   80: { SUB: 380, DIV: 1300 },
   70: { SUB: 364, DIV: 900 },
@@ -65,6 +67,10 @@ export function recastTime(state: RootState, time: number, type: string, subType
         astralUmbral = 50;
       }
       break;
+    case 'PCT':
+      if (subType === 'inspired' && hasBuff(state, StatusId.Inspiration)) {
+        typeY = 25;
+      }
   }
 
   const gcd1 = Math.floor(((2000 - spd) * time) / 1000);
@@ -186,6 +192,13 @@ const initialState: CombatState = {
     rattlingCoil: 0,
     anguineTribute: 0,
     serpentsOfferings: 0,
+    palette: 0,
+    whitePaint: 0,
+    creatureCanvas: 0,
+    creaturePortraitCanvas: 0,
+    creaturePortrait: 0,
+    weaponCanvas: 0,
+    landscapeCanvas: 0,
   },
   inCombat: false,
   combo: {},
@@ -470,6 +483,13 @@ export const selectMimicry = (state: RootState) => state.combat.resources.mimicr
 export const selectRattlingCoil = (state: RootState) => state.combat.resources.rattlingCoil;
 export const selectAnguineTribute = (state: RootState) => state.combat.resources.anguineTribute;
 export const selectSerpentsOfferings = (state: RootState) => state.combat.resources.serpentsOfferings;
+export const selectPalette = (state: RootState) => state.combat.resources.palette;
+export const selectWhitePaint = (state: RootState) => state.combat.resources.whitePaint;
+export const selectCreatureCanvas = (state: RootState) => state.combat.resources.creatureCanvas;
+export const selectCreaturePortrait = (state: RootState) => state.combat.resources.creaturePortrait;
+export const selectCreaturePortraitCanvas = (state: RootState) => state.combat.resources.creaturePortraitCanvas;
+export const selectWeaponCanvas = (state: RootState) => state.combat.resources.weaponCanvas;
+export const selectLandscapeCanvas = (state: RootState) => state.combat.resources.landscapeCanvas;
 
 export const selectBuffs = (state: RootState) => state.combat.buffs;
 export const selectDebuffs = (state: RootState) => state.combat.debuffs;
@@ -892,6 +912,13 @@ export const addRattlingCoil = addResourceFactory('rattlingCoil', 3);
 export const addAnguineTribute = addResourceFactory('anguineTribute', 5);
 export const setAnguineTribute = setResourceFactory('anguineTribute');
 export const addSerpentsOfferings = addResourceFactory('serpentsOfferings', 100);
+export const addPalette = addResourceFactory('palette', 100);
+export const addWhitePaint = addResourceFactory('whitePaint', 5);
+export const setCreatureCanvas = setResourceFactory('creatureCanvas');
+export const setCreaturePortrait = setResourceFactory('creaturePortrait');
+export const setCreaturePortraitCanvas = setResourceFactory('creaturePortraitCanvas');
+export const setWeaponCanvas = setResourceFactory('weaponCanvas');
+export const setLandscapeCanvas = setResourceFactory('landscapeCanvas');
 
 export function mana(state: RootState) {
   return resource(state, 'mana');

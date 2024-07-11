@@ -104,7 +104,6 @@ const consumeManaficationEpic: Epic<any, any, RootState> = (action$, state$) =>
     ),
     withLatestFrom(state$),
     switchMap(([, state]) => {
-      console.log('e');
       const actions = [removeBuffStack(StatusId.Manafication)];
 
       if (buffStacks(state, StatusId.Manafication) === 1) {

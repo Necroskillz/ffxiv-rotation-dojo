@@ -28,6 +28,7 @@ const displayedCostTypes = [
   'beast',
   'oath',
   'serpentsOfferings',
+  'palette',
 ];
 
 export const Cost: FC<CostProps> = ({ action, size }) => {

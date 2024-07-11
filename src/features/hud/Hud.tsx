@@ -48,6 +48,8 @@ import { ImportExport } from './ImportExport';
 import { AstralSoulGauge } from '../combat/jobs/blm/AstralSoulGauge';
 import { SerpentsOfferingsGauge } from '../combat/jobs/vpr/SerpentsOfferingsGauge';
 import { VipersightGauge } from '../combat/jobs/vpr/VipersightGauge';
+import { PaletteGauge } from '../combat/jobs/pct/PaletteGauge';
+import { CanvasGauge } from '../combat/jobs/pct/CanvasGauge';
 
 export class Hud extends React.Component {
   componentDidMount(): void {
@@ -98,6 +100,8 @@ export class Hud extends React.Component {
         <MimicryGauge />
         <VipersightGauge />
         <SerpentsOfferingsGauge />
+        <PaletteGauge />
+        <CanvasGauge />
         <PotencyPerSecondDisplay />
         <Hotbars />
         <Buffs />

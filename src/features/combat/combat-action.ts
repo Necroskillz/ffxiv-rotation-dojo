@@ -42,6 +42,21 @@ const subTypeMap: Record<number, string> = {
   [ActionId.BlizzardIV]: 'ice',
   [ActionId.Freeze]: 'ice',
   [ActionId.HighBlizzardII]: 'ice',
+  [ActionId.FireinRed]: 'inspired',
+  [ActionId.AeroinGreen]: 'inspired',
+  [ActionId.WaterinBlue]: 'inspired',
+  [ActionId.FireIIinRed]: 'inspired',
+  [ActionId.AeroIIinGreen]: 'inspired',
+  [ActionId.WaterIIinBlue]: 'inspired',
+  [ActionId.BlizzardinCyan]: 'inspired',
+  [ActionId.StoneinYellow]: 'inspired',
+  [ActionId.ThunderinMagenta]: 'inspired',
+  [ActionId.BlizzardIIinCyan]: 'inspired',
+  [ActionId.StoneIIinYellow]: 'inspired',
+  [ActionId.ThunderIIinMagenta]: 'inspired',
+  [ActionId.HolyinWhite]: 'inspired',
+  [ActionId.CometinBlack]: 'inspired',
+  [ActionId.StarPrism]: 'inspired',
 };
 
 export interface CombatAction {
@@ -77,7 +92,7 @@ export interface CombatActionOptions {
   isUsable?: (state: RootState) => boolean;
   isGlowing?: (state: RootState) => boolean;
   redirect?: (state: RootState) => ActionId;
-  cooldown?: (state: RootState) => number;
+  cooldown?: (state: RootState, baseCooldown: number) => number;
   maxCharges?: (state: RootState) => number;
   extraCooldown?: (state: RootState) => ExtraCooldownOptions;
   castTime?: (state: RootState, baseCastTime: number) => number;
@@ -224,9 +239,10 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     },
     redirect: options.redirect || (() => options.id),
     cooldown: (state) => {
-      const baseRecast = options.cooldown ? options.cooldown(state) * 1000 : action.recastTime;
-      if ((options.reducedBySkillSpeed && action.type === 'Weaponskill') || (options.reducedBySpellSpeed && action.type === 'Spell')) {
-        return recastTime(state, baseRecast, action.type);
+      const baseRecast = options.cooldown ? options.cooldown(state, action.recastTime / 1000) * 1000 : action.recastTime;
+      
+      if (options.reducedBySpellSpeed || options.reducedBySkillSpeed) {
+        return recastTime(state, baseRecast, action.type, subTypeMap[action.id]);
       }
 
       return baseRecast;
@@ -262,7 +278,11 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
       }
 
       const baseCast = options.castTime ? options.castTime(state, action.castTime / 1000) * 1000 : action.castTime;
-      return recastTime(state, baseCast, options.reducedBySpellSpeed ? 'Spell' : 'Weaponskill', subTypeMap[action.id]);
+      if (options.reducedBySpellSpeed || options.reducedBySkillSpeed) {
+        return recastTime(state, baseCast, action.type, subTypeMap[action.id]);
+      }
+
+      return baseCast;
     },
     cost: (state) => (options.cost ? options.cost(state, action.cost) : action.cost),
     isGcdAction,

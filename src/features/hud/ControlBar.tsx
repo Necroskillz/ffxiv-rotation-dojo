@@ -43,6 +43,7 @@ const jobOptions: GroupOption[] = [
       { value: 'BLM', label: 'BLM' },
       { value: 'SMN', label: 'SMN' },
       { value: 'RDM', label: 'RDM' },
+      { value: 'PCT', label: 'PCT' },
       { value: 'BLU', label: 'BLU' },
     ],
   },

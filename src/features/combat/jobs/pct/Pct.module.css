@@ -1,0 +1,53 @@
+.smudge {
+  width: 65px;
+  text-align: center;
+}
+
+.smudge:before {
+  width: 65px;
+  height: 25px;
+  margin-top: 10px;
+  margin-left: 86px;
+  content: '';
+  position: absolute;
+  inset: -5px;
+  transform: translate(10px, 8px);
+  z-index: -1;
+  background-color: black;
+  filter: blur(3px);
+}
+
+.smudge_rainbow {
+  -webkit-text-stroke: 1px black;
+}
+
+.smudge_rainbow:before {
+  width: 65px;
+  height: 25px;
+  margin-top: 10px;
+  margin-left: 86px;
+  content: '';
+  position: absolute;
+  inset: -5px;
+  transform: translate(10px, 8px);
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #9FCC8A 0%,
+    #FEF667 10%,
+    #FABF7C 40%,
+    #DB8C93 60%,
+    #C66FAC 90%,
+    #9B7DCD 100%
+  );
+  filter: blur(3px);
+}
+
+.canvas {
+  background: #0D1932;
+  border: 2px solid #5D6E7D;
+  width: 70px;
+  height: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+}

@@ -10,6 +10,7 @@ import { gnbStatuses } from './jobs/gnb/gnb';
 import { mchStatuses } from './jobs/mch/mch';
 import { mnkStatuses } from './jobs/mnk/mnk';
 import { ninStatuses } from './jobs/nin/nin';
+import { pctStatuses } from './jobs/pct/pct';
 import { pldStatuses } from './jobs/pld/pld';
 import { rdmStatuses } from './jobs/rdm/rdm';
 import { rprStatuses } from './jobs/rpr/rpr';
@@ -51,5 +52,6 @@ export const statuses = combineStatuses(
   samStatuses,
   smnStatuses,
   warStatuses,
-  vprStatuses
+  vprStatuses,
+  pctStatuses
 );

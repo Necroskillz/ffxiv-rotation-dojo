@@ -19,9 +19,9 @@ export interface PlayerState {
 
 const initialState: PlayerState = {
   partySize: 8,
-  level: 90,
-  skillSpeed: 400,
-  spellSpeed: 400,
+  level: 100,
+  skillSpeed: 420,
+  spellSpeed: 420,
   job: 'DRK',
   pullTimerDuration: 17,
   blueMagicSpellbook: [
@@ -43,7 +43,7 @@ export const playerSlice = createSlice({
       if (action.payload === 'BLU') {
         state.level = 80;
       } else {
-        state.level = 90;
+        state.level = 100;
       }
     },
     setPartySize: (state, action: PayloadAction<number>) => {
