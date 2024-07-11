@@ -58,7 +58,7 @@ export const scriptEngineSlice = createSlice({
         return;
       }
 
-      let script = state.scripts.find((script) => script.name === action.payload.name);
+      let script = state.scripts.find((script) => script.name === action.payload.name && script.job === action.payload.job);
 
       if (script) {
         script.script = action.payload.script;

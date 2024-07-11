@@ -685,6 +685,15 @@ export const queue =
           timeoutId: setTimeout(() => dispatch(removeQueuedAction()), 600),
         })
       );
+
+      const cooldown = selectCooldowns(getState())[getActionById(actionId).cooldownGroup];
+
+      if (cooldown) {
+        const remaining = cooldown.timestamp + cooldown.duration - Date.now();
+        if (remaining < 600) {
+          setTimeout(() => dispatch(drainQueue()), remaining + 5);
+        }
+      }
     }
   };
 
