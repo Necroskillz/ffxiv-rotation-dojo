@@ -332,7 +332,7 @@ const gustSlash: CombatAction = createCombatAction({
   id: ActionId.GustSlash,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.GustSlash, context, { potency: 220, comboPotency: 380 }));
-
+    dispatch(removeBuff(StatusId.RaijuReady));
     if (context.comboed) {
       dispatch(combo(ActionId.GustSlash));
       dispatch(addNinki(5));
@@ -347,6 +347,7 @@ const aeolianEdge: CombatAction = createCombatAction({
   id: ActionId.AeolianEdge,
   execute: (dispatch, getState, context) => {
     const bonus = kazematoi(getState()) > 0 ? 100 : 0;
+    dispatch(removeBuff(StatusId.RaijuReady));
 
     if (bonus) {
       dispatch(removeKazematoi(1));
@@ -374,6 +375,7 @@ const armorCrush: CombatAction = createCombatAction({
   id: ActionId.ArmorCrush,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 220, comboPotency: 280, flankPotency: 420, flankComboPotency: 480 }));
+    dispatch(removeBuff(StatusId.RaijuReady));
 
     if (context.comboed) {
       dispatch(addNinki(15));
@@ -959,7 +961,8 @@ const deathBlossom: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.DeathBlossom, context, { potency: 100 }));
     dispatch(combo(ActionId.DeathBlossom));
-
+    dispatch(removeBuff(StatusId.RaijuReady));
+    
     dispatch(addNinki(5));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -970,6 +973,7 @@ const hakkeMujinsatsu: CombatAction = createCombatAction({
   id: ActionId.HakkeMujinsatsu,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.HakkeMujinsatsu, context, { potency: 100, comboPotency: 130 }));
+    dispatch(removeBuff(StatusId.RaijuReady));
 
     if (context.comboed) {
       dispatch(addNinki(5));
