@@ -46,15 +46,15 @@ export function Settings() {
       return;
     }
 
-    const value = parseInt(event.target.value || '400');
+    const value = parseInt(event.target.value || '420');
     dispatch(setSkillSpeed(value));
     setLocalSkillSpeed(value);
   }
 
   function onBlurSkillSpeed() {
     if (skillSpeed == null) {
-      dispatch(setSkillSpeed(400));
-      setLocalSkillSpeed(400);
+      dispatch(setSkillSpeed(420));
+      setLocalSkillSpeed(420);
     }
   }
 
@@ -65,15 +65,15 @@ export function Settings() {
       return;
     }
 
-    const value = parseInt(event.target.value || '400');
+    const value = parseInt(event.target.value || '420');
     dispatch(setSpellSpeed(value));
     setLocalSpellSpeed(value);
   }
 
   function onBlurSpellSpeed() {
     if (spellSpeed == null) {
-      dispatch(setSpellSpeed(400));
-      setLocalSpellSpeed(400);
+      dispatch(setSpellSpeed(420));
+      setLocalSpellSpeed(420);
     }
   }
 

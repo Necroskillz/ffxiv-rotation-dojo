@@ -95,7 +95,7 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   // SAM
   [StatusId.MeikyoShisui]: (actionId) =>
     weaponskill(actionId) &&
-    ![
+    !id(
       ActionId.OgiNamikiri,
       ActionId.Higanbana,
       ActionId.MidareSetsugekka,
@@ -103,8 +103,8 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
       ActionId.KaeshiNamikiri,
       ActionId.KaeshiSetsugekka,
       ActionId.KaeshiGoken,
-      ActionId.Enpi,
-    ].includes(actionId),
+      ActionId.Enpi
+    )(actionId),
   // BLM
   [StatusId.CircleofPower]: always,
   // SMN
@@ -113,25 +113,24 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   [StatusId.Embolden]: always,
   [StatusId.Manafication]: (actionId) =>
     spell(actionId) ||
-    [
+    id(
       ActionId.EnchantedRiposte,
       ActionId.EnchantedZwerchhau,
       ActionId.EnchantedRedoublement,
       ActionId.EnchantedMoulinet,
       ActionId.EnchantedMoulinetDeux,
       ActionId.EnchantedMoulinetTrois,
-      ActionId.EnchantedReprise,
-    ].includes(actionId),
-  [StatusId.MagickedSwordplay]: (actionId) =>
-    [
-      ActionId.EnchantedRiposte,
-      ActionId.EnchantedZwerchhau,
-      ActionId.EnchantedRedoublement,
-      ActionId.EnchantedMoulinet,
-      ActionId.EnchantedMoulinetDeux,
-      ActionId.EnchantedMoulinetTrois,
-      ActionId.EnchantedReprise,
-    ].includes(actionId),
+      ActionId.EnchantedReprise
+    )(actionId),
+  [StatusId.MagickedSwordplay]: id(
+    ActionId.EnchantedRiposte,
+    ActionId.EnchantedZwerchhau,
+    ActionId.EnchantedRedoublement,
+    ActionId.EnchantedMoulinet,
+    ActionId.EnchantedMoulinetDeux,
+    ActionId.EnchantedMoulinetTrois,
+    ActionId.EnchantedReprise
+  ),
   // BLU
   [StatusId.Boost]: (id) => !bluDarkness(id),
   [StatusId.Harmonized]: bluPhysical,
@@ -150,8 +149,35 @@ const statusMatchers: Record<number, (actionId: ActionId, state: RootState) => b
   [StatusId.Devilment]: always,
   // MCH
   [StatusId.WildfireBuff]: weaponskill,
-  [StatusId.Overheated]: weaponskill,
-  [StatusId.Reassembled]: weaponskill,
+  [StatusId.Overheated]: id(
+    ActionId.BlazingShot,
+    ActionId.AutoCrossbow,
+    ActionId.HeatedSplitShot,
+    ActionId.HeatedSlugShot,
+    ActionId.HeatedCleanShot,
+    ActionId.Drill,
+    ActionId.AirAnchor
+  ),
+  [StatusId.Reassembled]: (actionId) => weaponskill(actionId) && !id(ActionId.FullMetalField, ActionId.FlameThrower)(actionId),
+  // PCT
+  [StatusId.StarryMuse]: always,
+  [StatusId.Hyperphantasia]: id(
+    ActionId.FireinRed,
+    ActionId.AeroinGreen,
+    ActionId.WaterinBlue,
+    ActionId.FireIIinRed,
+    ActionId.AeroIIinGreen,
+    ActionId.WaterIIinBlue,
+    ActionId.BlizzardinCyan,
+    ActionId.StoneinYellow,
+    ActionId.ThunderinMagenta,
+    ActionId.BlizzardIIinCyan,
+    ActionId.StoneIIinYellow,
+    ActionId.ThunderIIinMagenta,
+    ActionId.HolyinWhite,
+    ActionId.CometinBlack,
+    ActionId.StarPrism
+  ),
 };
 
 export function collectStatuses(actionId: ActionId, state: RootState): EventStatus[] {
