@@ -38,6 +38,8 @@ export function ActionList() {
             ? 'General'
             : a.job.length > 3
             ? 'Role'
+            : !a.isAssignableToHotbar
+            ? 'Unassignable'
             : a.job.length === 3 || a.job.length === 2
             ? 'Class'
             : 'Job';
@@ -81,7 +83,7 @@ export function ActionList() {
           </button>
         </div>
         <div className="w-[780px] h-[530px]  overflow-auto">
-          {['Class', 'Job', 'Role', 'General']
+          {['Class', 'Job', 'Unassignable', 'Role', 'General']
             .filter((c) => actionList[c]?.length)
             .map((c, id) => (
               <React.Fragment key={id}>

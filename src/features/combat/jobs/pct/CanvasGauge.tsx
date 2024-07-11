@@ -39,7 +39,7 @@ export const CanvasGauge = () => {
   const landscapeFillColor = '#4D57CF';
 
   return (
-    <HudItem name="CanvasGauge" defaultPosition={{ x: 20, y: 20 }}>
+    <HudItem name="CanvasGauge" defaultPosition={{ x: 20, y: 10 }}>
       <div className="grid w-52 justify-center auto-rows-max">
         <div className="grid grid-flow-col place-items-center w-[70px] h-[16px]">
           {creaturePortrait === 1 && <FontAwesomeIcon icon={faFaceGrinBeamSweat} color={moogleFillColor} />}

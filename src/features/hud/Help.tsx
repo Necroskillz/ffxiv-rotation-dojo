@@ -48,6 +48,15 @@ export function Help() {
               Click <b>Reset</b> at any point to reset combat to the initial state (cooldowns, resources, buffs, debuffs, etc.).
             </li>
           </ol>
+          <h2 className="text-xl mb-2 mt-2">Note about hosting change</h2>
+          <p>
+            Previously the app was hosted at{' '}
+            <a className="text-xiv-orange" href="https://necroskillz.github.io/ffxiv-rotation-dojo/">
+              https://necroskillz.github.io/ffxiv-rotation-dojo
+            </a>
+            . If you had <b>existing configuration</b> there (keybinds, hotbar setup, scripts etc.) you can copy your settings at the old
+            site, and import them here.
+          </p>
           <h2 className="text-xl mb-2 mt-2">About</h2>
           <p>
             This project is open source hosted at{' '}
@@ -62,7 +71,10 @@ export function Help() {
           </p>
           <p>
             In case of issues when keybinds overlap with browser, try out the{' '}
-            <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo/releases/">wrapper desktop app</a>.
+            <a className="text-xiv-orange" href="https://github.com/Necroskillz/ffxiv-rotation-dojo/releases/">
+              wrapper desktop app
+            </a>
+            .
           </p>
         </div>
       </div>

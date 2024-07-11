@@ -21,7 +21,7 @@ export const PaletteGauge = () => {
   const subtractivePaletteActiveTexture = 'linear-gradient(in lch longer hue 90deg, cyan 0 0)';
 
   return (
-    <HudItem name="PaletteGauge" defaultPosition={{ x: 20, y: 90 }}>
+    <HudItem name="PaletteGauge" defaultPosition={{ x: 20, y: 95 }}>
       <div className="grid w-36 justify-center">
         <div className="grid gap-0.5">
           <GaugeBar current={palette} max={100} texture={subtractivePalette ? subtractivePaletteActiveTexture : paletteTexture} />
