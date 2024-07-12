@@ -11,7 +11,6 @@ import {
   addFirstmindsFocus,
   buff,
   combo,
-  cooldown,
   debuff,
   dmgEvent,
   event,
@@ -103,7 +102,7 @@ const lifeoftheDragonActiveStatus: CombatStatus = createCombatStatus({
 
 const diveReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.DiveReady,
-  duration: 30,
+  duration: 15,
   isHarmful: false,
 });
 
@@ -317,6 +316,7 @@ const highJump: CombatAction = createCombatAction({
     dispatch(buff(StatusId.DiveReady));
   },
   redirect: (state) => (hasBuff(state, StatusId.DiveReady) ? ActionId.MirageDive : ActionId.HighJump),
+  actionChangeTo: ActionId.MirageDive,
 });
 
 const mirageDive: CombatAction = createCombatAction({
@@ -337,9 +337,9 @@ const geirskogul: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Geirskogul, context, { potency: 280 }));
     dispatch(buff(StatusId.LifeoftheDragonActive));
     dispatch(buff(StatusId.NastrondReady));
-    dispatch(cooldown(4, 1000));
   },
   redirect: (state) => (hasBuff(state, StatusId.NastrondReady) ? ActionId.Nastrond : ActionId.Geirskogul),
+  actionChangeTo: ActionId.Nastrond,
 });
 
 const nastrond: CombatAction = createCombatAction({
@@ -349,6 +349,8 @@ const nastrond: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Nastrond, context, { potency: 360 }));
     dispatch(removeBuffStack(StatusId.NastrondReady));
   },
+  isUsable: (state) => hasBuff(state, StatusId.NastrondReady),
+  isGlowing: (state) => hasBuff(state, StatusId.NastrondReady),
 });
 
 const stardiver: CombatAction = createCombatAction({
@@ -361,6 +363,7 @@ const stardiver: CombatAction = createCombatAction({
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
   animationLock: OGCDLockDuration.Long,
   redirect: (state) => (hasBuff(state, StatusId.StarcrossReady) ? ActionId.Starcross : ActionId.Stardiver),
+  actionChangeTo: ActionId.Starcross,
 });
 
 const starcross: CombatAction = createCombatAction({
@@ -371,6 +374,7 @@ const starcross: CombatAction = createCombatAction({
     dispatch(removeBuff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.StarcrossReady),
+  isGlowing: (state) => hasBuff(state, StatusId.StarcrossReady),
 });
 
 const wingedGlide: CombatAction = createCombatAction({
@@ -394,6 +398,7 @@ const dragonfireDive: CombatAction = createCombatAction({
   },
   animationLock: OGCDLockDuration.Long,
   redirect: (state) => (hasBuff(state, StatusId.DragonsFlight) ? ActionId.RiseoftheDragon : ActionId.DragonfireDive),
+  actionChangeTo: ActionId.RiseoftheDragon,
 });
 
 const riseOfTheDragon: CombatAction = createCombatAction({
@@ -403,6 +408,8 @@ const riseOfTheDragon: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.RiseoftheDragon, context, { potency: 550 }));
     dispatch(removeBuff(StatusId.DragonsFlight));
   },
+  isUsable: (state) => hasBuff(state, StatusId.DragonsFlight),
+  isGlowing: (state) => hasBuff(state, StatusId.DragonsFlight),
 });
 
 const wyrmwindThrust: CombatAction = createCombatAction({

@@ -2,7 +2,7 @@ import { AppThunk, RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
 import { ActionId } from '../actions/action_enums';
 import { StatusId } from '../actions/status_enums';
-import { selectJob } from '../player/playerSlice';
+import { selectActionChangeSettings, selectJob } from '../player/playerSlice';
 import {
   breakCombo,
   buff,
@@ -72,6 +72,7 @@ export interface CombatAction {
   cost: (state: RootState) => number;
   get isGcdAction(): boolean;
   bluNo: number;
+  actionChangeTo: ActionId | null;
 }
 
 export interface ExtraCooldownOptions {
@@ -104,6 +105,7 @@ export interface CombatActionOptions {
   isGcdAction?: boolean;
   animationLock?: number;
   bluNo?: number;
+  actionChangeTo?: ActionId;
 }
 
 export function createCombatAction(options: CombatActionOptions): CombatAction {
@@ -136,6 +138,17 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
           const extraCooldown = options.extraCooldown(getState());
           if (extraCooldown) {
             dispatch(cooldown(extraCooldown.cooldownGroup, extraCooldown.duration * 1000));
+          }
+        }
+
+        if (options.actionChangeTo && action.type === 'Ability') {
+          const targetAction = getActionById(options.actionChangeTo);
+
+          if (targetAction.type === 'Ability') {
+            const actionChangeSettings = selectActionChangeSettings(getState())[options.id];
+            if (!actionChangeSettings || (actionChangeSettings.enabled !== false && actionChangeSettings.recast !== false)) {
+              dispatch(cooldown(targetAction.cooldownGroup, 1000));
+            }
           }
         }
 
@@ -237,10 +250,23 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
 
       return options.isUsable ? options.isUsable(state) : true;
     },
-    redirect: options.redirect || (() => options.id),
+    redirect: (state) => {
+      const defaultRedirect = options.redirect || (() => options.id);
+
+      if (options.actionChangeTo) {
+        const actionChangeSettings = selectActionChangeSettings(state)[options.id];
+        if (!actionChangeSettings || actionChangeSettings.enabled !== false) {
+          return defaultRedirect(state);
+        } else {
+          return options.id;
+        }
+      }
+
+      return defaultRedirect(state);
+    },
     cooldown: (state) => {
       const baseRecast = options.cooldown ? options.cooldown(state, action.recastTime / 1000) * 1000 : action.recastTime;
-      
+
       if (options.reducedBySpellSpeed || options.reducedBySkillSpeed) {
         return recastTime(state, baseRecast, action.type, subTypeMap[action.id]);
       }
@@ -287,6 +313,7 @@ export function createCombatAction(options: CombatActionOptions): CombatAction {
     cost: (state) => (options.cost ? options.cost(state, action.cost) : action.cost),
     isGcdAction,
     bluNo: options.bluNo ?? 0,
+    actionChangeTo: options.actionChangeTo ?? null,
   };
 
   return combatAction;

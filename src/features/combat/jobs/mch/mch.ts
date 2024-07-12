@@ -416,6 +416,7 @@ const barrelStabilizer: CombatAction = createCombatAction({
   },
   isUsable: (state) => inCombat(state),
   redirect: (state) => (hasBuff(state, StatusId.FullMetalMachinist) ? ActionId.FullMetalField : ActionId.BarrelStabilizer),
+  actionChangeTo: ActionId.FullMetalField,
 });
 
 const fullMetalField: CombatAction = createCombatAction({

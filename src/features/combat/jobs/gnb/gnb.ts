@@ -250,6 +250,7 @@ const noMercy: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.ReadytoBreak) ? ActionId.SonicBreak : ActionId.NoMercy),
+  actionChangeTo: ActionId.SonicBreak,
 });
 
 const royalGuard: CombatAction = createCombatAction({
@@ -297,6 +298,7 @@ const bloodfest: CombatAction = createCombatAction({
       : hasCombo(state, ActionId.LionHeart)
       ? ActionId.LionHeart
       : ActionId.Bloodfest,
+  actionChangeTo: ActionId.ReignofBeasts,
 });
 
 const continuation: CombatAction = createCombatAction({

@@ -424,6 +424,7 @@ const bunshin: CombatAction = createCombatAction({
   isGlowing: (state) => ninki(state) >= 50,
   redirect: (state) => (hasBuff(state, StatusId.PhantomKamaitachiReady) ? ActionId.PhantomKamaitachi : ActionId.Bunshin),
   entersCombat: false,
+  actionChangeTo: ActionId.PhantomKamaitachi,
 });
 
 const phantomKamaitachi: CombatAction = createCombatAction({
@@ -433,8 +434,8 @@ const phantomKamaitachi: CombatAction = createCombatAction({
     dispatch(removeBuff(StatusId.PhantomKamaitachiReady));
     dispatch(addNinki(10));
   },
-  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
-  isGlowing: () => true,
+  isUsable: (state) => !hasBuff(state, StatusId.TenChiJin) && hasBuff(state, StatusId.PhantomKamaitachiReady),
+  isGlowing: (state) => hasBuff(state, StatusId.PhantomKamaitachiReady),
 });
 
 const ten: CombatAction = createCombatAction({

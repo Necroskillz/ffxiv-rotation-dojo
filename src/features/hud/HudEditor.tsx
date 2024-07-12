@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, useEffect, useReducer } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
-import { HudElementPlacement, selectElement, selectElements, setOffset, setVisility } from '../hud/hudSlice';
+import { HudElement, selectElement, selectElements, setOffset, setVisility } from '../hud/hudSlice';
 
 export function HudEditor() {
   const hudElement = useAppSelector((state) => selectElement(state, 'HudEditor'));
@@ -49,14 +49,14 @@ export function HudEditor() {
 }
 
 type HudEditorRowProps = {
-  element: HudElementPlacement;
+  element: HudElement;
   name: string;
 };
 
 const HudEditorRow: FC<HudEditorRowProps> = ({ name, element }) => {
   const dispatch = useAppDispatch();
   const [state, setState] = useReducer(
-    (state: HudElementPlacement, newState: Partial<HudElementPlacement>) => ({ ...state, ...newState }),
+    (state: HudElement, newState: Partial<HudElement>) => ({ ...state, ...newState }),
     element
   );
 

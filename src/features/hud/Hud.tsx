@@ -50,6 +50,7 @@ import { SerpentsOfferingsGauge } from '../combat/jobs/vpr/SerpentsOfferingsGaug
 import { VipersightGauge } from '../combat/jobs/vpr/VipersightGauge';
 import { PaletteGauge } from '../combat/jobs/pct/PaletteGauge';
 import { CanvasGauge } from '../combat/jobs/pct/CanvasGauge';
+import { ActionChangeSettings } from '../actions/ActionChangeSettings';
 
 export class Hud extends React.Component {
   componentDidMount(): void {
@@ -67,6 +68,7 @@ export class Hud extends React.Component {
         <Help />
         <HudEditor />
         <ActionList />
+        <ActionChangeSettings />
         <Script />
         <ImportExport />
         <CastBar />

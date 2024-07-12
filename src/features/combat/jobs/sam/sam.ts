@@ -606,6 +606,7 @@ const ikishoten: CombatAction = createCombatAction({
   },
   isUsable: (state) => inCombat(state),
   redirect: (state) => (hasBuff(state, StatusId.ZanshinReady) ? ActionId.Zanshin : ActionId.Ikishoten),
+  actionChangeTo: ActionId.Zanshin,
 });
 
 const zanshin: CombatAction = createCombatAction({

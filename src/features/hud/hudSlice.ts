@@ -1,24 +1,26 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-export interface HudElementPlacement {
+export interface HudElement {
   xOffset: number;
   yOffset: number;
   isVisible: boolean;
   job?: string | string[];
+  extraOptions: any;
 }
 
 export interface HudState {
   locked: boolean;
-  elements: Record<string, HudElementPlacement>;
+  elements: Record<string, HudElement>;
 }
 
-function createDefaultElementPlacement(options: Pick<HudElementPlacement, 'isVisible' | 'job'>): HudElementPlacement {
+function createDefaultElementPlacement(options: Pick<HudElement, 'isVisible' | 'job'>): HudElement {
   return {
     xOffset: 0,
     yOffset: 0,
     isVisible: options.isVisible,
     job: options.job,
+    extraOptions: null,
   };
 }
 const initialState: HudState = {
@@ -87,6 +89,7 @@ const initialState: HudState = {
     VipersightGauge: createDefaultElementPlacement({ isVisible: true, job: ['VPR'] }),
     PaletteGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
     CanvasGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
+    ActionChangeSettings: createDefaultElementPlacement({ isVisible: false }),
   },
 };
 
@@ -101,7 +104,12 @@ export interface SetOffsetActionPayload {
   yOffset: number;
 }
 
-function setElement(state: HudState, name: string, action: (element: HudElementPlacement) => void) {
+export interface SetExtraOptionsPayload {
+  element: string;
+  extraOptions: any;
+}
+
+function setElement(state: HudState, name: string, action: (element: HudElement) => void) {
   if (!state.elements[name]) {
     state.elements[name] = Object.assign({}, initialState.elements[name]);
   }
@@ -122,13 +130,16 @@ export const hudSlice = createSlice({
         e.yOffset = action.payload.yOffset;
       });
     },
+    setExtraOptions: (state, action: PayloadAction<SetExtraOptionsPayload>) => {
+      setElement(state, action.payload.element, (e) => (e.extraOptions = action.payload.extraOptions));
+    },
     lock: (state, action: PayloadAction<boolean>) => {
       state.locked = action.payload;
     },
   },
 });
 
-export const { setVisility, setOffset, lock } = hudSlice.actions;
+export const { setVisility, setOffset, setExtraOptions, lock } = hudSlice.actions;
 
 export const selectElements = (state: RootState) => state.hud.elements;
 export const selectLock = (state: RootState) => state.hud.locked;

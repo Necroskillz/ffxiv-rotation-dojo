@@ -8,12 +8,14 @@ import { actions } from '../combat/actions';
 import { addBluSpell, removeBluSpell, selectBlueMagicSpellSet } from '../player/playerSlice';
 import { ActionInfo } from './actions';
 import { ActionTooltip } from './ActionTooltip';
+import { selectElement, setExtraOptions, setVisility } from '../hud/hudSlice';
 
 type ActionProps = {
   action: ActionInfo;
 };
 
 export const Action: FC<ActionProps> = ({ action }) => {
+  const actionChangeSettings = useAppSelector((state) => selectElement(state, 'ActionChangeSettings'));
   const dispatch = useAppDispatch();
 
   const [, drag] = useDrag(() => ({
@@ -44,8 +46,13 @@ export const Action: FC<ActionProps> = ({ action }) => {
     }
   }
 
+  function toggleActionChangeSettings() {
+    dispatch(setExtraOptions({ element: 'ActionChangeSettings', extraOptions: { actionId: action.id } }));
+    dispatch(setVisility({ element: 'ActionChangeSettings', isVisible: !actionChangeSettings.isVisible }));
+  }
+
   return (
-    <React.Fragment>
+    <div className="grid gap-2">
       <Tippy
         disabled={!action}
         content={<ActionTooltip action={action!} combatAction={combatAction!} />}
@@ -63,17 +70,27 @@ export const Action: FC<ActionProps> = ({ action }) => {
               <input type="checkbox" onChange={modifyBluSpellset} checked={bluSelected} />
             </div>
           )}
-          <div className={clsx({ 'cursor-not-allowed': !action.isAssignableToHotbar })}>
-            <div ref={drag} className={clsx({ 'pointer-events-none': !action.isAssignableToHotbar })}>
-              <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
+          <div className="grid">
+            <div className="grid auto-cols-max grid-flow-col gap-2 items-center">
+              <div className={clsx({ 'cursor-not-allowed': !action.isAssignableToHotbar })}>
+                <div ref={drag} className={clsx({ 'pointer-events-none': !action.isAssignableToHotbar })}>
+                  <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
+                </div>
+              </div>
+              <div>
+                <div>{action.name}</div>
+                <div>Lv. {action.level}</div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div>{action.name}</div>
-            <div>Lv. {action.level}</div>
           </div>
         </div>
       </Tippy>
-    </React.Fragment>
+
+      {combatAction.actionChangeTo && (
+        <button className="border px-1 rounded" onClick={toggleActionChangeSettings}>
+          Action Change Settings
+        </button>
+      )}
+    </div>
   );
 };

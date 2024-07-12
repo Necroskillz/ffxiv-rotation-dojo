@@ -387,6 +387,7 @@ const forbiddenMeditation: CombatAction = createCombatAction({
   redirect: (state) => (chakra(state) >= 5 ? ActionId.TheForbiddenChakra : ActionId.ForbiddenMeditation),
   entersCombat: false,
   isGcdAction: true,
+  actionChangeTo: ActionId.TheForbiddenChakra,
 });
 
 const inspiredMeditation: CombatAction = createCombatAction({
@@ -404,6 +405,7 @@ const enlightenedMeditation: CombatAction = createCombatAction({
   redirect: (state) => (chakra(state) >= 5 ? ActionId.Enlightenment : ActionId.ForbiddenMeditation),
   entersCombat: false,
   isGcdAction: true,
+  actionChangeTo: ActionId.Enlightenment,
 });
 
 const formShift: CombatAction = createCombatAction({
@@ -595,6 +597,7 @@ const riddleOfFire: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.FiresRumination) ? ActionId.FiresReply : ActionId.RiddleofFire),
+  actionChangeTo: ActionId.FiresReply,
 });
 
 const firesReply: CombatAction = createCombatAction({
@@ -617,6 +620,7 @@ const riddleOfWind: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.WindsRumination) ? ActionId.WindsReply : ActionId.RiddleofWind),
+  actionChangeTo: ActionId.WindsReply,
 });
 
 const windsReply: CombatAction = createCombatAction({
@@ -639,6 +643,7 @@ const riddleOfEarth: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.EarthsRumination) ? ActionId.EarthsReply : ActionId.RiddleofEarth),
+  actionChangeTo: ActionId.EarthsReply,
 });
 
 const earthsReply: CombatAction = createCombatAction({

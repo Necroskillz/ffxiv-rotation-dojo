@@ -771,6 +771,7 @@ const searingLight: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.RubysGlimmer) ? ActionId.SearingFlash : ActionId.SearingLight),
+  actionChangeTo: ActionId.SearingFlash,
 });
 
 const searingFlash: CombatAction = createCombatAction({
@@ -780,6 +781,8 @@ const searingFlash: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.SearingFlash, context, { potency: 600 }));
     dispatch(removeBuff(StatusId.RubysGlimmer));
   },
+  isUsable: (state) => hasBuff(state, StatusId.RubysGlimmer),
+  isGlowing: (state) => hasBuff(state, StatusId.RubysGlimmer),
 });
 
 const exodus: CombatAction = createCombatAction({

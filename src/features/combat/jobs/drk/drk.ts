@@ -329,6 +329,7 @@ const livingShadow: CombatAction = createCombatAction({
     dispatch(buff(StatusId.Scorn));
   },
   redirect: (state) => (hasBuff(state, StatusId.Scorn) ? ActionId.Disesteem : ActionId.LivingShadow),
+  actionChangeTo: ActionId.Disesteem,
 });
 
 const disesteem: CombatAction = createCombatAction({
@@ -372,6 +373,7 @@ const saltedEarth: CombatAction = createCombatAction({
     dispatch(buff(StatusId.SaltedEarth));
   },
   redirect: (state) => (hasBuff(state, StatusId.SaltedEarth) ? ActionId.SaltandDarkness : ActionId.SaltedEarth),
+  actionChangeTo: ActionId.SaltandDarkness,
 });
 
 const saltAndDarkness: CombatAction = createCombatAction({
@@ -380,7 +382,8 @@ const saltAndDarkness: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.SaltandDarkness, context, { potency: 500, type: DamageType.Magical }));
   },
-  isGlowing: () => true,
+  isUsable: (state) => hasBuff(state, StatusId.SaltedEarth),
+  isGlowing: (state) => hasBuff(state, StatusId.SaltedEarth),
 });
 
 const shadowWall: CombatAction = createCombatAction({

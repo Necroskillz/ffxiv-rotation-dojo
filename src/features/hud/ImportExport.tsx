@@ -2,7 +2,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
-import { HudElementPlacement, selectElement, setOffset, setVisility } from '../hud/hudSlice';
+import { HudElement, selectElement, setOffset, setVisility } from '../hud/hudSlice';
 import { Option } from '../../types';
 import { useReducer } from 'react';
 import Select from 'react-select';
@@ -29,7 +29,7 @@ interface ImportExportState {
 }
 
 interface ImportExportData {
-  layout?: { elements: Record<string, HudElementPlacement>; hotbars: { id: number; config: HotbarConfig }[] };
+  layout?: { elements: Record<string, HudElement>; hotbars: { id: number; config: HotbarConfig }[] };
   hotbarMapping?: { id: number; slots: HotbarSlotActionState[] }[];
   keybindings?: { id: number; keybinds: HotbarSlotKeybindState[] }[];
   scripts?: { name: string; job: string; script: string }[];

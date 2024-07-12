@@ -413,6 +413,7 @@ const leyLines: CombatAction = createCombatAction({
     dispatch(buff(StatusId.CircleofPower));
   },
   redirect: (state) => (hasBuff(state, StatusId.LeyLines) ? ActionId.Retrace : ActionId.LeyLines),
+  actionChangeTo: ActionId.Retrace,
 });
 
 const retrace: CombatAction = createCombatAction({

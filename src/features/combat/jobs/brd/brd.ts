@@ -419,6 +419,7 @@ const barrage: CombatAction = createCombatAction({
   },
   entersCombat: false,
   redirect: (state) => (hasBuff(state, StatusId.ResonantArrowReady) ? ActionId.ResonantArrow : ActionId.Barrage),
+  actionChangeTo: ActionId.ResonantArrow,
 });
 
 const resonantArrow: CombatAction = createCombatAction({
@@ -455,6 +456,7 @@ const wanderersMinuet: CombatAction = createCombatAction({
     dispatch(buff(StatusId.WanderersMinuetActive));
   },
   redirect: (state) => (hasBuff(state, StatusId.WanderersMinuetActive) ? ActionId.PitchPerfect : ActionId.TheWanderersMinuet),
+  actionChangeTo: ActionId.PitchPerfect,
 });
 
 const magesBallad: CombatAction = createCombatAction({
@@ -618,6 +620,7 @@ const radiantFinale: CombatAction = createCombatAction({
   isGlowing: (state) => hasCoda(state),
   redirect: (state) => (hasBuff(state, StatusId.RadiantEncoreReady) ? ActionId.RadiantEncore : ActionId.RadiantFinale),
   entersCombat: false,
+  actionChangeTo: ActionId.RadiantEncore,
 });
 
 const radiantEncoreDmgMap: Record<number, number> = {

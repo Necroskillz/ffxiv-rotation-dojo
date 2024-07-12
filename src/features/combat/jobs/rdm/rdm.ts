@@ -497,6 +497,7 @@ const embolden: CombatAction = createCombatAction({
     dispatch(buff(StatusId.ThornedFlourish));
   },
   redirect: (state) => (hasBuff(state, StatusId.ThornedFlourish) ? ActionId.ViceofThorns : ActionId.Embolden),
+  actionChangeTo: ActionId.ViceofThorns,
 });
 
 const viceOfThorns: CombatAction = createCombatAction({

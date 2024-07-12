@@ -88,7 +88,7 @@ export function ActionList() {
             .map((c, id) => (
               <React.Fragment key={id}>
                 <h3 className="text-xl my-1">{c}</h3>
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-3 gap-1 items-start">
                   {actionList[c].map((a) => (
                     <Action key={a.id} action={a} />
                   ))}
