@@ -397,6 +397,7 @@ const manafication: CombatAction = createCombatAction({
     dispatch(buff(StatusId.Manafication));
     dispatch(buff(StatusId.MagickedSwordplay));
   },
+  cooldown: () => 110,
   isUsable: (state) => inCombat(state),
   redirect: (state) => (hasBuff(state, StatusId.PrefulgenceReady) ? ActionId.Prefulgence : ActionId.Manafication),
 });
