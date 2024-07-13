@@ -110,13 +110,13 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
                 <CSSTransition key={i.id} nodeRef={i.ref} classNames={`scroll-up`} timeout={{ enter: 2000, exit: 0 }}>
                   <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg">
                     {i.abilityName}
-                    {i.missedPositional && <span className="text-orange-500">(missed positional)</span>}
                     <FontAwesomeIcon
                       color={i.type === DamageType.Magical ? '#E399FB' : i.type === DamageType.Physical ? '#CBFDFB' : '#E4FFCB'}
                       icon={i.type === DamageType.Magical ? faMagicWandSparkles : i.type === DamageType.Physical ? faHammer : faBahai}
                     />
                     {!!(i.damage || i.damageAbsolute) && <React.Fragment>{i.damage || i.damageAbsolute}</React.Fragment>}
                     {i.damagePercent > 0 && <React.Fragment>{i.damagePercent}%</React.Fragment>}
+                    {i.missedPositional && <span className="text-orange-500">(missed positional)</span>}
                     {i.icons.length > 0 && (
                       <div className="grid grid-flow-col auto-cols-max">
                         {i.icons.map((i, id) => (
