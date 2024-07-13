@@ -45,7 +45,7 @@ export const CastBar = () => {
   }, [cast, setSeconds, setFraction, setCastTime]);
 
   return (
-    <HudItem name="CastBar" defaultPosition={{ x: 200, y: 250 }}>
+    <HudItem name="CastBar" defaultPosition={{ x: 200, y: 300 }}>
       {cast && action ? (
         <div className="grid auto-cols-max grid-flow-col gap-2 w-40 gap-0.5 text-xiv-ui">
           <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />

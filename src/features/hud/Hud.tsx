@@ -51,6 +51,7 @@ import { VipersightGauge } from '../combat/jobs/vpr/VipersightGauge';
 import { PaletteGauge } from '../combat/jobs/pct/PaletteGauge';
 import { CanvasGauge } from '../combat/jobs/pct/CanvasGauge';
 import { ActionChangeSettings } from '../actions/ActionChangeSettings';
+import { Positionals } from '../combat/Positionals';
 
 export class Hud extends React.Component {
   componentDidMount(): void {
@@ -109,6 +110,7 @@ export class Hud extends React.Component {
         <Buffs />
         <Debuffs />
         <PlayerDebuffs />
+        <Positionals />
       </div>
     );
   }

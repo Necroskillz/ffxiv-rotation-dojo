@@ -1,6 +1,6 @@
 import { faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';

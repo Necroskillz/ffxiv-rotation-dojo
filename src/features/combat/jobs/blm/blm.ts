@@ -458,6 +458,7 @@ const manafont: CombatAction = createCombatAction({
     dispatch(addUmbralHeart(3));
     dispatch(setParadox(1));
   },
+  cooldown: () => 100,
 });
 
 const despair: CombatAction = createCombatAction({

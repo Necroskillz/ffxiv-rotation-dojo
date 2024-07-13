@@ -10,7 +10,7 @@ import { getActionById } from '../actions/actions';
 import { getStatusById } from '../actions/status';
 import { HudItem } from '../hud/HudItem';
 import { selectLock } from '../hud/hudSlice';
-import { addEvent, DamageType, EventStatus } from './combatSlice';
+import { addEvent, DamageType, EventStatus, Position, Positional } from './combatSlice';
 import { actionStream$ } from './general';
 import { statusIcon } from './utils';
 
@@ -23,6 +23,7 @@ interface Item {
   damageAbsolute: number;
   type: DamageType;
   icons: string[];
+  missedPositional: boolean;
 }
 
 type DamageScrollingTextState = {
@@ -66,6 +67,7 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
           damageAbsolute: action.payload.damage,
           type: action.payload.type,
           icons: action.payload.statuses.map((status: EventStatus) => statusIcon(getStatusById(status.id).icon, status.stacks)),
+          missedPositional: !this.matchPositional(action.payload.positional, action.payload.position),
         };
 
         this.buffer.push(item);
@@ -74,6 +76,19 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
 
         setTimeout(() => this.removeItem(item), 20000);
       });
+  }
+
+  private matchPositional(positional: Positional, position: Position) {
+    switch (positional) {
+      case 'rear':
+        return position === 'S';
+      case 'flank':
+        return ['E', 'W'].includes(position);
+      case 'front':
+        return position === 'N';
+      default:
+        return true;
+    }
   }
 
   private removeItem(item: Item) {
@@ -95,6 +110,7 @@ export class DamageScrollingText extends React.Component<DamageScrollingTextProp
                 <CSSTransition key={i.id} nodeRef={i.ref} classNames={`scroll-up`} timeout={{ enter: 2000, exit: 0 }}>
                   <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg">
                     {i.abilityName}
+                    {i.missedPositional && <span className="text-orange-500">(missed positional)</span>}
                     <FontAwesomeIcon
                       color={i.type === DamageType.Magical ? '#E399FB' : i.type === DamageType.Physical ? '#CBFDFB' : '#E4FFCB'}
                       icon={i.type === DamageType.Magical ? faMagicWandSparkles : i.type === DamageType.Physical ? faHammer : faBahai}

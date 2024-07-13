@@ -90,6 +90,7 @@ const initialState: HudState = {
     PaletteGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
     CanvasGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
     ActionChangeSettings: createDefaultElementPlacement({ isVisible: false }),
+    Positionals: createDefaultElementPlacement({ isVisible: true, job: ['SAM', 'NIN', 'MNK', 'RPR', 'VPR', 'DRG', 'BLU'] }),
   },
 };
 

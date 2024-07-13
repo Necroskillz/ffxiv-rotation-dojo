@@ -118,6 +118,8 @@ export interface PetState {
   name: string;
 }
 
+export type Position = 'N' | 'S' | 'W' | 'E';
+
 export interface CombatState {
   resources: Record<string, number>;
   inCombat: boolean;
@@ -131,6 +133,7 @@ export interface CombatState {
   cast: CastState | null;
   pet: PetState | null;
   previousGCDAction: ActionId | null;
+  position: Position;
 }
 
 const initialState: CombatState = {
@@ -211,6 +214,7 @@ const initialState: CombatState = {
   cast: null,
   pet: null,
   previousGCDAction: null,
+  position: 'S',
 };
 
 export const ResourceTypes = Object.keys(initialState.resources);
@@ -244,6 +248,8 @@ export interface EventStatus {
   stacks: number | null;
 }
 
+export type Positional = 'rear' | 'flank' | 'front' | 'none';
+
 export interface EventPayload {
   potency: number;
   damage: number;
@@ -256,6 +262,8 @@ export interface EventPayload {
   type: DamageType;
   statuses: EventStatus[];
   comboed: boolean;
+  positional: Positional;
+  position: Position;
 }
 
 function addStatus(state: CombatState, status: StatusState, isHarm: boolean) {
@@ -390,6 +398,9 @@ export const combatSlice = createSlice({
     setPreviousGCDAction: (state, action: PayloadAction<ActionId | null>) => {
       state.previousGCDAction = action.payload;
     },
+    setPosition: (state, action: PayloadAction<Position>) => {
+      state.position = action.payload;
+    },
     addEvent: (state, action: PayloadAction<EventPayload>) => {},
   },
 });
@@ -420,6 +431,7 @@ export const {
   removeBuff: removeBuffAction,
   removePlayerDebuff: removePlayerDebuffAction,
   setPreviousGCDAction,
+  setPosition,
 } = combatSlice.actions;
 
 export const selectCombat = (state: RootState) => state.combat;
@@ -498,6 +510,7 @@ export const selectCooldowns = (state: RootState) => state.combat.cooldowns;
 export const selectPullTimer = (state: RootState) => state.combat.pullTimer;
 export const selectCast = (state: RootState) => state.combat.cast;
 export const selectPet = (state: RootState) => state.combat.pet;
+export const selectPosition = (state: RootState) => state.combat.position;
 
 export const selectBuff = createSelector(
   selectBuffs,
@@ -736,7 +749,7 @@ interface EventOptions extends Partial<Omit<EventPayload, 'actionId'>> {}
 
 export const event =
   (actionId: number, options: EventOptions): AppThunk =>
-  (dispatch) => {
+  (dispatch, getState) => {
     if (options.mana) {
       dispatch(addMana(options.mana));
     }
@@ -754,6 +767,8 @@ export const event =
         type: options.type || DamageType.None,
         statuses: options.statuses || [],
         comboed: !!options.comboed,
+        positional: options.positional || 'none',
+        position: selectPosition(getState()),
       })
     );
   };
@@ -775,19 +790,52 @@ export interface DmgEventOptions extends EventOptions {
   comboHealthPotency?: number;
 }
 
+function selectPotency(position: Position, base?: number, back?: number, flank?: number, front?: number): [number | undefined, Positional] {
+  if (back) {
+    return [position === 'S' ? back : base, 'rear'];
+  }
+
+  if (flank) {
+    return [['E', 'W'].includes(position) ? flank : base, 'flank'];
+  }
+
+  if (front) {
+    return [position === 'N' ? front : base, 'front'];
+  }
+
+  return [base, 'none'];
+}
+
 export const dmgEvent =
   (actionId: ActionId, context: CombatActionExecuteContext, options: DmgEventOptions): AppThunk =>
   (dispatch, getState) => {
     let { mana, healthPotency, type } = options;
-    let potency = options.rearPotency || options.flankPotency || options.frontPotency || options.potency;
+    const position = selectPosition(getState());
+
+    let [potency, positional] = selectPotency(position, options.potency, options.rearPotency, options.flankPotency, options.frontPotency);
 
     if (options.isEnhanced) {
-      potency =
-        options.rearEnhancedPotency || options.flankEnhancedPotency || options.frontEnhancedPotency || options.enhancedPotency || potency;
+      [potency, positional] = selectPotency(
+        position,
+        options.enhancedPotency,
+        options.rearEnhancedPotency,
+        options.flankEnhancedPotency,
+        options.frontEnhancedPotency
+      );
     } else {
-      const comboPotency = options.rearComboPotency || options.flankComboPotency || options.frontComboPotency || options.comboPotency;
+      const [comboPotency, comboPositional] = selectPotency(
+        position,
+        options.comboPotency,
+        options.rearComboPotency,
+        options.flankComboPotency,
+        options.frontComboPotency
+      );
+
       if (context.comboed) {
-        potency = comboPotency || potency;
+        if (comboPotency) {
+          potency = comboPotency;
+          positional = comboPositional;
+        }
         mana = options.comboMana;
         healthPotency = options.comboHealthPotency;
       }
@@ -820,6 +868,7 @@ export const dmgEvent =
           ...context.consumedStatuses.map((s) => ({ id: s, stacks: buffStacks(getState(), s) + 1 })),
         ],
         healthPercent: options.healthPercent,
+        positional,
       })
     );
   };

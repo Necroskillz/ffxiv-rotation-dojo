@@ -23,7 +23,12 @@ import {
   removeDebuffAction,
   selectCast,
   setCast,
+  setPosition,
 } from './combatSlice';
+
+function position(state: RootState) {
+  return state.combat.position;
+}
 
 const combatManaTickEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
@@ -109,6 +114,10 @@ const moveForward: CombatAction = createCombatAction({
       dispatch(setCast(null));
       dispatch(removeCooldown(58));
     }
+
+    if (['E', 'W'].includes(position(getState()))) {
+      dispatch(setPosition('N'));
+    }
   },
   entersCombat: false,
 });
@@ -121,6 +130,10 @@ const moveBack: CombatAction = createCombatAction({
     if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
       dispatch(setCast(null));
       dispatch(removeCooldown(58));
+    }
+
+    if (['E', 'W'].includes(position(getState()))) {
+      dispatch(setPosition('S'));
     }
   },
   entersCombat: false,
@@ -135,6 +148,13 @@ const moveLeft: CombatAction = createCombatAction({
       dispatch(setCast(null));
       dispatch(removeCooldown(58));
     }
+
+    const pos = position(getState());
+    if (['N', 'S'].includes(pos)) {
+      dispatch(setPosition('W'));
+    } else if (pos === 'E') {
+      dispatch(setPosition('S'));
+    }
   },
   entersCombat: false,
 });
@@ -147,6 +167,13 @@ const moveRight: CombatAction = createCombatAction({
     if (cast && cast.timestamp + cast.castTime - Date.now() > 500) {
       dispatch(setCast(null));
       dispatch(removeCooldown(58));
+    }
+
+    const pos = position(getState());
+    if (['N', 'S'].includes(pos)) {
+      dispatch(setPosition('E'));
+    } else if (pos === 'W') {
+      dispatch(setPosition('S'));
     }
   },
   entersCombat: false,
