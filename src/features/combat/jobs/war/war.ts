@@ -311,7 +311,7 @@ const releaseDefiance: CombatAction = createCombatAction({
 const berserk: CombatAction = createCombatAction({
   id: ActionId.Berserk,
   execute: () => {},
-  redirect: () => ActionId.InnerRelease,
+  redirect: (state) => (hasBuff(state, StatusId.Wrathful) ? ActionId.PrimalWrath : ActionId.InnerRelease),
 });
 
 const innerRelease: CombatAction = createCombatAction({
