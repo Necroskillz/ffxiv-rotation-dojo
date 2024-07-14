@@ -147,7 +147,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   useEffect(() => {
     let sub: Subscription;
 
-    function handleKeyEvent(key: string, modifier: string | null, event: KeyboardEvent) {
+    function handleKeyEvent(key: string, modifier: string | null, event: Event) {
       if (keybindingMode) {
         if (isMouseOver) {
           dispatch(assignKeybind({ hotbarId, slotId, key: key === 'Escape' ? null : key, modifier }));

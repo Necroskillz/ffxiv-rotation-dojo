@@ -3,13 +3,13 @@ import { Observable, Subject } from 'rxjs';
 interface KeyEvent {
   key: string;
   modifier: string | null;
-  event: KeyboardEvent;
+  event: Event;
 }
 
 const subject = new Subject<KeyEvent>();
 
-export function useKeyEvents(): [Observable<KeyEvent>, (key: string, modifier: string | null, event: KeyboardEvent) => void] {
-  function next(key: string, modifier: string | null, event: KeyboardEvent) {
+export function useKeyEvents(): [Observable<KeyEvent>, (key: string, modifier: string | null, event: Event) => void] {
+  function next(key: string, modifier: string | null, event: Event) {
     subject.next({ key, modifier, event });
   }
 

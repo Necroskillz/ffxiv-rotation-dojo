@@ -27,16 +27,12 @@ export const KeyboardHandler: FC = () => {
       return event.code;
     }
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Shift' || event.key === 'Control' || event.key === 'Alt') {
+    function handle(event: KeyboardEvent | MouseEvent, key: string) {
+      if (pressed.has(key)) {
         return;
       }
 
-      if (pressed.has(event.code)) {
-        return;
-      }
-
-      pressed.add(event.code);
+      pressed.add(key);
 
       let modifier: string | null = null;
       if (event.shiftKey) {
@@ -46,20 +42,48 @@ export const KeyboardHandler: FC = () => {
       } else if (event.altKey) {
         modifier = 'ALT';
       }
+      sendKeyEvent(key, modifier, event);
+    }
 
-      sendKeyEvent(extractKey(event), modifier, event);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Shift' || event.key === 'Control' || event.key === 'Alt') {
+        return;
+      }
+
+      const key = extractKey(event);
+      handle(event, key);
     }
 
     function handleKeyUp(event: KeyboardEvent) {
-      pressed.delete(event.code);
+      pressed.delete(extractKey(event));
+    }
+
+    function handleMouseDown(event: MouseEvent) {
+      if ([0, 2].includes(event.button)) {
+        return;
+      }
+
+      handle(event, `M${event.button + 1}`);
+    }
+
+    function handleMouseUp(event: MouseEvent) {
+      if ([0, 2].includes(event.button)) {
+        return;
+      }
+
+      pressed.delete(`M${event.button + 1}`);
     }
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [sendKeyEvent]);
 
