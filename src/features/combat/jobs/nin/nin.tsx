@@ -216,6 +216,37 @@ const mudraFailByOtherActionEpic: Epic<any, any, RootState> = (action$, state$) 
     map(() => addMudra(ActionId.RabbitMedium))
   );
 
+const removeRaijuEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.RaijuReady),
+    switchMap(() =>
+      action$.pipe(
+        filter(
+          (aa) =>
+            aa.type === executeAction.type &&
+            [
+              ActionId.SpinningEdge,
+              ActionId.GustSlash,
+              ActionId.AeolianEdge,
+              ActionId.ArmorCrush,
+              ActionId.DeathBlossom,
+              ActionId.HakkeMujinsatsu,
+            ].includes(aa.payload.id)
+        ),
+        withLatestFrom(state$),
+        map(([, state]) => state),
+        takeWhile((state) => hasBuff(state, StatusId.RaijuReady))
+      )
+    ),
+    map(() => removeBuff(StatusId.RaijuReady))
+  );
+
+const removeKassatsuEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === removeBuffAction.type && a.payload === StatusId.Mudra),
+    map(() => removeBuff(StatusId.Kassatsu))
+  );
+
 const dotonHeavyStatus: CombatStatus = createCombatStatus({
   id: StatusId.DotonHeavy,
   duration: null,
@@ -781,7 +812,6 @@ const gokaMekkyaku: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.GokaMekkyaku, context, { potency: 600, type: DamageType.Magical }));
     dispatch(removeBuff(StatusId.Mudra));
-    dispatch(removeBuff(StatusId.Kassatsu));
     dispatch(setMudra(0));
     dispatch(gcd({ time: 1500 }));
   },
@@ -793,7 +823,6 @@ const hyoshoRanryu: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.HyoshoRanryu, context, { potency: 1300, type: DamageType.Magical }));
     dispatch(removeBuff(StatusId.Mudra));
-    dispatch(removeBuff(StatusId.Kassatsu));
     dispatch(setMudra(0));
     dispatch(gcd({ time: 1500 }));
   },
@@ -969,7 +998,7 @@ const deathBlossom: CombatAction = createCombatAction({
 
 const hakkeMujinsatsu: CombatAction = createCombatAction({
   id: ActionId.HakkeMujinsatsu,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.HakkeMujinsatsu, context, { potency: 100, comboPotency: 130 }));
 
     if (context.comboed) {
@@ -1091,5 +1120,7 @@ export const ninEpics = combineEpics(
   endTenChiJinEpic,
   bunshinDamageEpic,
   hollowNozuchiEpic,
-  dreamWithinADreamEpic
+  dreamWithinADreamEpic,
+  removeRaijuEpic,
+  removeKassatsuEpic
 );
