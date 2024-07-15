@@ -101,7 +101,10 @@ const removeSurpanakhasFuryEpic: Epic<any, any, RootState> = (action$, state$) =
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.SurpanakhasFury),
     switchMap(() =>
       action$.pipe(
-        filter((aa) => aa.type === executeAction.type && aa.payload.id !== ActionId.Surpanakha),
+        filter(
+          (aa) =>
+            aa.type === executeAction.type && getActionById(aa.payload.id).type !== 'Movement' && aa.payload.id !== ActionId.Surpanakha
+        ),
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, StatusId.SurpanakhasFury))

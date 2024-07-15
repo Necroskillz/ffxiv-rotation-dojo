@@ -88,21 +88,22 @@ const cleanupEnshrouded: Epic<any, any, RootState> = (action$, state$) =>
 
 const removeSoulReaverEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.SoulReaver),
+    filter((a) => a.type === addBuff.type && [StatusId.SoulReaver, StatusId.Executioner].includes(a.payload.id)),
     switchMap(() =>
       action$.pipe(
         filter(
           (aa) =>
             aa.type === executeAction.type &&
+            ['Weaponskill', 'Spell'].includes(getActionById(aa.payload.id).type) &&
             ![
               ActionId.Gallows,
               ActionId.Gibbet,
               ActionId.Guillotine,
-              ActionId.BloodStalk,
               ActionId.UnveiledGallows,
               ActionId.UnveiledGibbet,
-              ActionId.Gluttony,
-              ActionId.GrimSwathe,
+              ActionId.ExecutionersGallows,
+              ActionId.ExecutionersGibbet,
+              ActionId.ExecutionersGuillotine,
             ].includes(aa.payload.id)
         ),
         withLatestFrom(state$),

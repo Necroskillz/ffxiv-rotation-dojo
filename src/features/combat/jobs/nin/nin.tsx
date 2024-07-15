@@ -161,7 +161,12 @@ const removeHideEpic: Epic<any, any, RootState> = (action$, state$) =>
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Hidden),
     switchMap(() =>
       action$.pipe(
-        filter((aa) => aa.type === executeAction.type && ![ActionId.Sprint, ActionId.Hide].includes(aa.payload.id)),
+        filter(
+          (aa) =>
+            aa.type === executeAction.type &&
+            getActionById(aa.payload.id).type !== 'Movement' &&
+            ![ActionId.Sprint, ActionId.Hide].includes(aa.payload.id)
+        ),
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, StatusId.Hidden))
@@ -207,7 +212,12 @@ const mudraFailByOtherActionEpic: Epic<any, any, RootState> = (action$, state$) 
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Mudra),
     switchMap(() =>
       action$.pipe(
-        filter((aa) => aa.type === executeAction.type && ![ActionId.Ten, ActionId.Chi, ActionId.Jin].includes(aa.payload.id)),
+        filter(
+          (aa) =>
+            aa.type === executeAction.type &&
+            getActionById(aa.payload.id).type !== 'Movement' &&
+            ![ActionId.Ten, ActionId.Chi, ActionId.Jin].includes(aa.payload.id)
+        ),
         withLatestFrom(state$),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, StatusId.Mudra))

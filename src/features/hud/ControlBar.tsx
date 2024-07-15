@@ -99,7 +99,6 @@ export const ControlBar: FC = () => {
     dispatch(setVisility({ element: 'ImportExport', isVisible: !importExport.isVisible }));
   }
 
-
   function toggleLock() {
     dispatch(lock(!hudLock));
   }
