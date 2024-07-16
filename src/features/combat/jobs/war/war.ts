@@ -76,7 +76,7 @@ const innerReleaseStatus: CombatStatus = createCombatStatus({
 
 const primalRendReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.PrimalRendReady,
-  duration: 30,
+  duration: 20,
   isHarmful: false,
 });
 
@@ -358,7 +358,7 @@ const primalRend: CombatAction = createCombatAction({
 const primalRuination: CombatAction = createCombatAction({
   id: ActionId.PrimalRuination,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PrimalRend, context, { potency: 740 }));
+    dispatch(dmgEvent(ActionId.PrimalRend, context, { potency: 780 }));
 
     dispatch(removeBuff(StatusId.PrimalRuinationReady));
   },

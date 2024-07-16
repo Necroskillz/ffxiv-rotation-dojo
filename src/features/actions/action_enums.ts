@@ -423,7 +423,7 @@ export enum ActionId {
   KaeshiGoken = 16485,
   KaeshiSetsugekka = 16486,
   KaeshiNamikiri = 25782,
-  Tengetsu = 36962,
+  Tengentsu = 36962,
   Gyofu = 36963,
   Zanshin = 36964,
   TendoGoken = 36965,

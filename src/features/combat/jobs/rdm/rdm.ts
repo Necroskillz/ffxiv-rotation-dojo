@@ -156,7 +156,7 @@ const verstoneReadyStatus: CombatStatus = createCombatStatus({
 
 const manaficationStatus: CombatStatus = createCombatStatus({
   id: StatusId.Manafication,
-  duration: 15,
+  duration: 30,
   isHarmful: false,
   initialStacks: 6,
 });

@@ -69,10 +69,8 @@ export const MastersGauge = () => {
         <div className="grid grid-flow-col auto-cols-max gap-1.5 mt-2 justify-center">
           <GaugeCircle fill={opooposFury > 0} fillColor={opooposFuryFillColor} />
           <GaugeCircle fill={raptorsFury > 0} fillColor={raptorsFuryFillColor} />
-          <GaugeCircle fill={raptorsFury > 1} fillColor={raptorsFuryFillColor} />
           <GaugeCircle fill={coeurlsFury > 0} fillColor={coeurlsFuryFillColor} />
           <GaugeCircle fill={coeurlsFury > 1} fillColor={coeurlsFuryFillColor} />
-          <GaugeCircle fill={coeurlsFury > 2} fillColor={coeurlsFuryFillColor} />
         </div>
       </div>
     </HudItem>

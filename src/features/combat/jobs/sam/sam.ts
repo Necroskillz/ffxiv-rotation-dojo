@@ -178,14 +178,14 @@ const meditateStopEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const popTengetsuEpic: Epic<any, any, RootState> = (action$, state$) =>
+const popTengentsuEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Tengetsu),
+    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Tengentsu),
     delay(3000),
     withLatestFrom(state$),
     map(([, state]) => state),
     filter((state) => inCombat(state)),
-    switchMap(() => of(removeBuff(StatusId.Tengetsu), buff(StatusId.TengetsusForesight), addKenki(10)))
+    switchMap(() => of(removeBuff(StatusId.Tengentsu), buff(StatusId.TengentsusForesight), addKenki(10)))
   );
 
 const fukaStatus: CombatStatus = createCombatStatus({
@@ -267,14 +267,14 @@ const meditateStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
-const tengetsuStatus: CombatStatus = createCombatStatus({
-  id: StatusId.Tengetsu,
+const tengentsuStatus: CombatStatus = createCombatStatus({
+  id: StatusId.Tengentsu,
   duration: 4,
   isHarmful: false,
 });
 
-const tengetsusForesightStatus: CombatStatus = createCombatStatus({
-  id: StatusId.TengetsusForesight,
+const tengentsusForesightStatus: CombatStatus = createCombatStatus({
+  id: StatusId.TengentsusForesight,
   duration: 8,
   isHarmful: false,
   onExpire: (dispatch) => {
@@ -724,14 +724,14 @@ const hagakure: CombatAction = createCombatAction({
 const thirdEye: CombatAction = createCombatAction({
   id: ActionId.ThirdEye,
   execute: () => {},
-  redirect: () => ActionId.Tengetsu,
+  redirect: () => ActionId.Tengentsu,
 });
 
-const tengetsu: CombatAction = createCombatAction({
-  id: ActionId.Tengetsu,
+const tengentsu: CombatAction = createCombatAction({
+  id: ActionId.Tengentsu,
   execute: (dispatch) => {
     dispatch(ogcdLock());
-    dispatch(buff(StatusId.Tengetsu));
+    dispatch(buff(StatusId.Tengentsu));
   },
 });
 
@@ -815,7 +815,7 @@ export const samStatuses: CombatStatus[] = [
   kaeshiNamikiriActiveStatus,
   meikyoShisuiStatus,
   meditateStatus,
-  tengetsuStatus,
+  tengentsuStatus,
   ogiNamikiriReadyStatus,
   enhancedEnpiStatus,
   kaeshiTendoGokenActiveStatus,
@@ -823,7 +823,7 @@ export const samStatuses: CombatStatus[] = [
   tendoStatus,
   zanshinReadyStatus,
   tsubamegaeshiReadyStatus,
-  tengetsusForesightStatus,
+  tengentsusForesightStatus,
 ];
 
 export const sam: CombatAction[] = [
@@ -859,7 +859,7 @@ export const sam: CombatAction[] = [
   mangetsu,
   hissatsuKyuten,
   hissatsuGuren,
-  tengetsu,
+  tengentsu,
   gyofu,
   zanshin,
   tendoGoken,
@@ -869,7 +869,7 @@ export const sam: CombatAction[] = [
 ];
 
 export const samEpics = combineEpics(
-  popTengetsuEpic,
+  popTengentsuEpic,
   consumeMeikyoEpic,
   removeKaeshiEpic,
   removeKaeshiNamikiriEpic,
