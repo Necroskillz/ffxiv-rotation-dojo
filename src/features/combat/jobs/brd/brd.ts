@@ -258,13 +258,13 @@ const blastArrowReadyStatus: CombatStatus = createCombatStatus({
 
 const radiantFinaleStatus: CombatStatus = createCombatStatus({
   id: StatusId.RadiantFinale,
-  duration: 15,
+  duration: 20,
   isHarmful: false,
 });
 
 const playingRadiantFinale: CombatStatus = createCombatStatus({
   id: StatusId.PlayingRadiantFinale,
-  duration: 15,
+  duration: 20,
   isHarmful: false,
 });
 
