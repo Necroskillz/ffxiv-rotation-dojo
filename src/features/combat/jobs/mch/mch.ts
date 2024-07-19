@@ -383,8 +383,8 @@ const gaussRound: CombatAction = createCombatAction({
 
 const doubleCheck: CombatAction = createCombatAction({
   id: ActionId.DoubleCheck,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.GaussRound, context, { potency: 160 }));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.DoubleCheck, context, { potency: 160 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
