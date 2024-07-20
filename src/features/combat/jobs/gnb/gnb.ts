@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, map, withLatestFrom } from 'rxjs/operators';
+import { filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -21,7 +21,9 @@ import {
   gcd,
   event,
   dmgEvent,
+  removeCombo,
 } from '../../combatSlice';
+import { of } from 'rxjs';
 
 function cartridge(state: RootState) {
   return resource(state, 'cartridge');
@@ -80,6 +82,18 @@ const removeRazeContinuationEpic: Epic<any, any, RootState> = (action$, state$) 
     map(([, state]) => state),
     filter((state) => hasBuff(state, StatusId.ReadytoRaze)),
     map(() => removeBuff(StatusId.ReadytoRaze))
+  );
+
+const breakLionHeartComboEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && a.payload.id === ActionId.GnashingFang),
+    switchMap(() => of(removeCombo(ActionId.ReignofBeasts), removeCombo(ActionId.NobleBlood)))
+  );
+
+const breakGnashingFangComboEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === executeAction.type && a.payload.id === ActionId.ReignofBeasts),
+    switchMap(() => of(removeCombo(ActionId.GnashingFang), removeCombo(ActionId.SavageClaw)))
   );
 
 const brutalShellStatus: CombatStatus = createCombatStatus({
@@ -707,5 +721,7 @@ export const gnbEpics = combineEpics(
   removeTearContinuationEpic,
   removeGougeContinuationEpic,
   removeBlastContinuationEpic,
-  removeRazeContinuationEpic
+  removeRazeContinuationEpic,
+  breakGnashingFangComboEpic,
+  breakLionHeartComboEpic
 );
