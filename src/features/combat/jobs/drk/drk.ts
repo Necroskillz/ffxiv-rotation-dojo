@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { from, of } from 'rxjs';
-import { concatMap, delay, filter, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import { from, of, Subject } from 'rxjs';
+import { concatMap, delay, filter, map, mergeMap, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -26,6 +26,7 @@ import {
   event,
   dmgEvent,
   DamageType,
+  setCombat,
 } from '../../combatSlice';
 
 function blood(state: RootState) {
@@ -54,6 +55,8 @@ const popTBNEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(() => of(removeBuff(StatusId.BlackestNight), setDarkArts(1)))
   );
 
+const stopLivingShadow = new Subject<void>();
+
 const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.SimulacrumActive),
@@ -68,6 +71,7 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
       ]).pipe(
         mergeMap((a) => from(a)),
         concatMap((a) => of(a).pipe(delay(a.delay))),
+        takeUntil(stopLivingShadow),
         withLatestFrom(state$),
         map(([a]) =>
           event(a.actionId, {
@@ -78,6 +82,13 @@ const livingShadowEpic: Epic<any, any, RootState> = (action$, state$) =>
         )
       );
     })
+  );
+
+const resetLivingShadowEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === setCombat.type && a.payload === false),
+    tap(() => stopLivingShadow.next()),
+    switchMap(() => of())
   );
 
 const bloodWeaponStatus: CombatStatus = createCombatStatus({
@@ -573,4 +584,4 @@ export const drk: CombatAction[] = [
   impalement,
 ];
 
-export const drkEpics = combineEpics(consumeBloodWeaponEpic, popTBNEpic, livingShadowEpic);
+export const drkEpics = combineEpics(consumeBloodWeaponEpic, popTBNEpic, livingShadowEpic, resetLivingShadowEpic);

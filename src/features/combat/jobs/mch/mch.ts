@@ -34,6 +34,7 @@ import {
   event,
   DamageType,
   setBattery,
+  setCombat,
 } from '../../combatSlice';
 import { collectStatuses } from '../../event-status-collector';
 
@@ -152,6 +153,13 @@ const queenOverdriveEpic: Epic<any, any, RootState> = (action$, state$) =>
         )
       );
     })
+  );
+
+const resetQueenEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === setCombat.type && a.payload === false),
+    tap(() => stopQueen.next()),
+    switchMap(() => of())
   );
 
 const reassembledStatus: CombatStatus = createCombatStatus({
@@ -662,5 +670,6 @@ export const mchEpics = combineEpics(
   removeOverheatedEpic,
   stackWildfireEpic,
   queenEpic,
-  queenOverdriveEpic
+  queenOverdriveEpic,
+  resetQueenEpic
 );
