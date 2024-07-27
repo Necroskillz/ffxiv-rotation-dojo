@@ -127,12 +127,12 @@ const removeDualcastWithPotionEpic: Epic<any, any, RootState> = (action$) =>
   );
 
 function joltRedirect(state: RootState) {
-  return hasBuff(state, StatusId.GrandImpactReady)
-    ? ActionId.GrandImpact
-    : hasCombo(state, ActionId.Resolution)
+  return hasCombo(state, ActionId.Resolution)
     ? ActionId.Resolution
     : hasCombo(state, ActionId.Scorch)
     ? ActionId.Scorch
+    : hasBuff(state, StatusId.GrandImpactReady)
+    ? ActionId.GrandImpact
     : ActionId.JoltIII;
 }
 
