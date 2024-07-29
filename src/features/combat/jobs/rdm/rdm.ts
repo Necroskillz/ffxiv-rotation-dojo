@@ -120,9 +120,9 @@ const removeManaStackEpic: Epic<any, any, RootState> = (action$) =>
     map(() => setManaStack(0))
   );
 
-const removeDualcastWithPotionEpic: Epic<any, any, RootState> = (action$) =>
+const removeDualcastWithPotionOrSprintEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
-    filter((a) => a.type === executeAction.type && getActionById(a.payload.id).type === 'Medicine'),
+    filter((a) => a.type === executeAction.type && (getActionById(a.payload.id).type === 'Medicine' || a.payload.id === ActionId.Sprint)),
     map(() => removeBuff(StatusId.Dualcast))
   );
 
@@ -767,4 +767,4 @@ export const rdm: CombatAction[] = [
   grandImpact,
 ];
 
-export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic, removeDualcastWithPotionEpic);
+export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic, removeDualcastWithPotionOrSprintEpic);
