@@ -415,7 +415,7 @@ const unveiledGibbet: CombatAction = createCombatAction({
 const soulSlice: CombatAction = createCombatAction({
   id: ActionId.SoulSlice,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SoulSlice, context, { potency: 460 }));
+    dispatch(dmgEvent(ActionId.SoulSlice, context, { potency: 520 }));
     dispatch(addSoul(50));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
@@ -686,7 +686,7 @@ const communio: CombatAction = createCombatAction({
 const perfectio: CombatAction = createCombatAction({
   id: ActionId.Perfectio,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Perfectio, context, { potency: 1200 }));
+    dispatch(dmgEvent(ActionId.Perfectio, context, { potency: 1300 }));
     dispatch(removeBuff(StatusId.PerfectioParata));
   },
   isGlowing: () => true,

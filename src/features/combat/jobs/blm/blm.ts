@@ -25,6 +25,7 @@ import {
   removeDebuff,
   addAstralSoul,
   setAstralSoul,
+  inCombat,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -84,7 +85,7 @@ const setFireIce =
     const currentFire = astralFire(state);
     const currentIce = umbralIce(state);
 
-    if (currentIce === 3 && umbralHeart(getState()) === 3 && fire > 0) {
+    if ((currentFire === 3 && ice > 0) || (currentIce === 3 && umbralHeart(getState()) === 3 && fire > 0)) {
       dispatch(setParadox(1));
     }
 
@@ -94,7 +95,6 @@ const setFireIce =
 
     if (fire === 0) {
       dispatch(removeBuff(StatusId.AstralFireActive));
-      dispatch(setParadox(0));
       dispatch(setAstralSoul(0));
     } else {
       dispatch(buff(StatusId.AstralFireActive, { stacks: fire }));
@@ -111,6 +111,8 @@ const setFireIce =
     } else if (!hasBuff(getState(), StatusId.EnochianActive)) {
       dispatch(buff(StatusId.EnochianActive));
     }
+    
+    dispatch(removeBuff(StatusId.UmbralSoulActive));
   };
 
 function cost(state: RootState, baseCost: number, aspect: 'fire' | 'ice') {
@@ -208,7 +210,7 @@ const highThunderStatus: CombatStatus = createCombatStatus({
   duration: 30,
   isHarmful: true,
   tick: (dispatch) => {
-    dispatch(event(0, { potency: 55 }));
+    dispatch(event(0, { potency: 60 }));
   },
 });
 
@@ -249,6 +251,18 @@ const triplecastStatus: CombatStatus = createCombatStatus({
   initialStacks: 3,
 });
 
+const umbralSoulActiveStatus: CombatStatus = createCombatStatus({
+  id: StatusId.UmbralSoulActive,
+  duration: null,
+  isHarmful: false,
+  isVisible: false,
+  interval: 300,
+  initialDelay: 0,
+  tick: (dispatch, getState) => {
+    dispatch(buff(StatusId.UmbralIceActive, { stacks: umbralIce(getState()) }));
+  },
+});
+
 const fire: CombatAction = createCombatAction({
   id: ActionId.Fire,
   execute: (dispatch, getState, context) => {
@@ -285,6 +299,7 @@ const blizzard: CombatAction = createCombatAction({
     }
   },
   cost: (state, baseCost) => cost(state, baseCost, 'ice'),
+  redirect: (state) => (paradox(state) ? ActionId.Paradox : ActionId.Blizzard),
   reducedBySpellSpeed: true,
 });
 
@@ -308,7 +323,7 @@ const fire3: CombatAction = createCombatAction({
 const fire4: CombatAction = createCombatAction({
   id: ActionId.FireIV,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.FireIV, context, { potency: adjustedPotency(getState(), 310, 'fire') }));
+    dispatch(dmgEvent(ActionId.FireIV, context, { potency: adjustedPotency(getState(), 320, 'fire') }));
     dispatch(addAstralSoul(1));
 
     if (umbralHeart(getState())) {
@@ -334,7 +349,7 @@ const blizzard3: CombatAction = createCombatAction({
 const blizzard4: CombatAction = createCombatAction({
   id: ActionId.BlizzardIV,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.BlizzardIV, context, { potency: adjustedPotency(getState(), 310, 'ice'), mana: iceMana(getState()) }));
+    dispatch(dmgEvent(ActionId.BlizzardIV, context, { potency: adjustedPotency(getState(), 320, 'ice'), mana: iceMana(getState()) }));
 
     dispatch(addUmbralHeart(3));
   },
@@ -346,13 +361,22 @@ const blizzard4: CombatAction = createCombatAction({
 const paradox1: CombatAction = createCombatAction({
   id: ActionId.Paradox,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Paradox, context, { potency: 500 }));
+    dispatch(dmgEvent(ActionId.Paradox, context, { potency: 520 }));
     dispatch(setParadox(0));
-    dispatch(setFireIce(astralFire(getState()) + 1, 0));
-    dispatch(buff(StatusId.Firestarter));
+
+    const fire = astralFire(getState());
+    const ice = umbralIce(getState());
+
+    if (fire) {
+      dispatch(setFireIce(fire + 1, 0));
+      dispatch(buff(StatusId.Firestarter));
+    } else if (ice) {
+      dispatch(setFireIce(0, ice + 1));
+    }
   },
-  isUsable: (state) => paradox(state) > 0,
-  isGlowing: (state) => paradox(state) > 0,
+  cost: (state, baseCost) => (umbralIce(state) ? 0 : baseCost),
+  castTime: (state, baseCastTime) => (umbralIce(state) ? 0 : baseCastTime),
+  isGlowing: () => true,
   reducedBySpellSpeed: true,
 });
 
@@ -382,7 +406,7 @@ const thunder3: CombatAction = createCombatAction({
 const highThunder: CombatAction = createCombatAction({
   id: ActionId.HighThunder,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HighThunder, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.HighThunder, context, { potency: 150 }));
     dispatch(debuff(StatusId.HighThunder));
     dispatch(removeBuff(StatusId.Thunderhead));
     dispatch(removeDebuff(StatusId.HighThunderII));
@@ -464,7 +488,7 @@ const manafont: CombatAction = createCombatAction({
 const despair: CombatAction = createCombatAction({
   id: ActionId.Despair,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Despair, context, { potency: 340 }));
+    dispatch(dmgEvent(ActionId.Despair, context, { potency: 350 }));
 
     dispatch(setFireIce(3, 0));
   },
@@ -476,9 +500,16 @@ const despair: CombatAction = createCombatAction({
 const umbralSoul: CombatAction = createCombatAction({
   id: ActionId.UmbralSoul,
   execute: (dispatch, getState) => {
-    dispatch(setFireIce(0, umbralIce(getState()) + 1));
-    dispatch(addUmbralHeart(1));
+    if (inCombat(getState())) {
+      dispatch(setFireIce(0, umbralIce(getState()) + 1));
+      dispatch(addUmbralHeart(1));
+    } else {
+      dispatch(setFireIce(0, 3));
+      dispatch(addUmbralHeart(3));
+    }
+
     dispatch(event(ActionId.UmbralSoul, { mana: iceMana(getState()) }));
+    dispatch(buff(StatusId.UmbralSoulActive));
   },
   isUsable: (state) => umbralIce(state) > 0,
   reducedBySpellSpeed: true,
@@ -631,6 +662,7 @@ const foul: CombatAction = createCombatAction({
 });
 
 export const blmStatuses = [
+  umbralSoulActiveStatus,
   enochianActive,
   astralFireActive,
   umbralIceActive,

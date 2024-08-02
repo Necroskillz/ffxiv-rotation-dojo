@@ -13,7 +13,6 @@ import {
   combo,
   dmgEvent,
   executeAction,
-  extendableDebuff,
   gcd,
   hasBuff,
   hasCombo,
@@ -151,12 +150,13 @@ const removeVenomsEpic: Epic<any, any, RootState> = (action$) =>
     switchMap((a) => of(...venoms.filter((v) => v !== a.payload.id).map((v) => removeBuff(v))))
   );
 
-const noxiousGnashStatus: CombatStatus = createCombatStatus({
-  id: StatusId.NoxiousGnash,
-  duration: 20,
-  isHarmful: true,
-  maxDuration: 40,
-});
+const honed = [StatusId.HonedReavers, StatusId.HonedSteel];
+
+const removeHonedEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && honed.includes(a.payload.id)),
+    switchMap((a) => of(...honed.filter((v) => v !== a.payload.id).map((v) => removeBuff(v))))
+  );
 
 const swiftscaledStatus: CombatStatus = createCombatStatus({
   id: StatusId.Swiftscaled,
@@ -170,39 +170,51 @@ const huntersInstinctStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const honedReaversStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HonedReavers,
+  duration: 60,
+  isHarmful: false,
+});
+
+const honedSteelStatus: CombatStatus = createCombatStatus({
+  id: StatusId.HonedSteel,
+  duration: 60,
+  isHarmful: false,
+});
+
 const flankstungVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.FlankstungVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
 const flanksbaneVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.FlanksbaneVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
 const hindstungVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.HindstungVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
 const hindsbaneVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.HindsbaneVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
 const grimhuntersVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.GrimhuntersVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
 const grimskinsVenomStatus: CombatStatus = createCombatStatus({
   id: StatusId.GrimskinsVenom,
-  duration: 40,
+  duration: 60,
   isHarmful: false,
 });
 
@@ -324,11 +336,15 @@ const readyToLegacyStatus: CombatStatus = createCombatStatus({
 
 const steelFangs: CombatAction = createCombatAction({
   id: ActionId.SteelFangs,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SteelFangs, context, { potency: 200 }));
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.SteelFangs, context, { potency: 200, enhancedPotency: 300, isEnhanced: hasBuff(getState(), StatusId.HonedSteel) })
+    );
     dispatch(combo(ActionId.SteelFangs));
+    dispatch(buff(StatusId.HonedReavers));
   },
   reducedBySkillSpeed: true,
+  isGlowing: (state) => hasBuff(state, StatusId.HonedSteel),
   redirect: (state) =>
     hasBuff(state, StatusId.Reawakened)
       ? ActionId.FirstGeneration
@@ -341,14 +357,21 @@ const steelFangs: CombatAction = createCombatAction({
       : ActionId.SteelFangs,
 });
 
-const dreadFangs: CombatAction = createCombatAction({
-  id: ActionId.DreadFangs,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DreadFangs, context, { potency: 140 }));
-    dispatch(extendableDebuff(StatusId.NoxiousGnash, 20));
+const reavingFangs: CombatAction = createCombatAction({
+  id: ActionId.ReavingFangs,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.ReavingFangs, context, {
+        potency: 200,
+        enhancedPotency: 300,
+        isEnhanced: hasBuff(getState(), StatusId.HonedReavers),
+      })
+    );
     dispatch(combo(ActionId.SteelFangs));
+    dispatch(buff(StatusId.HonedSteel));
   },
   reducedBySkillSpeed: true,
+  isGlowing: (state) => hasBuff(state, StatusId.HonedReavers),
   redirect: (state) =>
     hasBuff(state, StatusId.Reawakened)
       ? ActionId.SecondGeneration
@@ -358,13 +381,13 @@ const dreadFangs: CombatAction = createCombatAction({
       ? ActionId.FlanksbaneFang
       : hasCombo(state, ActionId.SwiftskinsSting)
       ? ActionId.SwiftskinsSting
-      : ActionId.DreadFangs,
+      : ActionId.ReavingFangs,
 });
 
 const huntersSting: CombatAction = createCombatAction({
   id: ActionId.HuntersSting,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HuntersSting, context, { potency: 260 }));
+    dispatch(dmgEvent(ActionId.HuntersSting, context, { potency: 300 }));
     dispatch(buff(StatusId.HuntersInstinct));
     dispatch(combo(ActionId.HuntersSting));
   },
@@ -375,7 +398,7 @@ const huntersSting: CombatAction = createCombatAction({
 const swiftkinsSting: CombatAction = createCombatAction({
   id: ActionId.SwiftskinsSting,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SwiftskinsSting, context, { potency: 260 }));
+    dispatch(dmgEvent(ActionId.SwiftskinsSting, context, { potency: 300 }));
     dispatch(buff(StatusId.Swiftscaled));
     dispatch(combo(ActionId.SwiftskinsSting));
   },
@@ -388,10 +411,10 @@ const flankstingStrike: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.FlankstingStrike, context, {
-        potency: 300,
-        flankPotency: 360,
-        enhancedPotency: 400,
-        flankEnhancedPotency: 460,
+        potency: 340,
+        flankPotency: 400,
+        enhancedPotency: 440,
+        flankEnhancedPotency: 500,
         isEnhanced: hasBuff(getState(), StatusId.FlankstungVenom),
       })
     );
@@ -409,10 +432,10 @@ const flanksbaneFang: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.FlanksbaneFang, context, {
-        potency: 300,
-        flankPotency: 360,
-        enhancedPotency: 400,
-        flankEnhancedPotency: 460,
+        potency: 340,
+        flankPotency: 400,
+        enhancedPotency: 440,
+        flankEnhancedPotency: 500,
         isEnhanced: hasBuff(getState(), StatusId.FlanksbaneVenom),
       })
     );
@@ -430,10 +453,10 @@ const hindstingStrike: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.HindstingStrike, context, {
-        potency: 300,
-        rearPotency: 360,
-        enhancedPotency: 400,
-        rearEnhancedPotency: 460,
+        potency: 340,
+        rearPotency: 400,
+        enhancedPotency: 440,
+        rearEnhancedPotency: 500,
         isEnhanced: hasBuff(getState(), StatusId.HindstungVenom),
       })
     );
@@ -451,10 +474,10 @@ const hindsbaneFang: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.HindsbaneFang, context, {
-        potency: 300,
-        rearPotency: 360,
-        enhancedPotency: 400,
-        rearEnhancedPotency: 460,
+        potency: 340,
+        rearPotency: 440,
+        enhancedPotency: 440,
+        rearEnhancedPotency: 500,
         isEnhanced: hasBuff(getState(), StatusId.HindsbaneVenom),
       })
     );
@@ -497,7 +520,7 @@ const deathRattle: CombatAction = createCombatAction({
   id: ActionId.DeathRattle,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.DeathRattle, context, { potency: 250 }));
+    dispatch(dmgEvent(ActionId.DeathRattle, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.ReadytoRattle));
   },
   isGlowing: () => true,
@@ -513,11 +536,15 @@ const writhingSnap: CombatAction = createCombatAction({
 
 const steelMaw: CombatAction = createCombatAction({
   id: ActionId.SteelMaw,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SteelMaw, context, { potency: 100 }));
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.SteelMaw, context, { potency: 100, enhancedPotency: 120, isEnhanced: hasBuff(getState(), StatusId.HonedSteel) })
+    );
     dispatch(combo(ActionId.SteelMaw));
+    dispatch(buff(StatusId.HonedReavers));
   },
   reducedBySkillSpeed: true,
+  isGlowing: (state) => hasBuff(state, StatusId.HonedSteel),
   redirect: (state) =>
     hasBuff(state, StatusId.Reawakened)
       ? ActionId.FirstGeneration
@@ -528,14 +555,17 @@ const steelMaw: CombatAction = createCombatAction({
       : ActionId.SteelMaw,
 });
 
-const dreadMaw: CombatAction = createCombatAction({
-  id: ActionId.DreadMaw,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DreadMaw, context, { potency: 80 }));
-    dispatch(extendableDebuff(StatusId.NoxiousGnash, 20));
+const reavingMaw: CombatAction = createCombatAction({
+  id: ActionId.ReavingMaw,
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.ReavingMaw, context, { potency: 100, enhancedPotency: 120, isEnhanced: hasBuff(getState(), StatusId.HonedReavers) })
+    );
     dispatch(combo(ActionId.SteelMaw));
+    dispatch(buff(StatusId.HonedSteel));
   },
   reducedBySkillSpeed: true,
+  isGlowing: (state) => hasBuff(state, StatusId.HonedReavers),
   redirect: (state) =>
     hasBuff(state, StatusId.Reawakened)
       ? ActionId.SecondGeneration
@@ -543,13 +573,13 @@ const dreadMaw: CombatAction = createCombatAction({
       ? ActionId.BloodiedMaw
       : hasCombo(state, ActionId.SwiftskinsBite)
       ? ActionId.SwiftskinsBite
-      : ActionId.DreadMaw,
+      : ActionId.ReavingMaw,
 });
 
 const huntersBite: CombatAction = createCombatAction({
   id: ActionId.HuntersBite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HuntersSting, context, { potency: 120 }));
+    dispatch(dmgEvent(ActionId.HuntersSting, context, { potency: 130 }));
     dispatch(buff(StatusId.HuntersInstinct));
     dispatch(combo(ActionId.HuntersBite));
   },
@@ -560,7 +590,7 @@ const huntersBite: CombatAction = createCombatAction({
 const swiftskinsBite: CombatAction = createCombatAction({
   id: ActionId.SwiftskinsBite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SwiftskinsBite, context, { potency: 120 }));
+    dispatch(dmgEvent(ActionId.SwiftskinsBite, context, { potency: 130 }));
     dispatch(buff(StatusId.Swiftscaled));
     dispatch(combo(ActionId.HuntersBite));
   },
@@ -629,14 +659,13 @@ const slither: CombatAction = createCombatAction({
   }),
 });
 
-const dreadwinder: CombatAction = createCombatAction({
-  id: ActionId.Dreadwinder,
+const vicewinder: CombatAction = createCombatAction({
+  id: ActionId.Vicewinder,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Dreadwinder, context, { potency: 450 }));
+    dispatch(dmgEvent(ActionId.Vicewinder, context, { potency: 500 }));
     dispatch(gcd({ time: 3000, reducedBySkillSpeed: true }));
-    dispatch(removeCombo(ActionId.PitofDread));
-    dispatch(combo(ActionId.Dreadwinder));
-    dispatch(extendableDebuff(StatusId.NoxiousGnash, 20));
+    dispatch(removeCombo(ActionId.Vicepit));
+    dispatch(combo(ActionId.Vicewinder));
     dispatch(buff(StatusId.ReadytoHunt));
     dispatch(buff(StatusId.ReadytoSwift));
     dispatch(addRattlingCoil(1));
@@ -647,8 +676,8 @@ const dreadwinder: CombatAction = createCombatAction({
 const huntersCoil: CombatAction = createCombatAction({
   id: ActionId.HuntersCoil,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HuntersCoil, context, { potency: 500, flankPotency: 550 }));
-    dispatch(combo(ActionId.Dreadwinder));
+    dispatch(dmgEvent(ActionId.HuntersCoil, context, { potency: 570, flankPotency: 620 }));
+    dispatch(combo(ActionId.Vicewinder));
     dispatch(removeBuff(StatusId.ReadytoHunt));
     dispatch(buff(StatusId.HuntersInstinct));
     dispatch(buff(StatusId.HuntersVenom));
@@ -664,8 +693,8 @@ const huntersCoil: CombatAction = createCombatAction({
 const swiftskinsCoil: CombatAction = createCombatAction({
   id: ActionId.SwiftskinsCoil,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SwiftskinsCoil, context, { potency: 500, rearPotency: 550 }));
-    dispatch(combo(ActionId.Dreadwinder));
+    dispatch(dmgEvent(ActionId.SwiftskinsCoil, context, { potency: 570, rearPotency: 620 }));
+    dispatch(combo(ActionId.Vicewinder));
     dispatch(removeBuff(StatusId.ReadytoSwift));
     dispatch(buff(StatusId.Swiftscaled));
     dispatch(buff(StatusId.SwiftskinsVenom));
@@ -678,14 +707,13 @@ const swiftskinsCoil: CombatAction = createCombatAction({
   isGlowing: (state) => hasCombo(state, ActionId.SwiftskinsCoil) && hasBuff(state, StatusId.ReadytoSwift),
 });
 
-const pitofDread: CombatAction = createCombatAction({
-  id: ActionId.PitofDread,
+const vicepit: CombatAction = createCombatAction({
+  id: ActionId.Vicepit,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PitofDread, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.Vicepit, context, { potency: 220 }));
     dispatch(gcd({ time: 3000, reducedBySkillSpeed: true }));
-    dispatch(removeCombo(ActionId.Dreadwinder));
-    dispatch(combo(ActionId.PitofDread));
-    dispatch(extendableDebuff(StatusId.NoxiousGnash, 20));
+    dispatch(removeCombo(ActionId.Vicewinder));
+    dispatch(combo(ActionId.Vicepit));
     dispatch(buff(StatusId.ReadytoHunt));
     dispatch(buff(StatusId.ReadytoSwift));
     dispatch(addRattlingCoil(1));
@@ -696,8 +724,8 @@ const pitofDread: CombatAction = createCombatAction({
 const huntersDen: CombatAction = createCombatAction({
   id: ActionId.HuntersDen,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HuntersDen, context, { potency: 250 }));
-    dispatch(combo(ActionId.PitofDread));
+    dispatch(dmgEvent(ActionId.HuntersDen, context, { potency: 280 }));
+    dispatch(combo(ActionId.Vicepit));
     dispatch(removeBuff(StatusId.ReadytoHunt));
     dispatch(buff(StatusId.HuntersInstinct));
     dispatch(buff(StatusId.FellhuntersVenom));
@@ -713,8 +741,8 @@ const huntersDen: CombatAction = createCombatAction({
 const swiftskinsDen: CombatAction = createCombatAction({
   id: ActionId.SwiftskinsDen,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SwiftskinsDen, context, { potency: 250 }));
-    dispatch(combo(ActionId.PitofDread));
+    dispatch(dmgEvent(ActionId.SwiftskinsDen, context, { potency: 280 }));
+    dispatch(combo(ActionId.Vicepit));
     dispatch(removeBuff(StatusId.ReadytoSwift));
     dispatch(buff(StatusId.Swiftscaled));
     dispatch(buff(StatusId.FellskinsVenom));
@@ -761,8 +789,8 @@ const twinfangBite: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.TwinfangBite, context, {
-        potency: 100,
-        enhancedPotency: 150,
+        potency: 120,
+        enhancedPotency: 170,
         isEnhanced: hasBuff(getState(), StatusId.HuntersVenom),
       })
     );
@@ -781,8 +809,8 @@ const twinbloodBite: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.TwinbloodBite, context, {
-        potency: 100,
-        enhancedPotency: 150,
+        potency: 120,
+        enhancedPotency: 170,
         isEnhanced: hasBuff(getState(), StatusId.SwiftskinsVenom),
       })
     );
@@ -838,7 +866,7 @@ const twinbloodThresh: CombatAction = createCombatAction({
 const uncoiledFury: CombatAction = createCombatAction({
   id: ActionId.UncoiledFury,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.UncoiledFury, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.UncoiledFury, context, { potency: 680 }));
     dispatch(buff(StatusId.ReadytoUncoil));
     dispatch(buff(StatusId.PoisedforTwinfang));
   },
@@ -894,12 +922,12 @@ const serpentsIre: CombatAction = createCombatAction({
 const reawaken: CombatAction = createCombatAction({
   id: ActionId.Reawaken,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Reawaken, context, { potency: 700 }));
+    dispatch(dmgEvent(ActionId.Reawaken, context, { potency: 750 }));
     dispatch(removeBuff(StatusId.ReadytoReawaken));
     dispatch(buff(StatusId.Reawakened));
     dispatch(buff(StatusId.Generation));
-    dispatch(removeCombo(ActionId.Dreadwinder));
-    dispatch(removeCombo(ActionId.PitofDread));
+    dispatch(removeCombo(ActionId.Vicewinder));
+    dispatch(removeCombo(ActionId.Vicepit));
     dispatch(addAnguineTribute(5));
   },
   reducedBySkillSpeed: true,
@@ -913,8 +941,8 @@ const firstGeneration: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.FirstGeneration, context, {
-        potency: 400,
-        enhancedPotency: 600,
+        potency: 480,
+        enhancedPotency: 680,
         isEnhanced: buffStacks(getState(), StatusId.Generation) === 1,
       })
     );
@@ -931,8 +959,8 @@ const secondGeneration: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.SecondGeneration, context, {
-        potency: 400,
-        enhancedPotency: 600,
+        potency: 480,
+        enhancedPotency: 680,
         isEnhanced: buffStacks(getState(), StatusId.Generation) === 2,
       })
     );
@@ -949,8 +977,8 @@ const thirdGeneration: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.ThirdGeneration, context, {
-        potency: 400,
-        enhancedPotency: 600,
+        potency: 480,
+        enhancedPotency: 680,
         isEnhanced: buffStacks(getState(), StatusId.Generation) === 3,
       })
     );
@@ -967,8 +995,8 @@ const fourthGeneration: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.FourthGeneration, context, {
-        potency: 400,
-        enhancedPotency: 600,
+        potency: 480,
+        enhancedPotency: 680,
         isEnhanced: buffStacks(getState(), StatusId.Generation) === 4,
       })
     );
@@ -983,7 +1011,7 @@ const fourthGeneration: CombatAction = createCombatAction({
 const ouroboros: CombatAction = createCombatAction({
   id: ActionId.Ouroboros,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Ouroboros, context, { potency: 1050 }));
+    dispatch(dmgEvent(ActionId.Ouroboros, context, { potency: 1150 }));
     dispatch(removeBuff(StatusId.Generation));
     dispatch(removeBuff(StatusId.Reawakened));
     dispatch(setAnguineTribute(0));
@@ -996,7 +1024,7 @@ const firstLegacy: CombatAction = createCombatAction({
   id: ActionId.FirstLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FirstLegacy, context, { potency: 250 }));
+    dispatch(dmgEvent(ActionId.FirstLegacy, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1006,7 +1034,7 @@ const secondLegacy: CombatAction = createCombatAction({
   id: ActionId.SecondLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.SecondLegacy, context, { potency: 250 }));
+    dispatch(dmgEvent(ActionId.SecondLegacy, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1016,7 +1044,7 @@ const thirdLegacy: CombatAction = createCombatAction({
   id: ActionId.ThirdLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ThirdLegacy, context, { potency: 250 }));
+    dispatch(dmgEvent(ActionId.ThirdLegacy, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1026,16 +1054,17 @@ const fourthLegacy: CombatAction = createCombatAction({
   id: ActionId.FourthLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FourthLegacy, context, { potency: 250 }));
+    dispatch(dmgEvent(ActionId.FourthLegacy, context, { potency: 280 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
 });
 
 export const vprStatuses: CombatStatus[] = [
-  noxiousGnashStatus,
   swiftscaledStatus,
   huntersInstinctStatus,
+  honedReaversStatus,
+  honedSteelStatus,
   flankstungVenomStatus,
   flanksbaneVenomStatus,
   hindstungVenomStatus,
@@ -1063,7 +1092,7 @@ export const vprStatuses: CombatStatus[] = [
 
 export const vpr: CombatAction[] = [
   steelFangs,
-  dreadFangs,
+  reavingFangs,
   huntersSting,
   swiftkinsSting,
   flankstingStrike,
@@ -1074,21 +1103,21 @@ export const vpr: CombatAction[] = [
   deathRattle,
   writhingSnap,
   steelMaw,
-  dreadMaw,
+  reavingMaw,
   huntersBite,
   swiftskinsBite,
   jaggedMaw,
   bloodiedMaw,
   lastLash,
   slither,
-  dreadwinder,
+  vicewinder,
   huntersCoil,
   swiftskinsCoil,
   twinfang,
   twinblood,
   twinfangBite,
   twinbloodBite,
-  pitofDread,
+  vicepit,
   huntersDen,
   swiftskinsDen,
   twinfangThresh,
@@ -1116,5 +1145,6 @@ export const vprEpics = combineEpics(
   removeUncoilEpic,
   removeReawakenedEpic,
   removePoisedEpic,
-  removeVenomsEpic
+  removeVenomsEpic,
+  removeHonedEpic
 );

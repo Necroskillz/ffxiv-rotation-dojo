@@ -22,11 +22,13 @@
 }
 
 .active1 {
-  border-color: #FF533F;
-  border-color: #FF533F;
+  border-color: #ffd900;
 }
 
 .active2 {
-  border-color: #4042E5;
+  border-color: #FF533F;
+}
+
+.active3 {
   border-color: #4042E5;
 }

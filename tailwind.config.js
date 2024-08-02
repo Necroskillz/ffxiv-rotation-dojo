@@ -14,6 +14,9 @@ module.exports = {
         'xiv-heal': '#C6D4BB',
         'pull-timer': '#D4A900',
       },
+      dropShadow: {
+        'blue': '0 0 10px rgba(0,0,255,1)'
+      }
     },
     fontFamily: {
       'ui-light': ['Miedinger Light W00 Regular'],

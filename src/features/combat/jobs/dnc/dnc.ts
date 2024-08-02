@@ -572,7 +572,7 @@ const fanDanceIV: CombatAction = createCombatAction({
   id: ActionId.FanDanceIV,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FanDanceIV, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.FanDanceIV, context, { potency: 420 }));
     dispatch(removeBuff(StatusId.FourfoldFanDance));
   },
   isUsable: (state) => !isDancing(state) && hasBuff(state, StatusId.FourfoldFanDance),

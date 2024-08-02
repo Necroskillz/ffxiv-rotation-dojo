@@ -372,7 +372,7 @@ const spinningEdge: CombatAction = createCombatAction({
 const gustSlash: CombatAction = createCombatAction({
   id: ActionId.GustSlash,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.GustSlash, context, { potency: 220, comboPotency: 380 }));
+    dispatch(dmgEvent(ActionId.GustSlash, context, { potency: 240, comboPotency: 400 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.GustSlash));
@@ -723,7 +723,7 @@ const raiton: CombatAction = createCombatAction({
 const fleetingRaiju: CombatAction = createCombatAction({
   id: ActionId.FleetingRaiju,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FleetingRaiju, context, { potency: 640, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.FleetingRaiju, context, { potency: 700, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.RaijuReady));
     dispatch(addNinki(5));
   },
@@ -735,7 +735,7 @@ const fleetingRaiju: CombatAction = createCombatAction({
 const forkedRaiju: CombatAction = createCombatAction({
   id: ActionId.ForkedRaiju,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ForkedRaiju, context, { potency: 640, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.ForkedRaiju, context, { potency: 700, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.RaijuReady));
     dispatch(addNinki(5));
   },
@@ -887,7 +887,7 @@ const tenriJindo: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.TenriJindo, context, {
-        potency: 1000,
+        potency: 1100,
         type: DamageType.Magical,
       })
     );
@@ -934,8 +934,8 @@ const zeshoMeppo: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.ZeshoMeppo, context, {
-        potency: 550,
-        enhancedPotency: 700,
+        potency: 700,
+        enhancedPotency: 850,
         isEnhanced: hasBuff(getState(), StatusId.Meisui),
         type: DamageType.Magical,
       })

@@ -178,7 +178,7 @@ const scornStatus: CombatStatus = createCombatStatus({
 const hardSlash: CombatAction = createCombatAction({
   id: ActionId.HardSlash,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HardSlash, context, { potency: 260 }));
+    dispatch(dmgEvent(ActionId.HardSlash, context, { potency: 300 }));
     dispatch(combo(ActionId.HardSlash));
   },
   reducedBySkillSpeed: true,
@@ -187,7 +187,7 @@ const hardSlash: CombatAction = createCombatAction({
 const syphonStrike: CombatAction = createCombatAction({
   id: ActionId.SyphonStrike,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SyphonStrike, context, { potency: 220, comboPotency: 360, comboMana: 600 }));
+    dispatch(dmgEvent(ActionId.SyphonStrike, context, { potency: 240, comboPotency: 380, comboMana: 600 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.SyphonStrike));
@@ -200,7 +200,7 @@ const syphonStrike: CombatAction = createCombatAction({
 const souleater: CombatAction = createCombatAction({
   id: ActionId.Souleater,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Souleater, context, { potency: 240, comboPotency: 460, comboHealthPotency: 300 }));
+    dispatch(dmgEvent(ActionId.Souleater, context, { potency: 260, comboPotency: 480, comboHealthPotency: 300 }));
 
     if (context.comboed) {
       dispatch(addBlood(20));
@@ -316,7 +316,7 @@ const carveAndSpit: CombatAction = createCombatAction({
   id: ActionId.CarveandSpit,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.CarveandSpit, context, { potency: 510, mana: 600 }));
+    dispatch(dmgEvent(ActionId.CarveandSpit, context, { potency: 540, mana: 600 }));
   },
 });
 
@@ -346,7 +346,7 @@ const livingShadow: CombatAction = createCombatAction({
 const disesteem: CombatAction = createCombatAction({
   id: ActionId.Disesteem,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Disesteem, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.Disesteem, context, { potency: 1000 }));
     dispatch(removeBuff(StatusId.Scorn));
   },
   isUsable: (state) => hasBuff(state, StatusId.Scorn),

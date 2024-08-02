@@ -341,8 +341,8 @@ const airAnchor: CombatAction = createCombatAction({
 
 const chainsaw: CombatAction = createCombatAction({
   id: ActionId.ChainSaw,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: adjustedPotency(getState(), 600) }));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: 600 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(buff(StatusId.ExcavatorReady));
@@ -353,8 +353,8 @@ const chainsaw: CombatAction = createCombatAction({
 
 const excavator: CombatAction = createCombatAction({
   id: ActionId.Excavator,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Excavator, context, { potency: adjustedPotency(getState(), 600) }));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Excavator, context, { potency: 600 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(removeBuff(StatusId.ExcavatorReady));
@@ -430,7 +430,7 @@ const barrelStabilizer: CombatAction = createCombatAction({
 const fullMetalField: CombatAction = createCombatAction({
   id: ActionId.FullMetalField,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.FullMetalField, context, { potency: adjustedPotency(getState(), 700) }));
+    dispatch(dmgEvent(ActionId.FullMetalField, context, { potency: 900 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(removeBuff(StatusId.FullMetalMachinist));
   },
@@ -546,8 +546,8 @@ const spreadShot: CombatAction = createCombatAction({
 
 const scattergun: CombatAction = createCombatAction({
   id: ActionId.Scattergun,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: adjustedPotency(getState(), 160) }));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: 160 }));
 
     dispatch(addHeat(10));
   },
@@ -556,8 +556,8 @@ const scattergun: CombatAction = createCombatAction({
 
 const bioblaster: CombatAction = createCombatAction({
   id: ActionId.Bioblaster,
-  execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Bioblaster, context, { potency: adjustedPotency(getState(), 50) }));
+  execute: (dispatch, _, context) => {
+    dispatch(dmgEvent(ActionId.Bioblaster, context, { potency: 50 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(debuff(StatusId.Bioblaster));
   },

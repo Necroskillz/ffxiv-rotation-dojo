@@ -357,7 +357,7 @@ const stardiver: CombatAction = createCombatAction({
   id: ActionId.Stardiver,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 720 }));
     dispatch(buff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
@@ -370,7 +370,7 @@ const starcross: CombatAction = createCombatAction({
   id: ActionId.Starcross,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Starcross, context, { potency: 700 }));
+    dispatch(dmgEvent(ActionId.Starcross, context, { potency: 900 }));
     dispatch(removeBuff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.StarcrossReady),

@@ -451,7 +451,7 @@ const ruin3: CombatAction = createCombatAction({
 const astralImpulse: CombatAction = createCombatAction({
   id: ActionId.AstralImpulse,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.AstralImpulse, context, { potency: 500 }));
+    dispatch(dmgEvent(ActionId.AstralImpulse, context, { potency: 620 }));
   },
   reducedBySpellSpeed: true,
 });
@@ -670,7 +670,7 @@ const sunflare: CombatAction = createCombatAction({
   id: ActionId.Sunflare,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Sunflare, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.Sunflare, context, { potency: 700 }));
   },
   isGlowing: () => true,
 });
@@ -756,7 +756,7 @@ const necrotize: CombatAction = createCombatAction({
   id: ActionId.Necrotize,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Necrotize, context, { potency: 420 }));
+    dispatch(dmgEvent(ActionId.Necrotize, context, { potency: 440 }));
     dispatch(removeBuffStack(StatusId.Aetherflow));
   },
   isUsable: (state) => hasBuff(state, StatusId.Aetherflow),

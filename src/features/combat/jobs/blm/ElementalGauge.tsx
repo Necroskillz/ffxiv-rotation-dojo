@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
-import { selectParadox, selectPolyglot, selectUmbralHeart } from '../../combatSlice';
+import { selectBuff, selectParadox, selectPolyglot, selectUmbralHeart } from '../../combatSlice';
 import { GaugeBar } from '../../GaugeBar';
 import { GaugeDiamond } from '../../GaugeDiamond';
 import { GaugeNumber } from '../../GaugeNumber';
@@ -16,6 +16,7 @@ export const ElementalGauge = () => {
   const polyglot = useAppSelector(selectPolyglot);
   const paradox = useAppSelector(selectParadox);
   const umbralHeart = useAppSelector(selectUmbralHeart);
+  const umbralSoul = useAppSelector((state) => selectBuff(state, StatusId.UmbralSoulActive));
 
   const iceFillColor = '#7EB4FF';
   const fireFillColor = '#FF8F8E';
@@ -40,7 +41,11 @@ export const ElementalGauge = () => {
           <div className="grid grid-flow-col auto-cols-max gap-1">
             <div className="-ml-4 -mt-[7px] w-8">
               {(iceRemainingTime != null || fireRemainingTime != null) && (
-                <GaugeNumber number={iceRemainingTime ? iceRemainingTime : fireRemainingTime!} />
+                <GaugeNumber
+                  shadow={false}
+                  className={umbralSoul ? 'drop-shadow-blue' : 'drop-shadow-[0_0_10px_rgba(0,0,0,1)]'}
+                  number={iceRemainingTime ? iceRemainingTime : fireRemainingTime!}
+                />
               )}
             </div>
             {ice && (

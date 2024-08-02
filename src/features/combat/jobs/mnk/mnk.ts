@@ -555,7 +555,7 @@ const celestialRevolution: CombatAction = createCombatAction({
 const phantomRush: CombatAction = createCombatAction({
   id: ActionId.PhantomRush,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PhantomRush, context, { potency: 1400 }));
+    dispatch(dmgEvent(ActionId.PhantomRush, context, { potency: 1500 }));
     dispatch(setBeastChakra(0));
     dispatch(setSolarNadi(0));
     dispatch(setLunarNadi(0));
@@ -613,7 +613,7 @@ const riddleOfFire: CombatAction = createCombatAction({
 const firesReply: CombatAction = createCombatAction({
   id: ActionId.FiresReply,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FiresReply, context, { potency: 1100 }));
+    dispatch(dmgEvent(ActionId.FiresReply, context, { potency: 1200 }));
     dispatch(removeBuff(StatusId.FiresRumination));
   },
   isUsable: (state) => hasBuff(state, StatusId.FiresRumination),
@@ -636,7 +636,7 @@ const riddleOfWind: CombatAction = createCombatAction({
 const windsReply: CombatAction = createCombatAction({
   id: ActionId.WindsReply,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.WindsReply, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.WindsReply, context, { potency: 900 }));
     dispatch(removeBuff(StatusId.WindsRumination));
   },
   isUsable: (state) => hasBuff(state, StatusId.WindsRumination),

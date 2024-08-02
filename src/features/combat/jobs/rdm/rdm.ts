@@ -181,7 +181,7 @@ const magickBarrierStatus: CombatStatus = createCombatStatus({
 
 const magickedSwordplayStatus: CombatStatus = createCombatStatus({
   id: StatusId.MagickedSwordplay,
-  duration: 15,
+  duration: 30,
   isHarmful: false,
   initialStacks: 3,
 });
@@ -242,7 +242,7 @@ const verthuder: CombatAction = createCombatAction({
 const verthuder3: CombatAction = createCombatAction({
   id: ActionId.VerthunderIII,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.VerthunderIII, context, { potency: 380 }));
+    dispatch(dmgEvent(ActionId.VerthunderIII, context, { potency: 440 }));
 
     dispatch(addBlackMana(6));
 
@@ -269,7 +269,7 @@ const veraero: CombatAction = createCombatAction({
 const veraero3: CombatAction = createCombatAction({
   id: ActionId.VeraeroIII,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.VeraeroIII, context, { potency: 380 }));
+    dispatch(dmgEvent(ActionId.VeraeroIII, context, { potency: 440 }));
 
     dispatch(addWhiteMana(6));
 
@@ -285,7 +285,7 @@ const veraero3: CombatAction = createCombatAction({
 const verfire: CombatAction = createCombatAction({
   id: ActionId.Verfire,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Verfire, context, { potency: 340 }));
+    dispatch(dmgEvent(ActionId.Verfire, context, { potency: 380 }));
     dispatch(addBlackMana(5));
     dispatch(removeBuff(StatusId.VerfireReady));
   },
@@ -297,7 +297,7 @@ const verfire: CombatAction = createCombatAction({
 const verstone: CombatAction = createCombatAction({
   id: ActionId.Verstone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Verstone, context, { potency: 340 }));
+    dispatch(dmgEvent(ActionId.Verstone, context, { potency: 380 }));
     dispatch(addWhiteMana(5));
     dispatch(removeBuff(StatusId.VerstoneReady));
   },
@@ -322,7 +322,7 @@ const riposte: CombatAction = createCombatAction({
 const enchantedRiposte: CombatAction = createCombatAction({
   id: ActionId.EnchantedRiposte,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedRiposte, context, { potency: 280, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedRiposte, context, { potency: 300, type: DamageType.Magical }));
     dispatch(combo(ActionId.Riposte));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
     dispatch(addManaStack(1));
@@ -350,7 +350,7 @@ const zwerchhau: CombatAction = createCombatAction({
 const enchantedZwerchhau: CombatAction = createCombatAction({
   id: ActionId.EnchantedZwerchhau,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedZwerchhau, context, { potency: 150, comboPotency: 340, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedZwerchhau, context, { potency: 170, comboPotency: 360, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
@@ -378,7 +378,7 @@ const redoublement: CombatAction = createCombatAction({
 const enchantedRedoublement: CombatAction = createCombatAction({
   id: ActionId.EnchantedRedoublement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedRedoublement, context, { potency: 130, comboPotency: 500, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedRedoublement, context, { potency: 170, comboPotency: 540, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
@@ -415,7 +415,7 @@ const prefulgence: CombatAction = createCombatAction({
 const verflare: CombatAction = createCombatAction({
   id: ActionId.Verflare,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 620 }));
     dispatch(combo(ActionId.Verflare));
 
     if (whiteMana(getState()) > blackMana(getState()) || rng(20)) {
@@ -431,7 +431,7 @@ const verflare: CombatAction = createCombatAction({
 const verholy: CombatAction = createCombatAction({
   id: ActionId.Verholy,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 620 }));
     dispatch(combo(ActionId.Verflare));
 
     if (blackMana(getState()) > whiteMana(getState()) || rng(20)) {
@@ -447,7 +447,7 @@ const verholy: CombatAction = createCombatAction({
 const scorch: CombatAction = createCombatAction({
   id: ActionId.Scorch,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Scorch, context, { potency: 680 }));
+    dispatch(dmgEvent(ActionId.Scorch, context, { potency: 700 }));
     dispatch(combo(ActionId.Scorch));
     dispatch(addBlackAndWhiteMana(4));
   },
@@ -458,7 +458,7 @@ const scorch: CombatAction = createCombatAction({
 const resolution: CombatAction = createCombatAction({
   id: ActionId.Resolution,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Resolution, context, { potency: 750 }));
+    dispatch(dmgEvent(ActionId.Resolution, context, { potency: 800 }));
     dispatch(addBlackAndWhiteMana(4));
   },
   isGlowing: () => true,
@@ -515,7 +515,7 @@ const fleche: CombatAction = createCombatAction({
   id: ActionId.Fleche,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Fleche, context, { potency: 460, type: DamageType.Physical }));
+    dispatch(dmgEvent(ActionId.Fleche, context, { potency: 480, type: DamageType.Physical }));
   },
 });
 
@@ -523,7 +523,7 @@ const contreSixte: CombatAction = createCombatAction({
   id: ActionId.ContreSixte,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 380, type: DamageType.Physical }));
+    dispatch(dmgEvent(ActionId.ContreSixte, context, { potency: 420, type: DamageType.Physical }));
   },
 });
 
@@ -600,7 +600,7 @@ const reprise: CombatAction = createCombatAction({
 const enchantedReprise: CombatAction = createCombatAction({
   id: ActionId.EnchantedReprise,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedReprise, context, { potency: 340, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedReprise, context, { potency: 420, type: DamageType.Magical }));
   },
   reducedBySkillSpeed: true,
 });

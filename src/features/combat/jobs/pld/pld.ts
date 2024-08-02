@@ -214,7 +214,7 @@ const rageOfHalone: CombatAction = createCombatAction({
 const royalAuthority: CombatAction = createCombatAction({
   id: ActionId.RoyalAuthority,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 180, comboPotency: 440 }));
+    dispatch(dmgEvent(ActionId.RoyalAuthority, context, { potency: 200, comboPotency: 460 }));
 
     if (context.comboed) {
       dispatch(buff(StatusId.AtonementReady));
@@ -229,11 +229,11 @@ const holySpirit: CombatAction = createCombatAction({
   id: ActionId.HolySpirit,
   execute: (dispatch, getState, context) => {
     if (hasBuff(getState(), StatusId.DivineMight)) {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 470, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 500, healthPotency: 400, type: DamageType.Magical }));
     } else if (hasBuff(getState(), StatusId.Requiescat)) {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 670, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 700, healthPotency: 400, type: DamageType.Magical }));
     } else {
-      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 370, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolySpirit, context, { potency: 400, healthPotency: 400, type: DamageType.Magical }));
     }
 
     if (hasBuff(getState(), StatusId.DivineMight)) {
@@ -268,7 +268,7 @@ const imperator: CombatAction = createCombatAction({
 const atonement: CombatAction = createCombatAction({
   id: ActionId.Atonement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 440, mana: 400 }));
+    dispatch(dmgEvent(ActionId.Atonement, context, { potency: 460, mana: 400 }));
 
     dispatch(removeBuff(StatusId.AtonementReady));
     dispatch(buff(StatusId.SupplicationReady));
@@ -287,7 +287,7 @@ const atonement: CombatAction = createCombatAction({
 const supplication: CombatAction = createCombatAction({
   id: ActionId.Supplication,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Supplication, context, { potency: 460, mana: 400 }));
+    dispatch(dmgEvent(ActionId.Supplication, context, { potency: 500, mana: 400 }));
 
     dispatch(removeBuff(StatusId.SupplicationReady));
     dispatch(buff(StatusId.SepulchreReady));
@@ -299,7 +299,7 @@ const supplication: CombatAction = createCombatAction({
 const sepulchre: CombatAction = createCombatAction({
   id: ActionId.Sepulchre,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Sepulchre, context, { potency: 480, mana: 400 }));
+    dispatch(dmgEvent(ActionId.Sepulchre, context, { potency: 540, mana: 400 }));
 
     dispatch(removeBuff(StatusId.SepulchreReady));
   },
@@ -312,8 +312,8 @@ const confiteor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.Confiteor, context, {
-        potency: 440,
-        enhancedPotency: 940,
+        potency: 500,
+        enhancedPotency: 1000,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -343,8 +343,8 @@ const bladeofFaith: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofFaith, context, {
-        potency: 240,
-        enhancedPotency: 740,
+        potency: 260,
+        enhancedPotency: 760,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -364,8 +364,8 @@ const bladeofTruth: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofTruth, context, {
-        potency: 340,
-        enhancedPotency: 840,
+        potency: 380,
+        enhancedPotency: 880,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
@@ -385,8 +385,8 @@ const bladeOfValor: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.BladeofValor, context, {
-        potency: 440,
-        enhancedPotency: 940,
+        potency: 500,
+        enhancedPotency: 1000,
         isEnhanced: hasBuff(getState(), StatusId.Requiescat),
         healthPotency: 400,
         type: DamageType.Magical,
