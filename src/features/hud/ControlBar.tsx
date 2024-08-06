@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import clsx from 'clsx';
 import { selectIsScriptActive } from '../script_engine/scriptEngineSlice';
+import { patch } from '../actions/patch';
 
 interface GroupOption {
   label: string;
@@ -121,7 +122,7 @@ export const ControlBar: FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-[_1fr_50px]">
+    <div className="grid grid-cols-[_1fr_120px]">
       <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
         <Select<Option<string>, false, GroupOption>
           options={jobOptions}
@@ -161,7 +162,10 @@ export const ControlBar: FC = () => {
           Pull timer
         </button>
       </div>
-      <div className="grid items-center">
+      <div className="grid grid grid-flow-col auto-cols-max gap-2 items-center">
+        <div className="w-20">
+          Patch: {patch}
+        </div>
         <button onClick={toggleHelp}>
           <FontAwesomeIcon icon={faCircleQuestion} size="xl" />
         </button>
