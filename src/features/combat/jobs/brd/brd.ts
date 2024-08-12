@@ -30,6 +30,7 @@ import {
   buffStacks,
 } from '../../combatSlice';
 import { rng } from '../../utils';
+import { getActionById } from '../../../actions/actions';
 
 function soulVoice(state: RootState) {
   return resource(state, 'soulVoice');
@@ -198,7 +199,7 @@ const magesBalladActive: CombatStatus = createCombatStatus({
   isHarmful: false,
   isVisible: false,
   tick: (dispatch) => {
-    dispatch(modifyCooldown(10, -7500));
+    dispatch(modifyCooldown(getActionById(ActionId.HeartbreakShot).cooldownGroup, -7500));
     dispatch(addSoulVoice(5));
   },
   onExpire: (dispatch, getState) => {
@@ -548,7 +549,7 @@ const empyrealArrow: CombatAction = createCombatAction({
       dispatch(addWandererRepertiore(1));
       dispatch(addSoulVoice(5));
     } else if (hasBuff(getState(), StatusId.MagesBalladActive)) {
-      dispatch(modifyCooldown(10, -7500));
+      dispatch(modifyCooldown(getActionById(ActionId.HeartbreakShot).cooldownGroup, -7500));
       dispatch(addSoulVoice(5));
     } else if (hasBuff(getState(), StatusId.ArmysPaeonActive)) {
       dispatch(addArmyRepertiore(1));

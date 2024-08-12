@@ -372,7 +372,7 @@ const unmend: CombatAction = createCombatAction({
   id: ActionId.Unmend,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.Unmend, context, { potency: 150 }));
-    dispatch(modifyCooldown(8, -5000));
+    dispatch(modifyCooldown(getActionById(ActionId.Shadowstride).cooldownGroup, -5000));
   },
   reducedBySpellSpeed: true,
 });

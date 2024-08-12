@@ -429,7 +429,7 @@ const barrelStabilizer: CombatAction = createCombatAction({
 
 const fullMetalField: CombatAction = createCombatAction({
   id: ActionId.FullMetalField,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.FullMetalField, context, { potency: 900 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(removeBuff(StatusId.FullMetalMachinist));
@@ -482,8 +482,8 @@ const blazingShot: CombatAction = createCombatAction({
   id: ActionId.BlazingShot,
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.BlazingShot, context, { potency: adjustedPotency(getState(), 220) }));
-    dispatch(modifyCooldown(15, -15000));
-    dispatch(modifyCooldown(16, -15000));
+    dispatch(modifyCooldown(getActionById(ActionId.DoubleCheck).cooldownGroup, -15000));
+    dispatch(modifyCooldown(getActionById(ActionId.Checkmate).cooldownGroup, -15000));
   },
   isUsable: (state) => hasBuff(state, StatusId.Overheated),
   isGlowing: (state) => hasBuff(state, StatusId.Overheated),

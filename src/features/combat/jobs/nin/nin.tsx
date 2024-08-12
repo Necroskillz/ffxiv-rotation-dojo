@@ -845,7 +845,7 @@ const hide: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Hidden));
     dispatch(removeBuff(StatusId.Doton));
-    dispatch(modifyCooldown(4, -40000));
+    dispatch(modifyCooldown(getActionById(ActionId.Ten).cooldownGroup, -40000));
   },
   entersCombat: false,
   isUsable: (state) => !inCombat(state) && !hasBuff(state, StatusId.TenChiJin),

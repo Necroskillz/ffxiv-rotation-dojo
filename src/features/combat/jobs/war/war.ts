@@ -242,7 +242,7 @@ const fellCleave: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.FellCleave, context, { potency: 580 }));
 
-    dispatch(modifyCooldown(20, -5000));
+    dispatch(modifyCooldown(getActionById(ActionId.Infuriate).cooldownGroup, -5000));
 
     const state = getState();
 
@@ -282,7 +282,7 @@ const innerChaos: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.InnerChaos, context, { potency: 660 }));
     dispatch(removeBuff(StatusId.NascentChaos));
-    dispatch(modifyCooldown(20, -5000));
+    dispatch(modifyCooldown(getActionById(ActionId.Infuriate).cooldownGroup, -5000));
   },
   reducedBySkillSpeed: true,
   isUsable: (state) => hasBuff(state, StatusId.NascentChaos),
@@ -444,7 +444,7 @@ const chaoticCyclone: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 300 }));
 
     dispatch(removeBuff(StatusId.NascentChaos));
-    dispatch(modifyCooldown(20, -5000));
+    dispatch(modifyCooldown(getActionById(ActionId.Infuriate).cooldownGroup, -5000));
   },
   reducedBySkillSpeed: true,
   isUsable: (state) => hasBuff(state, StatusId.NascentChaos),
