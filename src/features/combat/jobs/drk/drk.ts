@@ -236,7 +236,7 @@ const bloodspiller: CombatAction = createCombatAction({
 const scarletDelirium: CombatAction = createCombatAction({
   id: ActionId.ScarletDelirium,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ScarletDelirium, context, { potency: 600, mana: 200 }));
+    dispatch(dmgEvent(ActionId.ScarletDelirium, context, { potency: 620, mana: 200 }));
     dispatch(removeBuffStack(StatusId.Delirium));
     dispatch(combo(ActionId.ScarletDelirium));
   },
@@ -247,7 +247,7 @@ const scarletDelirium: CombatAction = createCombatAction({
 const comeuppance: CombatAction = createCombatAction({
   id: ActionId.Comeuppance,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Comeuppance, context, { potency: 700, comboMana: 200 }));
+    dispatch(dmgEvent(ActionId.Comeuppance, context, { potency: 720, comboMana: 200 }));
     dispatch(removeBuffStack(StatusId.Delirium));
     dispatch(combo(ActionId.Comeuppance));
   },
@@ -258,7 +258,7 @@ const comeuppance: CombatAction = createCombatAction({
 const torcleaver: CombatAction = createCombatAction({
   id: ActionId.Torcleaver,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Torcleaver, context, { potency: 800, comboMana: 200 }));
+    dispatch(dmgEvent(ActionId.Torcleaver, context, { potency: 820, comboMana: 200 }));
     dispatch(removeBuffStack(StatusId.Delirium));
   },
   isGlowing: () => true,
@@ -316,7 +316,7 @@ const carveAndSpit: CombatAction = createCombatAction({
   id: ActionId.CarveandSpit,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.CarveandSpit, context, { potency: 540, mana: 600 }));
+    dispatch(dmgEvent(ActionId.CarveandSpit, context, { potency: 540, mana: 600, healthPotency: 500 }));
   },
 });
 
@@ -508,7 +508,7 @@ const abyssalDrain: CombatAction = createCombatAction({
   id: ActionId.AbyssalDrain,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.AbyssalDrain, context, { potency: 240, mana: 600, healthPotency: 200, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.AbyssalDrain, context, { potency: 240, mana: 600, healthPotency: 500, type: DamageType.Magical }));
   },
 });
 

@@ -186,7 +186,7 @@ const auroraStatus: CombatStatus = createCombatStatus({
   id: StatusId.Aurora,
   duration: 18,
   isHarmful: false,
-  tick: (dispatch) => dispatch(event(0, { healthPotency: 200 })),
+  tick: (dispatch) => dispatch(event(0, { healthPotency: 300 })),
 });
 
 const superbolideStatus: CombatStatus = createCombatStatus({
@@ -347,7 +347,7 @@ const continuation: CombatAction = createCombatAction({
 const hypervelocity: CombatAction = createCombatAction({
   id: ActionId.Hypervelocity,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Hypervelocity, context, { potency: 220 }));
+    dispatch(dmgEvent(ActionId.Hypervelocity, context, { potency: 200 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.ReadytoBlast));
   },
@@ -486,7 +486,7 @@ const doubleDown: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.DoubleDown, context, { potency: 1200 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
-  isGlowing: (state) => cartridge(state) >= 2,
+  isGlowing: (state) => cartridge(state) >= 1,
   reducedBySkillSpeed: true,
 });
 

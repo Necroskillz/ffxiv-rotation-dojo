@@ -415,7 +415,7 @@ const prefulgence: CombatAction = createCombatAction({
 const verflare: CombatAction = createCombatAction({
   id: ActionId.Verflare,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.Verflare, context, { potency: 650 }));
     dispatch(combo(ActionId.Verflare));
 
     if (whiteMana(getState()) > blackMana(getState()) || rng(20)) {
@@ -431,7 +431,7 @@ const verflare: CombatAction = createCombatAction({
 const verholy: CombatAction = createCombatAction({
   id: ActionId.Verholy,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.Verholy, context, { potency: 650 }));
     dispatch(combo(ActionId.Verflare));
 
     if (blackMana(getState()) > whiteMana(getState()) || rng(20)) {
@@ -447,7 +447,7 @@ const verholy: CombatAction = createCombatAction({
 const scorch: CombatAction = createCombatAction({
   id: ActionId.Scorch,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Scorch, context, { potency: 700 }));
+    dispatch(dmgEvent(ActionId.Scorch, context, { potency: 750 }));
     dispatch(combo(ActionId.Scorch));
     dispatch(addBlackAndWhiteMana(4));
   },
@@ -458,7 +458,7 @@ const scorch: CombatAction = createCombatAction({
 const resolution: CombatAction = createCombatAction({
   id: ActionId.Resolution,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Resolution, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.Resolution, context, { potency: 850 }));
     dispatch(addBlackAndWhiteMana(4));
   },
   isGlowing: () => true,

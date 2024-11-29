@@ -527,13 +527,15 @@ const devilment: CombatAction = createCombatAction({
   },
   isUsable: (state) => !isDancing(state),
   entersCombat: false,
+  actionChangeTo: ActionId.StarfallDance,
+  redirect: (state) => (hasBuff(state, StatusId.FlourishingStarfall) ? ActionId.StarfallDance : ActionId.Devilment),
 });
 
 const fanDance: CombatAction = createCombatAction({
   id: ActionId.FanDance,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FanDance, context, { potency: 150 }));
+    dispatch(dmgEvent(ActionId.FanDance, context, { potency: 180 }));
 
     if (rng(50)) {
       dispatch(buff(StatusId.ThreefoldFanDance));
@@ -561,7 +563,7 @@ const fanDanceIII: CombatAction = createCombatAction({
   id: ActionId.FanDanceIII,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FanDanceIII, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.FanDanceIII, context, { potency: 220 }));
     dispatch(removeBuff(StatusId.ThreefoldFanDance));
   },
   isUsable: (state) => !isDancing(state) && hasBuff(state, StatusId.ThreefoldFanDance),

@@ -221,7 +221,7 @@ const flamethrowerStatus: CombatStatus = createCombatStatus({
   id: StatusId.Flamethrower,
   duration: 10,
   isHarmful: false,
-  tick: (dispatch) => dispatch(event(0, { potency: 80 })),
+  tick: (dispatch) => dispatch(event(0, { potency: 100 })),
   ticksImmediately: true,
   initialDelay: 900,
   interval: 1000,
@@ -299,8 +299,8 @@ const heatedCleanShot: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.HeatedCleanShot, context, {
-        potency: adjustedPotency(getState(), 140),
-        comboPotency: adjustedPotency(getState(), 400),
+        potency: adjustedPotency(getState(), 160),
+        comboPotency: adjustedPotency(getState(), 420),
       })
     );
 
@@ -392,7 +392,7 @@ const gaussRound: CombatAction = createCombatAction({
 const doubleCheck: CombatAction = createCombatAction({
   id: ActionId.DoubleCheck,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DoubleCheck, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.DoubleCheck, context, { potency: 170 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -405,7 +405,7 @@ const doubleCheck: CombatAction = createCombatAction({
 const checkmate: CombatAction = createCombatAction({
   id: ActionId.Checkmate,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Checkmate, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.Checkmate, context, { potency: 170 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -481,7 +481,7 @@ const heatBlast: CombatAction = createCombatAction({
 const blazingShot: CombatAction = createCombatAction({
   id: ActionId.BlazingShot,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.BlazingShot, context, { potency: adjustedPotency(getState(), 220) }));
+    dispatch(dmgEvent(ActionId.BlazingShot, context, { potency: adjustedPotency(getState(), 240) }));
     dispatch(modifyCooldown(getActionById(ActionId.DoubleCheck).cooldownGroup, -15000));
     dispatch(modifyCooldown(getActionById(ActionId.Checkmate).cooldownGroup, -15000));
   },

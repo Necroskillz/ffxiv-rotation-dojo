@@ -119,7 +119,21 @@ const consumeCircleOfSacrificeEpic: Epic<any, any, RootState> = (action$) =>
     filter((a) => a.type === addBuff.type && a.payload.id === StatusId.CircleofSacrifice),
     switchMap(() =>
       action$.pipe(
-        filter((aa) => aa.type === executeAction.type && getActionById(aa.payload.id).type === 'Weaponskill'),
+        filter(
+          (aa) =>
+            aa.type === executeAction.type &&
+            aa.payload.id !== ActionId.Soulsow &&
+            (['Weaponskill', 'Spell'].includes(getActionById(aa.payload.id).type) ||
+              [
+                ActionId.Gluttony,
+                ActionId.BloodStalk,
+                ActionId.UnveiledGallows,
+                ActionId.UnveiledGibbet,
+                ActionId.LemuresScythe,
+                ActionId.LemuresSlice,
+                ActionId.GrimSwathe,
+              ].includes(aa.payload.id))
+        ),
         takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === StatusId.CircleofSacrifice)))
       )
     ),
@@ -139,7 +153,7 @@ const partyCircleOfSacrificeEpic: Epic<ReducerAction<StatusState>, any, RootStat
 
       const times = [];
       for (let i = 0; i < partyConsumers; i++) {
-        times.push(Math.random() * 2500);
+        times.push(Math.random() * 1000);
       }
 
       times.sort((a, b) => a - b);
@@ -603,7 +617,8 @@ const crossReaping: CombatAction = createCombatAction({
       dispatch(addVoid(1));
     }
   },
-  isGlowing: (state) => hasBuff(state, StatusId.EnhancedCrossReaping) || !hasBuff(state, StatusId.EnhancedVoidReaping),
+  isGlowing: (state) =>
+    (hasBuff(state, StatusId.EnhancedCrossReaping) || !hasBuff(state, StatusId.EnhancedVoidReaping)) && lemure(state) > 1,
 });
 
 const voidReaping: CombatAction = createCombatAction({
@@ -627,7 +642,8 @@ const voidReaping: CombatAction = createCombatAction({
       dispatch(addVoid(1));
     }
   },
-  isGlowing: (state) => hasBuff(state, StatusId.EnhancedVoidReaping) || !hasBuff(state, StatusId.EnhancedCrossReaping),
+  isGlowing: (state) =>
+    (hasBuff(state, StatusId.EnhancedVoidReaping) || !hasBuff(state, StatusId.EnhancedCrossReaping)) && lemure(state) > 1,
 });
 
 const lemuresSlice: CombatAction = createCombatAction({
@@ -801,7 +817,7 @@ const grimReaping: CombatAction = createCombatAction({
       dispatch(addVoid(1));
     }
   },
-  isGlowing: (state) => hasBuff(state, StatusId.Enshrouded),
+  isGlowing: (state) => hasBuff(state, StatusId.Enshrouded) && lemure(state) > 1,
 });
 
 const grimSwathe: CombatAction = createCombatAction({

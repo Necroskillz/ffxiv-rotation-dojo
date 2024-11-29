@@ -181,7 +181,7 @@ const endTenChiJinEpic: Epic<any, any, RootState> = (action$, state$) =>
     switchMap(() =>
       action$.pipe(
         withLatestFrom(state$),
-        filter(([aa, state]) => aa.type === executeAction.type && (mudra(state) > 100 || getActionById(aa.payload.id).type === 'Movement')),
+        filter(([aa, state]) => aa.type === executeAction.type && (mudra(state) > 100)),
         map(([, state]) => state),
         takeWhile((state) => hasBuff(state, StatusId.TenChiJin))
       )
@@ -413,7 +413,7 @@ const aeolianEdge: CombatAction = createCombatAction({
 
 const armorCrush: CombatAction = createCombatAction({
   id: ActionId.ArmorCrush,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 220, comboPotency: 280, flankPotency: 420, flankComboPotency: 480 }));
 
     if (context.comboed) {
@@ -956,7 +956,7 @@ const assassinate: CombatAction = createCombatAction({
 const dreamWithinADream: CombatAction = createCombatAction({
   id: ActionId.DreamWithinaDream,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 150 }));
+    dispatch(dmgEvent(ActionId.DreamWithinaDream, context, { potency: 180 }));
     dispatch(ogcdLock());
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -965,7 +965,7 @@ const dreamWithinADream: CombatAction = createCombatAction({
 const throwingDagger: CombatAction = createCombatAction({
   id: ActionId.ThrowingDagger,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ThrowingDagger, context, { potency: 120 }));
+    dispatch(dmgEvent(ActionId.ThrowingDagger, context, { potency: 200 }));
     dispatch(addNinki(5));
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),

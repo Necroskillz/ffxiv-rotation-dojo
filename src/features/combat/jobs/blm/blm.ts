@@ -438,6 +438,11 @@ const leyLines: CombatAction = createCombatAction({
   },
   redirect: (state) => (hasBuff(state, StatusId.LeyLines) ? ActionId.Retrace : ActionId.LeyLines),
   actionChangeTo: ActionId.Retrace,
+  maxCharges: () => 2,
+  extraCooldown: () => ({
+    cooldownGroup: 1000,
+    duration: 1,
+  }),
 });
 
 const retrace: CombatAction = createCombatAction({
@@ -494,6 +499,7 @@ const despair: CombatAction = createCombatAction({
   },
   cost: (state) => mana(state),
   isUsable: (state) => astralFire(state) > 0 && mana(state) > 0,
+  castTime: () => 0,
   reducedBySpellSpeed: true,
 });
 

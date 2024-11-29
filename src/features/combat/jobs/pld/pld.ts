@@ -425,6 +425,8 @@ const fightOrFlight: CombatAction = createCombatAction({
     dispatch(buff(StatusId.GoringBladeReady));
   },
   entersCombat: false,
+  redirect: (state) => (hasBuff(state, StatusId.GoringBladeReady) ? ActionId.GoringBlade : ActionId.FightorFlight),
+  actionChangeTo: ActionId.GoringBlade,
 });
 
 const spiritsWithin: CombatAction = createCombatAction({

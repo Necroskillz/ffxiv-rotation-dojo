@@ -110,7 +110,7 @@ const nastrondReadyStatus: CombatStatus = createCombatStatus({
   id: StatusId.NastrondReady,
   duration: 30,
   isHarmful: false,
-  initialStacks: 3,
+  initialStacks: 1,
 });
 
 const starcrossReadyStatus: CombatStatus = createCombatStatus({
@@ -122,6 +122,12 @@ const starcrossReadyStatus: CombatStatus = createCombatStatus({
 const dragonsFlightStatus: CombatStatus = createCombatStatus({
   id: StatusId.DragonsFlight,
   duration: 30,
+  isHarmful: false,
+});
+
+const enhancedPiercingTalonStatus: CombatStatus = createCombatStatus({
+  id: StatusId.EnhancedPiercingTalon,
+  duration: 15,
   isHarmful: false,
 });
 
@@ -323,7 +329,7 @@ const mirageDive: CombatAction = createCombatAction({
   id: ActionId.MirageDive,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.MirageDive, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.MirageDive, context, { potency: 380 }));
     dispatch(removeBuff(StatusId.DiveReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.DiveReady),
@@ -346,7 +352,7 @@ const nastrond: CombatAction = createCombatAction({
   id: ActionId.Nastrond,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Nastrond, context, { potency: 360 }));
+    dispatch(dmgEvent(ActionId.Nastrond, context, { potency: 720 }));
     dispatch(removeBuffStack(StatusId.NastrondReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.NastrondReady),
@@ -357,7 +363,7 @@ const stardiver: CombatAction = createCombatAction({
   id: ActionId.Stardiver,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 720 }));
+    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 820 }));
     dispatch(buff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),
@@ -370,7 +376,7 @@ const starcross: CombatAction = createCombatAction({
   id: ActionId.Starcross,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Starcross, context, { potency: 900 }));
+    dispatch(dmgEvent(ActionId.Starcross, context, { potency: 1000 }));
     dispatch(removeBuff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.StarcrossReady),
@@ -424,9 +430,17 @@ const wyrmwindThrust: CombatAction = createCombatAction({
 
 const piercingTalong: CombatAction = createCombatAction({
   id: ActionId.PiercingTalon,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PiercingTalon, context, { potency: 150 }));
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.PiercingTalon, context, {
+        potency: 200,
+        isEnhanced: hasBuff(getState(), StatusId.EnhancedPiercingTalon),
+        enhancedPotency: 350,
+      })
+    );
+    dispatch(removeBuff(StatusId.EnhancedPiercingTalon));
   },
+  isGlowing: (state) => hasBuff(state, StatusId.EnhancedPiercingTalon),
   reducedBySkillSpeed: true,
 });
 
@@ -483,6 +497,7 @@ const elusiveJump: CombatAction = createCombatAction({
   id: ActionId.ElusiveJump,
   execute: (dispatch) => {
     dispatch(ogcdLock());
+    dispatch(buff(StatusId.EnhancedPiercingTalon));
   },
 });
 
@@ -500,6 +515,7 @@ export const drgStatuses: CombatStatus[] = [
   nastrondReadyStatus,
   starcrossReadyStatus,
   dragonsFlightStatus,
+  enhancedPiercingTalonStatus,
 ];
 
 export const drg: CombatAction[] = [

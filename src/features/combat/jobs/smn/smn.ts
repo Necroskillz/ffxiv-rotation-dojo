@@ -8,7 +8,6 @@ import { CombatStatus, createCombatStatus } from '../../combat-status';
 import {
   addBuff,
   buff,
-  combo,
   hasBuff,
   hasCombo,
   hasPet,
@@ -313,6 +312,12 @@ const refulgentLuxStatus: CombatStatus = createCombatStatus({
   isHarmful: false,
 });
 
+const crimsonStrikeReadyStatus: CombatStatus = createCombatStatus({
+  id: StatusId.CrimsonStrikeReady,
+  duration: 30,
+  isHarmful: false,
+});
+
 function ruinRedirect(state: RootState) {
   return hasBuff(state, StatusId.SolarBahamutActive)
     ? ActionId.UmbralImpulse
@@ -603,7 +608,7 @@ const crimsonCyclone: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.CrimsonCyclone, context, { potency: 490 }));
     dispatch(removeBuff(StatusId.IfritsFavor));
-    dispatch(combo(ActionId.CrimsonCyclone));
+    dispatch(buff(StatusId.CrimsonStrikeReady));
   },
   isGlowing: () => true,
   reducedBySpellSpeed: true,
@@ -613,6 +618,7 @@ const crimsonStrike: CombatAction = createCombatAction({
   id: ActionId.CrimsonStrike,
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.CrimsonStrike, context, { potency: 490 }));
+    dispatch(removeBuff(StatusId.CrimsonStrikeReady));
   },
   isGlowing: () => true,
   reducedBySpellSpeed: true,
@@ -631,7 +637,7 @@ const astralFlow: CombatAction = createCombatAction({
       ? ActionId.Rekindle
       : hasBuff(state, StatusId.TitansFavor)
       ? ActionId.MountainBuster
-      : hasCombo(state, ActionId.CrimsonStrike)
+      : hasBuff(state, StatusId.CrimsonStrikeReady)
       ? ActionId.CrimsonStrike
       : hasBuff(state, StatusId.IfritsFavor)
       ? ActionId.CrimsonCyclone
@@ -670,7 +676,7 @@ const sunflare: CombatAction = createCombatAction({
   id: ActionId.Sunflare,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Sunflare, context, { potency: 700 }));
+    dispatch(dmgEvent(ActionId.Sunflare, context, { potency: 800 }));
   },
   isGlowing: () => true,
 });
@@ -969,6 +975,7 @@ export const smnStatuses: CombatStatus[] = [
   searingLightStatus,
   refulgentLuxStatus,
   rubysGlimmerStatus,
+  crimsonStrikeReadyStatus,
 ];
 
 export const smn: CombatAction[] = [

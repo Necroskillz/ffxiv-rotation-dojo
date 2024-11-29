@@ -310,7 +310,7 @@ const hakaze: CombatAction = createCombatAction({
 const gyofu: CombatAction = createCombatAction({
   id: ActionId.Gyofu,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Gyofu, context, { potency: 230 }));
+    dispatch(dmgEvent(ActionId.Gyofu, context, { potency: 240 }));
 
     dispatch(combo(ActionId.Hakaze));
     dispatch(addKenki(5));
@@ -616,7 +616,7 @@ const zanshin: CombatAction = createCombatAction({
   id: ActionId.Zanshin,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Zanshin, context, { potency: 820 }));
+    dispatch(dmgEvent(ActionId.Zanshin, context, { potency: 900 }));
     dispatch(removeBuff(StatusId.ZanshinReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.ZanshinReady),

@@ -18,7 +18,7 @@ export const CastBar = () => {
     function set() {
       if (cast) {
         const castProgressTime = Date.now() - cast.timestamp;
-        const remainingCastTime = cast.castTime - castProgressTime;
+        const remainingCastTime = Math.max(0, cast.castTime - castProgressTime);
         const seconds = Math.floor(remainingCastTime / 1000);
         setCastTime(castProgressTime);
         setSeconds(seconds.toString().padStart(2, '0'));
