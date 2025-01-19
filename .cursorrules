@@ -1,0 +1,22 @@
+# Technology stack
+- react
+- redux
+- tailwindcss
+- yarn package manager
+
+# Avalable frontend packages
+- react-dnd
+- rxjs
+- react-draggable
+- @tippyjs/react
+- @fortawesome/react-fontawesome
+- clsx
+- react-redux
+- redux-observable
+
+# React rules
+- always use functional components with hooks
+
+# Typescript rules
+- always use named exports
+- always generate types or interfaces for complex types
