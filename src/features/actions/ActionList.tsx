@@ -1,21 +1,18 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
-import { FC, useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { FC, Fragment } from 'react';
+import { useDraggable } from '@dnd-kit/core';
+import Select from 'react-select';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { CloseButton } from '@/components/CloseButton';
 import { actions } from '../combat/actions';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
-import { selectBlueMagicSpellBook, selectJob, setBluSpellSet } from '../player/playerSlice';
+import { selectJob, selectBlueMagicSpellBook, setBluSpellSet } from '../player/playerSlice';
 import { Action } from './Action';
-import { ActionInfo, getActionById, getActionsByJob } from './actions';
-import Select from 'react-select';
-import { Option } from '../../types';
-import { useDrag } from 'react-dnd';
-import React from 'react';
-import Tippy from '@tippyjs/react';
-import { followCursor } from 'tippy.js';
-import { ActionTooltip } from './ActionTooltip';
+import { getActionsByJob, ActionInfo, getActionById } from './actions';
+import { Option } from '@/types';
+import { WithActionTooltip } from '@/components/WithActionTooltip';
+import { XivIcon } from '@/components/XivIcon';
 
 const blueMagicSetOptions = [
   { value: 1, label: 'Set 1' },
@@ -25,39 +22,36 @@ const blueMagicSetOptions = [
   { value: 5, label: 'Set 5' },
 ];
 
-export function ActionList() {
+export const ActionList = () => {
   const job = useAppSelector(selectJob);
   const hudElement = useAppSelector((state) => selectElement(state, 'ActionList'));
   const dispatch = useAppDispatch();
-  const actionList = useMemo(() => {
-    const groups = getActionsByJob(job)
-      .filter((a) => a.id < 999000)
-      .reduce((acc, a) => {
-        const category =
-          a.job[0] === 'All' || a.type === 'Medicine'
-            ? 'General'
-            : a.job.length > 3
-            ? 'Role'
-            : !a.isAssignableToHotbar
-            ? 'Unassignable'
-            : a.job.length === 3 || a.job.length === 2
-            ? 'Class'
-            : 'Job';
-        if (!acc[category]) {
-          acc[category] = [];
-        }
-        acc[category].push(a);
-        return acc;
-      }, {} as Record<string, ActionInfo[]>);
+  const actionList = getActionsByJob(job)
+    .filter((a) => a.id < 999000)
+    .reduce((acc, a) => {
+      const category =
+        a.job[0] === 'All' || a.type === 'Medicine'
+          ? 'General'
+          : a.job.length > 3
+          ? 'Role'
+          : !a.isAssignableToHotbar
+          ? 'Unassignable'
+          : a.job.length === 3 || a.job.length === 2
+          ? 'Class'
+          : 'Job';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(a);
+      return acc;
+    }, {} as Record<string, ActionInfo[]>);
 
-    Object.keys(groups).forEach((key) => {
-      groups[key].sort((a, b) => a.level - b.level);
-    });
+  Object.keys(actionList).forEach((key) => {
+    actionList[key].sort((a, b) => a.level - b.level);
+  });
 
-    return groups;
-  }, [job]);
   const blueMagicSpellbook = useAppSelector(selectBlueMagicSpellBook);
-  const blueMagicSpellSet = useMemo(() => blueMagicSpellbook.find((s) => s.active), [blueMagicSpellbook]);
+  const blueMagicSpellSet = blueMagicSpellbook.find((s) => s.active);
 
   function close() {
     dispatch(setVisility({ element: 'ActionList', isVisible: false }));
@@ -78,22 +72,20 @@ export function ActionList() {
       >
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">Actions</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="w-[780px] h-[530px]  overflow-auto">
           {['Class', 'Job', 'Unassignable', 'Role', 'General']
             .filter((c) => actionList[c]?.length)
             .map((c, id) => (
-              <React.Fragment key={id}>
+              <Fragment key={id}>
                 <h3 className="text-xl my-1">{c}</h3>
                 <div className="grid grid-cols-3 gap-1 items-start">
                   {actionList[c].map((a) => (
                     <Action key={a.id} action={a} />
                   ))}
                 </div>
-              </React.Fragment>
+              </Fragment>
             ))}
         </div>
         {job === 'BLU' && (
@@ -121,7 +113,7 @@ export function ActionList() {
       </div>
     </HudItem>
   );
-}
+};
 
 type BluActionProps = {
   actionId: number;
@@ -129,28 +121,19 @@ type BluActionProps = {
 
 const BluAction: FC<BluActionProps> = ({ actionId }) => {
   const action = getActionById(actionId);
-  const combatAction = actions[actionId];
 
-  const [, drag] = useDrag(() => ({
-    type: 'action',
-    item: { id: action.id },
-    canDrag: () => action.isAssignableToHotbar,
-  }));
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: `action-${action.id}`,
+    data: { id: action.id, type: 'action' },
+    disabled: !action.isAssignableToHotbar,
+  });
 
   return (
-    <Tippy
-      disabled={!action}
-      content={<ActionTooltip action={action} combatAction={combatAction} />}
-      arrow={false}
-      duration={[0, 0]}
-      maxWidth={600}
-      plugins={[followCursor]}
-      followCursor={true}
-    >
-      <div className="grid grid-flow-row place-items-center">
-        <img ref={drag} className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={'icon'} />
+    <WithActionTooltip action={action}>
+      <div className="grid grid-flow-row place-items-center" ref={setNodeRef} {...listeners} {...attributes}>
+        <XivIcon className="w-10" icon={action.icon} alt={action.name} />
         <span>#{actions[actionId].bluNo}</span>
       </div>
-    </Tippy>
+    </WithActionTooltip>
   );
 };

@@ -1,5 +1,7 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
+
+// Local imports
+import { RootState } from '@/app/store';
 
 export interface HudElement {
   xOffset: number;

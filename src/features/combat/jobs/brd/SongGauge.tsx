@@ -1,6 +1,3 @@
-import { faDove, faHorseHead, faLeaf } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { useState, useEffect } from 'react';
 import { useAppSelector } from '../../../../app/hooks';
 import { getStatusById } from '../../../actions/status';
@@ -19,6 +16,7 @@ import {
 import { GaugeBar } from '../../GaugeBar';
 import { GaugeDiamond } from '../../GaugeDiamond';
 import { GaugeNumber } from '../../GaugeNumber';
+import { FaLeaf, FaHorseHead, FaDove } from 'react-icons/fa6';
 
 export const SongGauge = () => {
   const soulVoice = useAppSelector(selectSoulVoice);
@@ -93,19 +91,19 @@ export const SongGauge = () => {
           <div className="grid grid-flow-col h-[25px]">
             <div className="grid grid-flow-col auto-cols-max gap-1.5 ml-1.5">
               {wanderersMinuet && (
-                <React.Fragment>
+                <>
                   <GaugeDiamond fill={wandererRepertoire > 0} fillColor={wandererRepertoireFillColor} />
                   <GaugeDiamond fill={wandererRepertoire > 1} fillColor={wandererRepertoireFillColor} />
                   <GaugeDiamond fill={wandererRepertoire > 2} fillColor={wandererRepertoireFillColor} />
-                </React.Fragment>
+                </>
               )}
               {armysPaeon && (
-                <React.Fragment>
+                <>
                   <GaugeDiamond fill={armyRepertoire > 0} fillColor={armyRepertoireFillColor} />
                   <GaugeDiamond fill={armyRepertoire > 1} fillColor={armyRepertoireFillColor} />
                   <GaugeDiamond fill={armyRepertoire > 2} fillColor={armyRepertoireFillColor} />
                   <GaugeDiamond fill={armyRepertoire > 3} fillColor={armyRepertoireFillColor} />
-                </React.Fragment>
+                </>
               )}
             </div>
             {songRemainingTime != null && <GaugeNumber className="-mt-[7px] mr-4 place-self-end" number={songRemainingTime} />}
@@ -116,9 +114,9 @@ export const SongGauge = () => {
           </div>
         </div>
         <div className="grid grid-flow-row auto-rows-max gap-1.5 place-content-center">
-          <FontAwesomeIcon icon={faLeaf} color={mageCoda ? mageCodaColor : emptyCodaColor} />
-          <FontAwesomeIcon icon={faHorseHead} color={armyCoda ? armyCodaColor : emptyCodaColor} />
-          <FontAwesomeIcon icon={faDove} color={wandererCoda ? wandererCodaColor : emptyCodaColor} />
+          <FaLeaf color={mageCoda ? mageCodaColor : emptyCodaColor} />
+          <FaHorseHead color={armyCoda ? armyCodaColor : emptyCodaColor} />
+          <FaDove color={wandererCoda ? wandererCodaColor : emptyCodaColor} />
         </div>
       </div>
     </HudItem>

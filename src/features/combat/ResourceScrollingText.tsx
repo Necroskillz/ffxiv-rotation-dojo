@@ -1,7 +1,5 @@
-import React from 'react';
-import { createRef } from 'react';
-import { connect } from 'react-redux';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { bufferTime, filter, Subject, takeUntil } from 'rxjs';
 import { RootState } from '../../app/store';
 import { getActionById } from '../actions/actions';
@@ -12,7 +10,6 @@ import { actionStream$ } from './general';
 
 interface Item {
   id: number;
-  ref: any;
   abilityName: string;
   mana: number;
   healthPotency: number;
@@ -20,27 +17,19 @@ interface Item {
   health: number;
 }
 
-type ResourceScrollingTextState = {
-  items: Item[];
-};
-
-type ResourceScrollingTextProps = {
-  hudLock: boolean;
-};
-
 let id = 0;
 
-export class ResourceScrollingText extends React.Component<ResourceScrollingTextProps, ResourceScrollingTextState> {
-  private unsubscribe = new Subject<void>();
-  private buffer: Item[] = [];
+export const ResourceScrollingText = () => {
+  const hudLock = useSelector((state: RootState) => selectLock(state));
+  const [items, setItems] = useState<Item[]>([]);
 
-  constructor(props: ResourceScrollingTextProps) {
-    super(props);
+  const removeItem = (itemId: number) => {
+    setItems(items => items.filter(item => item.id !== itemId));
+  };
 
-    this.state = { items: [] };
-  }
+  useEffect(() => {
+    const unsubscribe$ = new Subject<void>();
 
-  componentDidMount(): void {
     actionStream$
       .pipe(
         filter(
@@ -48,14 +37,13 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
             a.type === addEvent.type &&
             (a.payload.mana > 0 || a.payload.healthPotency > 0 || a.payload.healthPercent > 0 || a.payload.health > 0)
         ),
-        takeUntil(this.unsubscribe),
+        takeUntil(unsubscribe$),
         bufferTime(0),
         filter((actions) => actions.length > 0)
       )
       .subscribe((actions) => {
         const item: Item = {
           id: id++,
-          ref: createRef<HTMLDivElement>(),
           abilityName: '',
           mana: 0,
           healthPotency: 0,
@@ -85,68 +73,56 @@ export class ResourceScrollingText extends React.Component<ResourceScrollingText
           }
         });
 
-        this.buffer.push(item);
-
-        this.setState({ items: this.buffer });
-
-        setTimeout(() => this.removeItem(item), 5000);
+        setItems(items => [...items, item]);
+        setTimeout(() => removeItem(item.id), 5000);
       });
-  }
 
-  private removeItem(item: Item) {
-    this.buffer = this.buffer.filter((i) => i !== item);
-    this.setState({ items: this.buffer });
-  }
+    return () => {
+      unsubscribe$.next();
+      unsubscribe$.complete();
+    };
+  }, []);
 
-  componentWillUnmount(): void {
-    this.unsubscribe.next();
-  }
-
-  render(): React.ReactNode {
-    return (
-      <HudItem name="ResourceScrollingText" defaultPosition={{ x: 150, y: 150 }}>
-        {this.props.hudLock ? (
-          <div className="w-[350px] h-[300px]">
-            <TransitionGroup>
-              {this.state.items.map((i) => (
-                <CSSTransition key={i.id} nodeRef={i.ref} classNames={`scroll-down`} timeout={{ enter: 5000, exit: 0 }}>
-                  <div ref={i.ref} className="grid grid-flow-col auto-cols-max items-end absolute text-xiv-heal gap-1">
-                    <span className="text-lg">{i.abilityName}</span>
-                    {i.mana > 0 && (
-                      <React.Fragment>
-                        <span className="text-lg">{i.mana}</span>
-                        <span className="font-ui-medium text-xs">MP</span>
-                      </React.Fragment>
-                    )}
-                    {i.healthPotency > 0 && (
-                      <React.Fragment>
-                        <span className="text-lg">{i.healthPotency}</span>
-                        <span className="font-ui-medium text-xs">HP potency</span>
-                      </React.Fragment>
-                    )}
-                    {i.healthPercent > 0 && (
-                      <React.Fragment>
-                        <span className="text-lg">{i.healthPercent}%</span>
-                        <span className="font-ui-medium text-xs">HP</span>
-                      </React.Fragment>
-                    )}
-                    {i.health > 0 && (
-                      <React.Fragment>
-                        <span className="text-lg">{i.health}</span>
-                        <span className="font-ui-medium text-xs">HP</span>
-                      </React.Fragment>
-                    )}
-                  </div>
-                </CSSTransition>
-              ))}
-            </TransitionGroup>
-          </div>
-        ) : (
-          <div className="h-[300px] w-[350px]">Mana/HP scrolling text</div>
-        )}
-      </HudItem>
-    );
-  }
-}
-
-export default connect<ResourceScrollingTextProps, {}, {}, RootState>((state) => ({ hudLock: selectLock(state) }))(ResourceScrollingText);
+  return (
+    <HudItem name="ResourceScrollingText" defaultPosition={{ x: 150, y: 150 }}>
+      {hudLock ? (
+        <div className="w-[350px] h-[320px] relative overflow-hidden">
+          {items.map((i) => (
+            <div 
+              key={i.id}
+              className="grid grid-flow-col auto-cols-max items-end absolute text-xiv-heal gap-1 scroll-down-enter"
+            >
+              <span className="text-lg">{i.abilityName}</span>
+              {i.mana > 0 && (
+                <>
+                  <span className="text-lg">{i.mana}</span>
+                  <span className="font-ui-medium text-xs">MP</span>
+                </>
+              )}
+              {i.healthPotency > 0 && (
+                <>
+                  <span className="text-lg">{i.healthPotency}</span>
+                  <span className="font-ui-medium text-xs">HP potency</span>
+                </>
+              )}
+              {i.healthPercent > 0 && (
+                <>
+                  <span className="text-lg">{i.healthPercent}%</span>
+                  <span className="font-ui-medium text-xs">HP</span>
+                </>
+              )}
+              {i.health > 0 && (
+                <>
+                  <span className="text-lg">{i.health}</span>
+                  <span className="font-ui-medium text-xs">HP</span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="h-[300px] w-[350px]">Mana/HP scrolling text</div>
+      )}
+    </HudItem>
+  );
+};

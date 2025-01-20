@@ -1,9 +1,10 @@
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import clsx from 'clsx';
 import { FC, useEffect, useRef, useState } from 'react';
 import Draggable, { ControlPosition, DraggableData, DraggableEvent, DraggableEventHandler } from 'react-draggable';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectJob } from '../player/playerSlice';
 import { selectElement, selectLock, setOffset } from './hudSlice';
+
 
 type HudItemProps = {
   children: any;
@@ -15,7 +16,7 @@ type HudItemProps = {
 
 export const HudItem: FC<HudItemProps> = ({ children, name, defaultPosition, dragHandle, z }) => {
   const dispatch = useAppDispatch();
-  const ref = useRef(null);
+  const ref = useRef<any>(null);
 
   const hudElement = useAppSelector((state) => selectElement(state, name));
   const hudLock = useAppSelector(selectLock);

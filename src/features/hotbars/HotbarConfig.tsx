@@ -1,5 +1,3 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, useState } from 'react';
 import Select from 'react-select';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -7,6 +5,7 @@ import { HudItem } from '../hud/HudItem';
 import { selectElement, selectLock, setVisility } from '../hud/hudSlice';
 import { HotbarState, setRows, setSize } from './hotbarSlice';
 import { Option } from '../../types';
+import { CloseButton } from '../../components/CloseButton';
 
 type HotbarConfigProps = {
   hotbar: HotbarState;
@@ -68,9 +67,7 @@ export const HotbarConfig: FC<HotbarConfigProps> = ({ hotbar }) => {
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[500px] h-[400px] overflow-auto">
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">Configure hotbar {hotbar.id}</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="grid grid-cols-1 gap-1 w-fit">
           <div className="grid grid-cols-[100px_1fr] gap-1 w-fit items-center">

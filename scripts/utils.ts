@@ -58,6 +58,6 @@ export const createMovementAction = (base: number, direction: string) =>
     id: generateMovementId(base),
     name: `Move ${direction}`,
     description: `Moves ${direction.toLowerCase()}.`,
-    icon: `/api/1/asset/ui/icon/066000/0663${base - 1}_hr1.tex?format=png`,
+    icon: `/api/1/asset/ui/icon/066000/06630${base - 1}_hr1.tex?format=png`,
     type: 'Movement',
   }); 

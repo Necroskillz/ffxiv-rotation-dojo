@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import { FC, SetStateAction, useEffect, useRef, useState } from 'react';
 import { CooldownState } from '../combat/combatSlice';
 import { clsx } from 'clsx';
 
@@ -27,7 +27,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
   const { current: id } = useRef('circleMask' + (Math.random().toString(36) + '00000000000000000').slice(2, 7));
 
   useEffect(() => {
-    function set(cd: CooldownState | null, action: (cd: React.SetStateAction<Cooldown | null>) => void, applyCharges: boolean) {
+    function set(cd: CooldownState | null, action: (cd: SetStateAction<Cooldown | null>) => void, applyCharges: boolean) {
       if (cd) {
         let progress = cd.timestamp + cd.duration - Date.now();
         if (applyCharges && maxCharges > 1) {
@@ -56,7 +56,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
       set(cd, setTextCooldown, true);
     }
 
-    let timerId: NodeJS.Timer | null = null;
+    let timerId: NodeJS.Timeout | null = null;
 
     if (cooldown || globalCooldown || extraCooldown) {
       timerId = setInterval(() => {

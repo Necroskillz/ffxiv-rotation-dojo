@@ -374,7 +374,7 @@ export const combatSlice = createSlice({
     setCombat: (state, action: PayloadAction<boolean>) => {
       state.inCombat = action.payload;
     },
-    executeAction: (state, action: PayloadAction<{ id: ActionId }>) => {},
+    executeAction: (_state, _action: PayloadAction<{ id: ActionId }>) => {},
     clear: (state) => {
       state.resources = initialState.resources;
       state.pullTimer = null;
@@ -401,7 +401,7 @@ export const combatSlice = createSlice({
     setPosition: (state, action: PayloadAction<Position>) => {
       state.position = action.payload;
     },
-    addEvent: (state, action: PayloadAction<EventPayload>) => {},
+    addEvent: (_state, _action: PayloadAction<EventPayload>) => {},
   },
 });
 
@@ -468,17 +468,20 @@ export const selectMeditation = (state: RootState) => state.combat.resources.med
 export const selectKenki = (state: RootState) => state.combat.resources.kenki;
 export const selectCartridge = (state: RootState) => state.combat.resources.cartridge;
 export const selectChakra = (state: RootState) => state.combat.resources.chakra;
-export const selectBeastChakra = (state: RootState) => {
-  let value = state.combat.resources.beastChakra;
-  const currentChakras = [];
+export const selectBeastChakra = createSelector(
+  (state: RootState) => state.combat.resources.beastChakra,
+  (beastChakra) => {
+    const currentChakras = [];
+    let value = beastChakra;
 
-  while (value !== 0) {
-    currentChakras.unshift(value % 10);
-    value = Math.floor(value / 10);
+    while (value !== 0) {
+      currentChakras.unshift(value % 10);
+      value = Math.floor(value / 10);
+    }
+
+    return currentChakras;
   }
-
-  return currentChakras;
-};
+);
 export const selectSolarNadi = (state: RootState) => state.combat.resources.solarNadi;
 export const selectLunarNadi = (state: RootState) => state.combat.resources.lunarNadi;
 export const selectOpooposFury = (state: RootState) => state.combat.resources.opooposFury;
@@ -525,6 +528,31 @@ export const selectDebuff = createSelector(
   (_: any, id: StatusId) => id,
   (debuffs, id) => {
     return debuffs.find((b) => b.id === id) || null;
+  }
+);
+
+export const selectAction = createSelector(
+  (state: RootState) => state,
+  (_: RootState, id: ActionId | null | undefined) => id,
+  (state, id) => {
+    const action = id ? actions[id] : null;
+    if (!action) {
+      return null;
+    }
+
+    return {
+      id: action.id,
+      cost: action.cost(state),
+      castTime: action.castTime(state),
+      recastTime: action.cooldown(state),
+      redirect: action.redirect(state),
+      isGlowing: action.isGlowing(state),
+      isUsable: action.isUsable(state),
+      maxCharges: action.maxCharges(state),
+      cooldown: action.getCooldown(state),
+      isGcdAction: action.isGcdAction,
+      execute: action.execute,
+    };
   }
 );
 
@@ -1034,5 +1062,9 @@ export function previousGCDAction(state: RootState) {
 
   return combat.previousGCDAction;
 }
+
+export const selectGcdRecast = createSelector([(state: RootState) => state], (state) => recastTime(state, 2500, 'Weaponskill') / 1000);
+
+export const selectSpellRecast = createSelector([(state: RootState) => state], (state) => recastTime(state, 2500, 'Spell') / 1000);
 
 export default combatSlice.reducer;

@@ -45,7 +45,7 @@ const autoAttackEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
     filter((a) => a.type === setCombat.type && a.payload),
     delay(1000),
-    switchMap((a) =>
+    switchMap(() =>
       interval(2250).pipe(
         startWith(0),
         withLatestFrom(state$),

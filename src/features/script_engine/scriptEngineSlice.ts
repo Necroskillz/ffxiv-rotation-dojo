@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import { combineEpics, Epic } from 'redux-observable';
 import { filter, map } from 'rxjs';
 import { RootState, AppThunk } from '../../app/store';
@@ -98,11 +98,13 @@ export const init = (): AppThunk => (dispatch, getState) => {
   }
 };
 
-export const selectScripts = (state: RootState) => {
-  const job = selectJob(state);
+export const selectAllScripts = (state: RootState) => state.scriptEngine.scripts;
 
-  return state.scriptEngine.scripts.filter((script) => script.job === job);
-};
+export const selectScripts = createSelector(
+  [selectAllScripts, selectJob],
+  (scripts, job) => scripts.filter((script) => script.job === job)
+);
+
 export const selectIsScriptActive = (state: RootState) => {
   const scripts = selectScripts(state);
 

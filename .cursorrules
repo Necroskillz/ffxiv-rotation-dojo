@@ -1,3 +1,6 @@
+# Operating system
+Windows
+
 # Technology stack
 - react
 - redux
@@ -9,14 +12,16 @@
 - rxjs
 - react-draggable
 - @tippyjs/react
-- @fortawesome/react-fontawesome
+- react-icons
 - clsx
 - react-redux
 - redux-observable
+- @ramonak/react-progress-bar
 
 # React rules
 - always use functional components with hooks
 
 # Typescript rules
+- use @/* for local imports
 - always use named exports
 - always generate types or interfaces for complex types

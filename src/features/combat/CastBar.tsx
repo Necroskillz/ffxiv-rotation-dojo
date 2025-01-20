@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { GaugeBar } from './GaugeBar';
 import { selectCast } from './combatSlice';
 import { selectLock } from '../hud/hudSlice';
 import { getActionById } from '../actions/actions';
+import { XivIcon } from '@/components/XivIcon';
 
 export const CastBar = () => {
   const cast = useAppSelector(selectCast);
@@ -12,7 +13,7 @@ export const CastBar = () => {
   const [castTime, setCastTime] = useState<number>(0);
   const [seconds, setSeconds] = useState<string>('');
   const [fraction, setFraction] = useState<string>('');
-  const action = useMemo(() => (cast ? getActionById(cast.actionId) : null), [cast]);
+  const action = cast ? getActionById(cast.actionId) : null;
 
   useEffect(() => {
     function set() {
@@ -47,8 +48,8 @@ export const CastBar = () => {
   return (
     <HudItem name="CastBar" defaultPosition={{ x: 200, y: 300 }}>
       {cast && action ? (
-        <div className="grid auto-cols-max grid-flow-col gap-2 w-40 gap-0.5 text-xiv-ui">
-          <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
+        <div className="grid auto-cols-max grid-flow-col w-40 gap-0.5 text-xiv-ui">
+          <XivIcon className="w-10" icon={action.icon} alt={action.name} />
           <div>
             <div className="text-xs leading-none mb-1">{action.name}</div>
             <GaugeBar

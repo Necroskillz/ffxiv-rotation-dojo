@@ -1,5 +1,4 @@
-import { faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaShieldHalved } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -17,7 +16,7 @@ export const OathGauge = () => {
   return (
     <HudItem name="OathGauge" defaultPosition={{ x: 20, y: 20 }}>
       <div className="grid w-40 grid-flow-col auto-cols-max">
-        <div className="w-5 -mt-[5px]">{stance && <FontAwesomeIcon icon={faShieldHalved} color="#FFF7CE" />}</div>
+        <div className="w-5 -mt-[5px]">{stance && <FaShieldHalved color="#FFF7CE" />}</div>
         <div className="grid">
           <GaugeBar current={oath} max={100} texture={stance ? stanceTexture : normalTexture} />
           <div className="grid place-items-end">

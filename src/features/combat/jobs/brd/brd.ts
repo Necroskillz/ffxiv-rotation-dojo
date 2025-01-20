@@ -485,7 +485,7 @@ const magesBallad: CombatAction = createCombatAction({
 
 const armysPaeon: CombatAction = createCombatAction({
   id: ActionId.ArmysPaeon,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.ArmysPaeon, context, { potency: 100 }));
 
     dispatch(setArmyCoda(1));

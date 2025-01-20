@@ -3,11 +3,10 @@ import { useAppSelector } from '../../../../app/hooks';
 import { selectBeastChakra, selectCoeurlsFury, selectLunarNadi, selectOpooposFury, selectRaptorsFury, selectSolarNadi } from '../../combatSlice';
 import { HudItem } from '../../../hud/HudItem';
 import { BeastChakra } from './mnk';
+import { FaCircle } from 'react-icons/fa6';
 
 import style from './MastersGauge.module.css';
 import clsx from 'clsx';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { GaugeCircle } from '../../GaugeCircle';
 
 type BeastChakraIconProps = {
@@ -63,8 +62,8 @@ export const MastersGauge = () => {
           <BeastChakraIcon fill={beastChakra[0]} />
           <BeastChakraIcon fill={beastChakra[1]} />
           <BeastChakraIcon fill={beastChakra[2]} />
-          <FontAwesomeIcon className="ml-1" icon={faCircle} color={lunarNadi ? lunarNadiFillColor : emptyNadiFillColor} />
-          <FontAwesomeIcon className="-ml-1" icon={faCircle} color={solarNadi ? solarNadiFillColor : emptyNadiFillColor} />
+          <FaCircle size={16} className="ml-1" color={lunarNadi ? lunarNadiFillColor : emptyNadiFillColor} />
+          <FaCircle size={16} className="-ml-1" color={solarNadi ? solarNadiFillColor : emptyNadiFillColor} />
         </div>
         <div className="grid grid-flow-col auto-cols-max gap-1.5 mt-2 justify-center">
           <GaugeCircle fill={opooposFury > 0} fillColor={opooposFuryFillColor} />

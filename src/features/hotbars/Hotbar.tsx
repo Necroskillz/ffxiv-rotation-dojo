@@ -1,6 +1,5 @@
 import { FC } from 'react';
-import { faGear, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaGear, FaLock, FaLockOpen } from 'react-icons/fa6';
 import { HotbarState, selectHotbarLock, setLock } from './hotbarSlice';
 import { HotbarSlot } from './HotbarSlot';
 import { HudItem } from '../hud/HudItem';
@@ -40,12 +39,12 @@ export const Hotbar: FC<HotbarProps> = ({ hotbar }) => {
         </div>
         {hudLock && hotbar.id === 1 && (
           <button onClick={toggleLock} className="place-self-center">
-            <FontAwesomeIcon icon={hotbarLock ? faLock : faLockOpen} />
+            {hotbarLock ? <FaLock /> : <FaLockOpen />}
           </button>
         )}
         {!hudLock && (
           <button onClick={toggleConfig}>
-            <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
+            <FaGear />
           </button>
         )}
       </div>

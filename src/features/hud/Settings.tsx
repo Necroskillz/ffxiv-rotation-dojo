@@ -1,13 +1,12 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { CloseButton } from '@/components/CloseButton';
+import { Option } from '@/types';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Select from 'react-select';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { HudItem } from '../hud/HudItem';
-import { selectElement, setVisility } from '../hud/hudSlice';
-import { Option } from '../../types';
-import { selectPlayer, setPartySize, setPullTimerDuration, setSkillSpeed, setSpellSpeed } from '../player/playerSlice';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
-import { recastTime } from '../combat/combatSlice';
+import { selectGcdRecast, selectSpellRecast } from '../combat/combatSlice';
+import { selectPlayer, setPartySize, setSkillSpeed, setSpellSpeed, setPullTimerDuration } from '../player/playerSlice';
+import { HudItem } from './HudItem';
+import { selectElement, setVisility } from './hudSlice';
 
 const partySizeOptions: Option<number>[] = [
   { value: 1, label: 'Solo' },
@@ -15,16 +14,15 @@ const partySizeOptions: Option<number>[] = [
   { value: 8, label: 'Full party' },
 ];
 
-export function Settings() {
+export const Settings = () => {
   const hudElement = useAppSelector((state) => selectElement(state, 'Settings'));
-  const state = useAppSelector((s) => s);
   const player = useAppSelector(selectPlayer);
   const dispatch = useAppDispatch();
   const [skillSpeed, setLocalSkillSpeed] = useState<number | null>(player.skillSpeed);
   const [spellSpeed, setLocalSpellSpeed] = useState<number | null>(player.spellSpeed);
   const [pullTimerDuration, setPullTimer] = useState<number | null>(player.pullTimerDuration);
-  const gcd = useMemo(() => recastTime(state, 2500, 'Weaponskill') / 1000, [state]);
-  const cast = useMemo(() => recastTime(state, 2500, 'Spell') / 1000, [state]);
+  const gcd = useAppSelector(selectGcdRecast);
+  const cast = useAppSelector(selectSpellRecast);
 
   useEffect(() => {
     setLocalSkillSpeed(player.skillSpeed);
@@ -105,9 +103,7 @@ export function Settings() {
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[500px] h-[400px] overflow-auto">
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">Settings</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="grid grid-cols-1 gap-1 w-fit">
           <div className="grid grid-cols-[120px_1fr] gap-1 w-fit items-center">
@@ -143,4 +139,4 @@ export function Settings() {
       </div>
     </HudItem>
   );
-}
+};

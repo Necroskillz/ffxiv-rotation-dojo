@@ -7,6 +7,7 @@ import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
 import { selectBlueMagicSpellSet } from '../../../player/playerSlice';
 import { selectMimicry, setMimicry } from '../../combatSlice';
+import { XivIcon } from '@/components/XivIcon';
 
 export const MimicryGauge = () => {
   const mimicry = useAppSelector(selectMimicry);
@@ -34,7 +35,7 @@ export const MimicryGauge = () => {
         <div className="grid grid-flow-row auto-rows-max place-items-center gap-1">
           {items.map((item, id) => (
             <div onClick={() => selectItem(item.id)} key={id} className={clsx({ border: selectedItem === item.id }, 'rounded')}>
-              <img src={'https://beta.xivapi.com' + item.icon} alt="icon" />
+              <XivIcon icon={item.icon} />
             </div>
           ))}
         </div>

@@ -105,7 +105,7 @@ const step =
     }
   };
 
-const resetDanceEpic: Epic = (action$) =>
+const resetDanceEpic: Epic<ReducerAction<StatusId>, any, RootState> = (action$) =>
   action$.pipe(
     filter((a) => a.type === removeBuffAction.type && (a.payload === StatusId.StandardStep || a.payload === StatusId.TechnicalStep)),
     map(() => dance(0))
@@ -965,7 +965,7 @@ export const dnc: CombatAction[] = [
   danceOfTheDawn,
 ];
 
-export const dncEpics = combineEpics(
+export const dncEpics = combineEpics<ReducerAction<any>, ReducerAction<any>, any>(
   resetDanceEpic,
   technicalFinishEspritEpic,
   standardFinishEspritEpic,

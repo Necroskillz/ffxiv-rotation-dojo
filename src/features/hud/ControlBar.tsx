@@ -6,8 +6,7 @@ import { selectJob, selectPullTimerDuration, setJob } from '../player/playerSlic
 import { lock, selectElement, selectLock, setVisility } from './hudSlice';
 import { Option } from '../../types';
 import Select from 'react-select';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
+import { FaCircleQuestion } from 'react-icons/fa6';
 import clsx from 'clsx';
 import { selectIsScriptActive } from '../script_engine/scriptEngineSlice';
 import { patch } from '../actions/patch';
@@ -162,12 +161,10 @@ export const ControlBar: FC = () => {
           Pull timer
         </button>
       </div>
-      <div className="grid grid grid-flow-col auto-cols-max gap-2 items-center">
-        <div className="w-20">
-          Patch: {patch}
-        </div>
+      <div className="grid grid-flow-col auto-cols-max gap-2 items-center">
+        <div className="w-20">Patch: {patch}</div>
         <button onClick={toggleHelp}>
-          <FontAwesomeIcon icon={faCircleQuestion} size="xl" />
+          <FaCircleQuestion size={20} />
         </button>
       </div>
     </div>

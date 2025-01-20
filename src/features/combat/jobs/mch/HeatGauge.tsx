@@ -1,5 +1,4 @@
-import { faChessQueen, faFire } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaFire, FaChessQueen } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -21,7 +20,7 @@ export const HeatGauge = () => {
         <div className="grid">
           {overheatedRemainingTime && (
             <div className="grid grid-flow-col auto-cols-max gap-1.5 absolute items-center left-[3px] -top-[25px]">
-              <FontAwesomeIcon icon={faFire} color="#E25856" />
+              <FaFire color="#E25856" />
               <GaugeNumber number={overheatedRemainingTime} />
             </div>
           )}
@@ -37,7 +36,7 @@ export const HeatGauge = () => {
         <div className="grid">
           {queenRemainingTime != null && (
             <div className="grid grid-flow-col auto-cols-max gap-1.5 absolute items-center left-[3px] bottom-[33px]">
-              <FontAwesomeIcon icon={faChessQueen} color="#6697E6" />
+              <FaChessQueen color="#6697E6" />
               <GaugeNumber number={Math.max(queenRemainingTime - 8, 0)} />
             </div>
           )}

@@ -1,10 +1,10 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { HudItem } from '../hud/HudItem';
-import { selectElement, setVisility } from '../hud/hudSlice';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { CloseButton } from '@/components/CloseButton';
+import { HudItem } from './HudItem';
+import { selectElement, setVisility } from './hudSlice';
 
-export function Help() {
+
+export const Help = () => {
   const hudElement = useAppSelector((state) => selectElement(state, 'Help'));
   const dispatch = useAppDispatch();
 
@@ -21,9 +21,7 @@ export function Help() {
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[800px] h-[600px] overflow-auto">
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">About FFXIV Rotation Dojo</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="w-[700px]">
           <h2 className="text-xl mb-2">How to use</h2>

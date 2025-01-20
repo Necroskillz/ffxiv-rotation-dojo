@@ -1,9 +1,9 @@
 import { FC } from 'react';
 import { useAppSelector } from '../../app/hooks';
 import { ActionInfo } from '../actions/actions';
-import { actions } from '../combat/actions';
 
 import style from './HotbarSlot.module.css';
+import { selectAction } from '../combat/combatSlice';
 
 type CostProps = {
   action: ActionInfo;
@@ -32,22 +32,15 @@ const displayedCostTypes = [
 ];
 
 export const Cost: FC<CostProps> = ({ action, size }) => {
-  const state = useAppSelector((state) => state);
+  const combatAction = useAppSelector((state) => selectAction(state, action.id));
 
-  const combatAction = actions[action.id];
-  if (!combatAction) {
-    return null;
-  }
-
-  const cost = combatAction.cost(state);
-
-  if (!cost || !displayedCostTypes.includes(action.costType!)) {
+  if (!combatAction || !combatAction.cost || !displayedCostTypes.includes(action.costType!)) {
     return null;
   }
 
   return (
     <div className={style.cost} style={{ fontSize: 12 * size, bottom: -8 * size }}>
-      {action.costType === 'mana' && action.cost === 10000 ? 'All' : cost}
+      {action.costType === 'mana' && action.cost === 10000 ? 'All' : combatAction.cost}
     </div>
   );
 };

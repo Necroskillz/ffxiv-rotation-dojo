@@ -1,5 +1,4 @@
-import { faSun } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaSun } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -18,7 +17,7 @@ export const BloodGauge = () => {
     <HudItem name="BloodGauge" defaultPosition={{ x: 20, y: 90 }}>
       <div className="grid w-40 grid-flow-col auto-cols-max">
         <div className="w-5 -mt-[5px]">
-          {stance && <FontAwesomeIcon icon={faSun} color="#6A9FE7" />}
+          {stance && <FaSun color="#6A9FE7" />}
         </div>
         <div className="grid">
           <GaugeBar current={blood} max={100} texture={stance ? stanceTexture : normalTexture} />

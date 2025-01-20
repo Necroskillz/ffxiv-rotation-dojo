@@ -1,23 +1,14 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { HudItem } from '../hud/HudItem';
-import { HudElement, selectElement, setOffset, setVisility } from '../hud/hudSlice';
-import { Option } from '../../types';
-import { useReducer } from 'react';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { store } from '@/app/store';
+import { CloseButton } from '@/components/CloseButton';
+import { Option } from '@/types';
 import Select from 'react-select';
-import {
-  HotbarConfig,
-  HotbarSlotActionState,
-  HotbarSlotKeybindState,
-  assignAction,
-  assignKeybind,
-  removeAllActions,
-  removeAllKeybinds,
-  setRows,
-  setSize,
-} from '../hotbars/hotbarSlice';
+import { useReducer } from 'react';
+import { HotbarConfig, HotbarSlotActionState, HotbarSlotKeybindState, setSize, setRows, removeAllActions, assignAction, removeAllKeybinds, assignKeybind } from '../hotbars/hotbarSlice';
 import { deleteAllScripts, setScript } from '../script_engine/scriptEngineSlice';
+import { HudItem } from './HudItem';
+import { HudElement, selectElement, setVisility, setOffset } from './hudSlice';
+
 
 interface ImportExportState {
   data: string;
@@ -40,9 +31,8 @@ const scriptMergeMode: Option<string>[] = [
   { value: 'Replace', label: 'Remove existing and only use imported' },
 ];
 
-export function ImportExport() {
+export const ImportExport = () => {
   const hudElement = useAppSelector((state) => selectElement(state, 'ImportExport'));
-  const appState = useAppSelector((s) => s);
   const dispatch = useAppDispatch();
   const [state, setState] = useReducer((state: ImportExportState, updates: Partial<ImportExportState>) => ({ ...state, ...updates }), {
     data: '',
@@ -110,6 +100,7 @@ export function ImportExport() {
 
   function exportData() {
     const data: ImportExportData = {};
+    const appState = store.getState();
 
     if (state.layout) {
       data.layout = {
@@ -140,9 +131,7 @@ export function ImportExport() {
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[900px] h-[1000px] overflow-auto">
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">Import/Export</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="grid grid-flow-row auto-rows-max justify-items-start gap-4">
           <textarea

@@ -7,7 +7,7 @@ import { selectPullTimer } from './combatSlice';
 
 import style from './PullTimer.module.css';
 
-const PullTimer = () => {
+export const PullTimer = () => {
   const pullTimestamp = useAppSelector(selectPullTimer);
   const hudLock = useAppSelector(selectLock);
   const [seconds, setSeconds] = useState<number | null>(null);
@@ -56,5 +56,3 @@ const PullTimer = () => {
     </HudItem>
   );
 };
-
-export default PullTimer;

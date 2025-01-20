@@ -1,5 +1,4 @@
-import { faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaShieldHalved } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -15,7 +14,7 @@ export const PowderGauge = () => {
     <HudItem name="PowderGauge" defaultPosition={{ x: 20, y: 20 }}>
       <div className="grid w-20 justify-center">
         <div className="grid grid-flow-col auto-cols-max gap-1.5">
-          <div className="w-5 -mt-[5px]">{stance && <FontAwesomeIcon icon={faShieldHalved} color="#9B1B1A" />}</div>
+          <div className="w-5 -mt-[5px]">{stance && <FaShieldHalved color="#9B1B1A" />}</div>
           <GaugeDiamond fill={cartridge > 0} fillColor={fillColor} />
           <GaugeDiamond fill={cartridge > 1} fillColor={fillColor} />
           <GaugeDiamond fill={cartridge > 2} fillColor={fillColor} />

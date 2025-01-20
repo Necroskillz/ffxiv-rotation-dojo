@@ -1,11 +1,9 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import { StatusState } from './combatSlice';
 import { getStatusById } from '../actions/status';
-import { StatusTooltip } from './StatusTooltip';
 import { statusIcon } from './utils';
-import Tippy from '@tippyjs/react';
-import { followCursor } from 'tippy.js';
-import React from 'react';
+import { WithStatusTooltip } from '@/components/WithStatusTooltip';
+import { XivIcon } from '@/components/XivIcon';
 
 type BuffProps = {
   status: StatusState;
@@ -39,18 +37,11 @@ export const Status: FC<BuffProps> = ({ status }) => {
   }, [setRemainingTime, setIcon, status, getIcon]);
 
   return (
-    <Tippy
-      content={<StatusTooltip status={statusInfo} />}
-      arrow={false}
-      duration={[0, 0]}
-      maxWidth={600}
-      plugins={[followCursor]}
-      followCursor={true}
-    >
+    <WithStatusTooltip status={statusInfo}>
       <div className="grid grid-flow-row-dense">
-        <img id={`status_${status.id}`} src={'https://beta.xivapi.com' + icon} alt={statusInfo.name} />
+        <XivIcon id={`status_${status.id}`} icon={icon} alt={statusInfo.name} />
         <div className="justify-self-center self-start text-xl -mt-4 text-teal-300">{remainingTime || null}</div>
       </div>
-    </Tippy>
+    </WithStatusTooltip>
   );
 };

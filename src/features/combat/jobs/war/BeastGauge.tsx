@@ -1,5 +1,4 @@
-import { faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaShieldHalved } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -18,7 +17,7 @@ export const BeastGauge = () => {
     <HudItem name="BeastGauge" defaultPosition={{ x: 20, y: 20 }}>
       <div className="grid w-40 grid-flow-col auto-cols-max">
         <div className="w-5 -mt-[5px]">
-          {stance && <FontAwesomeIcon icon={faShieldHalved} color="#9B1B1A" />}
+          {stance && <FaShieldHalved color="#9B1B1A" />}
         </div>
         <div className="grid">
           <GaugeBar current={beast} max={100} texture={stance ? stanceTexture : normalTexture} />

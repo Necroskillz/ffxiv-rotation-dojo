@@ -1,6 +1,4 @@
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useMemo, useReducer } from 'react';
+import { FormEvent, useEffect, useReducer } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
@@ -8,29 +6,27 @@ import { selectJob } from '../player/playerSlice';
 import { deleteScript, selectScripts, setScript } from './scriptEngineSlice';
 import Select from 'react-select';
 import { Option } from '../../types';
+import { CloseButton } from '../../components/CloseButton';
 
 interface ScriptState {
   script: string;
   name: string;
 }
 
-export function Script() {
+export const Script = () => {
   const hudElement = useAppSelector((state) => selectElement(state, 'Script'));
   const dispatch = useAppDispatch();
   const job = useAppSelector(selectJob);
   const scripts = useAppSelector(selectScripts);
 
-  const activeScript = useMemo(() => scripts.find((s) => s.active), [scripts]);
+  const activeScript = scripts.find((s) => s.active);
 
   const [state, setState] = useReducer((state: ScriptState, updates: Partial<ScriptState>) => ({ ...state, ...updates }), {
     script: activeScript?.script || '',
     name: '',
   });
 
-  const scriptOptions = useMemo(
-    () => [{ value: '', label: '<no script>' }].concat(scripts.map((s) => ({ value: s.name, label: s.name }))),
-    [scripts]
-  );
+  const scriptOptions = [{ value: '', label: '<no script>' }].concat(scripts.map((s) => ({ value: s.name, label: s.name })));
 
   useEffect(() => {
     setState({ script: activeScript?.script || '' });
@@ -44,13 +40,13 @@ export function Script() {
     return null;
   }
 
-  function saveScript(event: React.FormEvent<HTMLFormElement>) {
+  function saveScript(event: FormEvent<HTMLFormElement>) {
     dispatch(setScript({ script: state.script!, job, name: activeScript!.name, active: true }));
 
     event.preventDefault();
   }
 
-  function addNewScript(event: React.FormEvent<HTMLFormElement>) {
+  function addNewScript(event: FormEvent<HTMLFormElement>) {
     dispatch(setScript({ script: '', job, name: state.name!, active: true }));
 
     setState({ name: '', script: '' });
@@ -78,9 +74,7 @@ export function Script() {
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[900px] h-[1000px] overflow-auto">
         <div className="title grid grid-cols-2 items-center mb-4">
           <h2 className="text-2xl">Script</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
 
         <div className="text-sm my-4">
@@ -146,4 +140,4 @@ export function Script() {
       </div>
     </HudItem>
   );
-}
+};

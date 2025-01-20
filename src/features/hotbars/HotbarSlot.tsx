@@ -1,25 +1,20 @@
-import { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { useDroppable, useDraggable } from '@dnd-kit/core';
 import { getActionById } from '../actions/actions';
-import { actions } from '../combat/actions';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { CooldownState, queue } from '../combat/combatSlice';
+import { CooldownState, queue, selectAction } from '../combat/combatSlice';
 import { CooldownSwipe } from './CooldownSwipe';
-import { assignAction, assignKeybind, selectHotbarLock, selectKeybind, selectKeybindingMode, selectSlot } from './hotbarSlice';
+import { assignKeybind, selectHotbarLock, selectKeybind, selectKeybindingMode, selectSlot } from './hotbarSlice';
 import { Keybind } from './Keybind';
-import { useDrag, useDrop } from 'react-dnd';
-import { ActionId } from '../actions/action_enums';
-import { getEmptyImage } from 'react-dnd-html5-backend';
 import { clsx } from 'clsx';
 import { selectElement, selectLock } from '../hud/hudSlice';
-
 import css from './HotbarSlot.module.css';
-import { ActionTooltip } from '../actions/ActionTooltip';
 import { Cost } from './Cost';
 import { selectBlueMagicSpellSet, selectJob } from '../player/playerSlice';
-import Tippy from '@tippyjs/react';
-import { followCursor } from 'tippy.js';
 import { useKeyEvents } from './hooks';
 import { Subscription } from 'rxjs';
+import { WithActionTooltip } from '@/components/WithActionTooltip';
+import { XivIcon } from '@/components/XivIcon';
 
 type HotbarProps = {
   hotbarId: number;
@@ -41,7 +36,6 @@ specialKeys.add('Insert');
 
 export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const dispatch = useAppDispatch();
-  const state = useAppSelector((state) => state);
   const slot = useAppSelector((state) => selectSlot(state, { hotbarId, slotId }));
   const keybind = useAppSelector((state) => selectKeybind(state, { hotbarId, slotId }));
   const settings = useAppSelector((state) => selectElement(state, 'Settings'));
@@ -52,21 +46,17 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   const hotbarLock = useAppSelector(selectHotbarLock);
   const job = useAppSelector(selectJob);
   const blueMagicSpellSet = useAppSelector(selectBlueMagicSpellSet);
-  const jobId = useMemo(() => (job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job), [job, blueMagicSpellSet.id]);
+  const jobId = job === 'BLU' ? `${job}${blueMagicSpellSet.id}` : job;
   const actionId = slot.actionId[jobId];
 
-  let action = useMemo(() => (actionId ? getActionById(actionId) : null), [actionId]);
-  let combatAction = useMemo(() => (actionId ? actions[actionId] : null), [actionId]);
+  const baseCombatAction = useAppSelector((state) => selectAction(state, actionId));
+  const redirectedAction = useAppSelector((state) => selectAction(state, baseCombatAction?.redirect));
+  const combatAction = redirectedAction ? redirectedAction : baseCombatAction;
+  const action = combatAction ? getActionById(combatAction.id) : actionId ? getActionById(actionId) : null;
 
-  if (combatAction) {
-    const redirectId = combatAction.redirect(state);
-    action = getActionById(redirectId);
-    combatAction = actions[redirectId];
-  }
-
-  const isGlowing = combatAction?.isGlowing(state);
-  const isUsable = combatAction?.isUsable(state);
-  const maxCharges = combatAction?.maxCharges(state) || 0;
+  const isGlowing = combatAction?.isGlowing;
+  const isUsable = combatAction?.isUsable;
+  const maxCharges = combatAction?.maxCharges || 0;
   const [isMouseOver, setMouseOver] = useState(false);
   const [isActive, setActive] = useState(false);
 
@@ -75,7 +65,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   let extraCooldown: CooldownState | null = null;
 
   if (combatAction) {
-    [cooldown, globalCooldown, extraCooldown] = combatAction.getCooldown(state);
+    [cooldown, globalCooldown, extraCooldown] = combatAction.cooldown;
   }
 
   function mouseOver() {
@@ -86,7 +76,7 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     setMouseOver(false);
   }
 
-  let activeTimer: MutableRefObject<NodeJS.Timer | null> = useRef(null);
+  const activeTimer = useRef<NodeJS.Timer | null>(null);
 
   const onClick = useCallback(() => {
     if (!combatAction || !action || !hudLock) {
@@ -103,44 +93,20 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
     }
   }, [combatAction, dispatch, hudLock, action]);
 
-  const [{ canDrop, isOver }, drop] = useDrop(
-    () => ({
-      accept: 'action',
-      drop: (item: { id: ActionId }) => {
-        dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: item.id }));
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `slot-${hotbarId}-${slotId}`,
+    data: { type: 'slot', hotbarId, slotId },
+  });
 
-        return { id: actionId };
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    }),
-    [action, jobId]
-  );
-
-  const [, drag, preview] = useDrag(
-    () => ({
-      type: 'action',
-      item: { id: actionId },
-      canDrag: () => !!action && hudLock && !hotbarLock,
-      end: (item, monitor) => {
-        if (!monitor.didDrop()) {
-          dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: null }));
-        } else {
-          const result = monitor.getDropResult<{ id: number }>();
-          if (result && result.id !== action?.id) {
-            dispatch(assignAction({ hotbarId, slotId, job: jobId, actionId: result.id }));
-          }
-        }
-      },
-    }),
-    [action, hudLock, jobId, hotbarLock]
-  );
-
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true });
-  }, [preview]);
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+  } = useDraggable({
+    id: `action-${hotbarId}-${slotId}`,
+    data: { id: actionId, type: 'action', hotbarId, slotId },
+    disabled: !action || !hudLock || hotbarLock,
+  });
 
   const [keyEvents] = useKeyEvents();
 
@@ -171,54 +137,49 @@ export const HotbarSlot: FC<HotbarProps> = ({ hotbarId, slotId, size }) => {
   }, [keybind, keyEvents, onClick, dispatch, hotbarId, keybindingMode, slotId, isMouseOver, settings, script, hudEditor]);
 
   return (
-    <div ref={drop}>
-      <Tippy
-        disabled={!action}
-        content={<ActionTooltip action={action!} combatAction={combatAction!} />}
-        arrow={false}
-        duration={[0, 0]}
-        maxWidth={600}
-        plugins={[followCursor]}
-        followCursor={true}
-      >
+    <div ref={setDropRef}>
+      <WithActionTooltip action={action}>
         <div
-          id={`slot_${hotbarId}_${slotId}`}
-          onMouseOver={mouseOver}
-          onMouseOut={mouseOut}
-          className={clsx(css.slot, {
-            [css.glowing]: isGlowing,
-            [css.active]: (canDrop && isOver) || (keybindingMode && isMouseOver) || isActive,
-            [css.unusable]: action && !isUsable,
-          })}
-          onClick={onClick}
-          ref={drag}
           style={{
             width: 40 * size + 2,
             height: 40 * size + 2,
           }}
+          className={clsx(css.slot, {
+            [css.glowing]: isGlowing,
+            [css.active]: isOver || (keybindingMode && isMouseOver) || isActive,
+            [css.unusable]: action && !isUsable,
+          })}
+          onClick={onClick}
+          onMouseOver={mouseOver}
+          onMouseOut={mouseOut}
         >
           <Keybind keybind={keybind} />
-          <CooldownSwipe
-            cooldown={cooldown}
-            globalCooldown={globalCooldown}
-            extraCooldown={extraCooldown}
-            isGcdAction={!!combatAction?.isGcdAction}
-            maxCharges={maxCharges}
-            size={size}
-          />
+
           {action && (
-            <img
-              src={'https://beta.xivapi.com' + action.icon}
-              alt={action.name}
+            <div
+              ref={setDragRef}
+              {...listeners}
+              {...attributes}
               style={{
                 width: 40 * size,
                 height: 40 * size,
+                position: 'relative',
               }}
-            />
+            >
+              <CooldownSwipe
+                cooldown={cooldown}
+                globalCooldown={globalCooldown}
+                extraCooldown={extraCooldown}
+                isGcdAction={!!combatAction?.isGcdAction}
+                maxCharges={maxCharges}
+                size={size}
+              />
+              <XivIcon icon={action.icon} alt={action.name} width={40 * size} />
+            </div>
           )}
           {action && action.cost > 0 && <Cost action={action} size={size} />}
         </div>
-      </Tippy>
+      </WithActionTooltip>
     </div>
   );
 };

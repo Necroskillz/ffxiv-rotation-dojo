@@ -1,5 +1,4 @@
-import { faClover, faMoon, faSnowflake } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaSnowflake, FaMoon, FaClover } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { HudItem } from '../../../hud/HudItem';
 import { selectSen } from '../../combatSlice';
@@ -19,9 +18,9 @@ export const SenGauge = () => {
   return (
     <HudItem name="SenGauge" defaultPosition={{ x: 20, y: 20 }}>
       <div className="grid grid-flow-col auto-cols-max gap-1.5">
-        <FontAwesomeIcon icon={faSnowflake} color={sen % 10 > 0 ? setsuColor : emptyColor} />
-        <FontAwesomeIcon icon={faMoon} color={sen % 100 >= 10 ? getsuColor : emptyColor} />
-        <FontAwesomeIcon icon={faClover} color={sen >= 100 ? kaColor : emptyColor} />
+        <FaSnowflake size={16} color={sen % 10 > 0 ? setsuColor : emptyColor} />
+        <FaMoon size={16} color={sen % 100 >= 10 ? getsuColor : emptyColor} />
+        <FaClover size={16} color={sen >= 100 ? kaColor : emptyColor} />
       </div>
     </HudItem>
   );

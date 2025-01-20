@@ -1,5 +1,4 @@
-import { faSun } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaSun } from 'react-icons/fa6';
 import { useAppSelector } from '../../../../app/hooks';
 import { StatusId } from '../../../actions/status_enums';
 import { HudItem } from '../../../hud/HudItem';
@@ -27,7 +26,7 @@ export const ElementalGauge = () => {
   return (
     <HudItem name="ElementalGauge" defaultPosition={{ x: 20, y: 90 }}>
       <div className="grid w-60 grid-flow-col auto-cols-max">
-        <div className="mr-3 w-4 mt-[7px]">{!!enochianTimeMS && <FontAwesomeIcon icon={faSun} color="#F1EADE" />}</div>
+        <div className="mr-3 w-4 mt-[7px]">{!!enochianTimeMS && <FaSun color="#F1EADE" />}</div>
         <div className="grid">
           <div className="grid place-items-center">
             <GaugeDiamond fill={paradox > 0} fillColor={paradoxFillColor} />

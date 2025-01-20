@@ -1,25 +1,20 @@
-import { faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, useMemo } from 'react';
+import { FaChevronDown, FaXmark } from 'react-icons/fa6';
+import { CloseButton } from '../../components/CloseButton';
+import { FC } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
 import { selectActionChangeSettingsFor, setActionChangeSettings } from '../player/playerSlice';
-import { ActionId } from './action_enums';
 import { ActionInfo, getActionById } from './actions';
 import { actions } from '../combat/actions';
-import Tippy from '@tippyjs/react';
-import { ActionTooltip } from './ActionTooltip';
-import { followCursor } from 'tippy.js';
+import { WithActionTooltip } from '@/components/WithActionTooltip';
+import { XivIcon } from '@/components/XivIcon';
 
 export const ActionChangeSettings: FC = () => {
   const name = `ActionChangeSettings`;
   const hudElement = useAppSelector((state) => selectElement(state, name));
 
-  const actionId = useMemo<ActionId | null>(
-    () => (hudElement && hudElement.extraOptions ? hudElement.extraOptions.actionId : null),
-    [hudElement]
-  );
+  const actionId = hudElement && hudElement.extraOptions ? hudElement.extraOptions.actionId : null;
 
   const actionChangeSettings = useAppSelector((state) => (actionId ? selectActionChangeSettingsFor(state, actionId) : null));
 
@@ -50,11 +45,9 @@ export const ActionChangeSettings: FC = () => {
   return (
     <HudItem name={name} dragHandle=".title" defaultPosition={{ x: 250, y: 150 }} z={100}>
       <div className="bg-xiv-bg border px-4 pb-2 pt-1 border-xiv-gold rounded-md w-[500px] h-[400px] overflow-auto">
-        <div className="title grid grid-cols-2 items-center mb-4 grid-cols-[1fr_auto]">
+        <div className="title grid items-center mb-4 grid-cols-[1fr_auto]">
           <h2 className="text-2xl">Action Change Settings</h2>
-          <button className="place-self-end p-1" onClick={close}>
-            <FontAwesomeIcon size="2x" icon={faXmark} />
-          </button>
+          <CloseButton onClick={close} />
         </div>
         <div className="grid grid-cols-1 gap-1 w-fit">
           <div className="highlight-yellow mb-2">Adjust settings for the actions below when requirements for execution are met.</div>
@@ -77,13 +70,7 @@ export const ActionChangeSettings: FC = () => {
         </div>
         <div className="mt-8 grid place-items-center w-100">
           <ActionPreview action={action} />
-          <div className="m-2">
-            {enabled ? (
-              <FontAwesomeIcon size="2x" icon={faChevronDown} color="#f5c779" />
-            ) : (
-              <FontAwesomeIcon size="2x" icon={faXmark} color="#CE0010" />
-            )}
-          </div>
+          <div className="m-2">{enabled ? <FaChevronDown size={24} color="#f5c779" /> : <FaXmark size={24} color="#CE0010" />}</div>
           <ActionPreview action={targetAction} />
         </div>
       </div>
@@ -96,22 +83,12 @@ type ActionPreviewProps = {
 };
 
 const ActionPreview: FC<ActionPreviewProps> = ({ action }) => {
-  const combatAction = actions[action.id];
-
   return (
-    <Tippy
-      disabled={!action}
-      content={<ActionTooltip action={action!} combatAction={combatAction!} />}
-      arrow={false}
-      duration={[0, 0]}
-      maxWidth={600}
-      plugins={[followCursor]}
-      followCursor={true}
-    >
+    <WithActionTooltip action={action}>
       <div className="grid auto-cols-max grid-flow-col gap-2 items-center w-64">
         <div className="grid">
           <div className="grid auto-cols-max grid-flow-col gap-2 items-center">
-            <img className="w-10" src={'https://beta.xivapi.com' + action.icon} alt={action.name} />
+            <XivIcon className="w-10" icon={action.icon} alt={action.name} />
             <div>
               <div>{action.name}</div>
               <div>Lv. {action.level}</div>
@@ -119,6 +96,6 @@ const ActionPreview: FC<ActionPreviewProps> = ({ action }) => {
           </div>
         </div>
       </div>
-    </Tippy>
+    </WithActionTooltip>
   );
 };

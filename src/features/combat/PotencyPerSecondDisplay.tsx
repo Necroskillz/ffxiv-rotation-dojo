@@ -1,90 +1,69 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import { useEffect, useState } from 'react';
 import { filter, scan, Subject, takeUntil } from 'rxjs';
-import { RootState } from '../../app/store';
 import { HudItem } from '../hud/HudItem';
-import { selectLock } from '../hud/hudSlice';
 import { addEvent, setCombat } from './combatSlice';
 import { actionStream$ } from './general';
 
-type PotencyPerSecondDisplayState = {
-  value: number;
-  time: number;
-};
+export const PotencyPerSecondDisplay = () => {
+  const [value, setValue] = useState(0);
+  const [time, setTime] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerStart, setTimerStart] = useState(0);
 
-type PotencyPerSecondDisplayProps = {
-  hudLock: boolean;
-};
+  useEffect(() => {
+    const unsubscribe = new Subject<void>();
 
-export class PotencyPerSecondDisplay extends React.Component<PotencyPerSecondDisplayProps, PotencyPerSecondDisplayState> {
-  private unsubscribe = new Subject<void>();
-  private timerRunning = false;
-  private timerStart = 0;
-
-  constructor(props: PotencyPerSecondDisplayProps) {
-    super(props);
-
-    this.state = { value: 0, time: 0 };
-  }
-
-  componentDidMount(): void {
     actionStream$
       .pipe(
         filter((a) => a.type === addEvent.type && a.payload.potency > 0),
-        takeUntil(this.unsubscribe),
+        takeUntil(unsubscribe),
         scan((acc, a) => acc + a.payload.potency, 0)
       )
-      .subscribe((value) => {
-        this.setState({ value });
-      });
+      .subscribe(setValue);
 
     actionStream$
       .pipe(
         filter((a) => a.type === setCombat.type),
-        takeUntil(this.unsubscribe)
+        takeUntil(unsubscribe)
       )
       .subscribe((action) => {
-        this.timerRunning = action.payload;
-
-        if (this.timerRunning) {
-          this.timerStart = Date.now();
+        setTimerRunning(action.payload);
+        if (action.payload) {
+          setTimerStart(Date.now());
         }
       });
 
-    setInterval(() => {
-      if (this.timerRunning) {
-        this.setState({ time: Date.now() - this.timerStart });
+    const timer = setInterval(() => {
+      if (timerRunning) {
+        setTime(Date.now() - timerStart);
       }
     }, 500);
-  }
 
-  componentWillUnmount(): void {
-    this.unsubscribe.next();
-  }
+    return () => {
+      unsubscribe.next();
+      clearInterval(timer);
+    };
+  }, [timerRunning, timerStart]);
 
-  render(): React.ReactNode {
-    return (
-      <HudItem name="PotencyPerSecondDisplay" defaultPosition={{ x: 650, y: 175 }}>
-        <div className="grid grid-flow-row w-60">
-          <div>
-            Combat time:{' '}
-            <b>
-              {Math.floor(this.state.time / 60000)
-                .toString()
-                .padStart(2, '0')}
-              :
-              {Math.floor((this.state.time % 60000) / 1000)
-                .toString()
-                .padStart(2, '0')}
-            </b>
-          </div>
-          <div>Potency per second: <strong>{this.state.time ? Math.round(this.state.value / (this.state.time / 1000)) : 0}</strong></div>
+  return (
+    <HudItem name="PotencyPerSecondDisplay" defaultPosition={{ x: 650, y: 175 }}>
+      <div className="grid grid-flow-row w-60">
+        <div>
+          Combat time:{' '}
+          <b>
+            {Math.floor(time / 60000)
+              .toString()
+              .padStart(2, '0')}
+            :
+            {Math.floor((time % 60000) / 1000)
+              .toString()
+              .padStart(2, '0')}
+          </b>
         </div>
-      </HudItem>
-    );
-  }
-}
-
-export default connect<PotencyPerSecondDisplayProps, {}, {}, RootState>((state) => ({ hudLock: selectLock(state) }))(
-  PotencyPerSecondDisplay
-);
+        <div>
+          Potency per second: <strong>{time ? Math.round(value / (time / 1000)) : 0}</strong>
+        </div>
+      </div>
+    </HudItem>
+  );
+};

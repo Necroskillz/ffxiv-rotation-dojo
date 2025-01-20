@@ -28,7 +28,7 @@ import { bluEpics } from '../features/combat/jobs/blu/blu';
 import { vprEpics } from '../features/combat/jobs/vpr/vpr';
 import { pctEpics } from '../features/combat/jobs/pct/pct';
 
-const rootEpic = combineEpics(
+const rootEpic = combineEpics<ReducerAction<any>, ReducerAction<any>, any>(
   dncEpics,
   mchEpics,
   brdEpics,
@@ -103,7 +103,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(epicMiddleware),
+    }).concat(epicMiddleware)
 });
 
 epicMiddleware.run(rootEpic);

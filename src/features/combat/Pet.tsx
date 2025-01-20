@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAppSelector } from '../../app/hooks';
 import { HudItem } from '../hud/HudItem';
 import { selectPet } from './combatSlice';

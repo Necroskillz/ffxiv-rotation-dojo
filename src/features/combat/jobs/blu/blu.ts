@@ -1543,7 +1543,7 @@ const surpanakha: CombatAction = createCombatAction({
 const quasar: CombatAction = createCombatAction({
   id: ActionId.Quasar,
   bluNo: 79,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.Quasar, context, { potency: 300 }));
   },
@@ -1553,7 +1553,7 @@ const quasar: CombatAction = createCombatAction({
 const jkick: CombatAction = createCombatAction({
   id: ActionId.JKick,
   bluNo: 80,
-  execute: (dispatch, getState, context) => {
+  execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
     dispatch(dmgEvent(ActionId.JKick, context, { potency: 300, type: DamageType.Physical }));
   },

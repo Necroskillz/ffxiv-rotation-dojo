@@ -6,8 +6,8 @@ import { ActionId } from '../../../actions/action_enums';
 import { StatusId } from '../../../actions/status_enums';
 import { selectResources } from '../../combatSlice';
 import { GaugeNumber } from '../../GaugeNumber';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDharmachakra } from '@fortawesome/free-solid-svg-icons';
+import { FaDharmachakra } from 'react-icons/fa6';
+import { XivIcon } from '@/components/XivIcon';
 
 import style from './DanceGauge.module.css';
 import { HudItem } from '../../../hud/HudItem';
@@ -23,7 +23,7 @@ export const DanceStep: FC<DanceStepProps> = ({ actionId, isActive }) => {
 
   return (
     <div className={clsx(style.step, { [style.active]: isActive })}>
-      {action && <img src={'https://beta.xivapi.com' + action.icon} alt={action.name} />}
+      {action && <XivIcon icon={action.icon} alt={action.name} />}
     </div>
   );
 };
@@ -42,7 +42,7 @@ export const DanceGauge = () => {
               .map((_, i) => <DanceStep key={`step${i}`} actionId={resources[`step${i + 1}`]} isActive={resources.step === i} />)
           ) : (
             <div className="grid text-center">
-              <FontAwesomeIcon size="2x" className="text-slate-800" icon={faDharmachakra} />
+              <FaDharmachakra size={24} className="text-slate-800" />
             </div>
           )}
         </div>

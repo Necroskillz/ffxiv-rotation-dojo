@@ -34,8 +34,8 @@ async function writeEnum<T>(
 
 // Main function
 async function main() {
-  const baseDir = path.join(__dirname, '..');
-  const input = JSON.parse(await fs.readFile(path.join(__dirname, 'data_input.json'), 'utf-8')) as Record<string, InputData>;
+  const baseDir = path.join(import.meta.dirname, '..');
+  const input = JSON.parse(await fs.readFile(path.join(import.meta.dirname, 'data_input.json'), 'utf-8')) as Record<string, InputData>;
 
   const actionIds: number[] = [];
   const statusIds: number[] = [];

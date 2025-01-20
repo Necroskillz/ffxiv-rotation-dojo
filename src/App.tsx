@@ -1,13 +1,12 @@
 import './App.css';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Hud } from './features/hud/Hud';
 import { ControlBar } from './features/hud/ControlBar';
 import { useEffect } from 'react';
 import { init } from './features/script_engine/scriptEngineSlice';
 import { useAppDispatch } from './app/hooks';
+import { DragDropProvider } from './features/hotbars/DragDropProvider';
 
-function App() {
+export const App = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -28,16 +27,14 @@ function App() {
 
   return (
     <div className="App">
-      <DndProvider backend={HTML5Backend}>
+      <DragDropProvider>
         <div className="p-2 min-h-screen grid grid-rows-[1fr_50px]">
           <Hud />
           <div className="self-end">
             <ControlBar />
           </div>
         </div>
-      </DndProvider>
+      </DragDropProvider>
     </div>
   );
-}
-
-export default App;
+};
