@@ -8,6 +8,7 @@ import { HotbarConfig, HotbarSlotActionState, HotbarSlotKeybindState, setSize, s
 import { deleteAllScripts, setScript } from '../script_engine/scriptEngineSlice';
 import { HudItem } from './HudItem';
 import { HudElement, selectElement, setVisility, setOffset } from './hudSlice';
+import { BlueMagicSpellSet, ActionChangeSettings, setActionChangeSettings, setBlueMagicSpellbook } from '../player/playerSlice';
 
 
 interface ImportExportState {
@@ -17,6 +18,8 @@ interface ImportExportState {
   keybindings: boolean;
   scripts: boolean;
   scriptMergeMode: string;
+  blueMagicSpellbook: boolean;
+  actionChangeSettings: boolean;
 }
 
 interface ImportExportData {
@@ -24,12 +27,23 @@ interface ImportExportData {
   hotbarMapping?: { id: number; slots: HotbarSlotActionState[] }[];
   keybindings?: { id: number; keybinds: HotbarSlotKeybindState[] }[];
   scripts?: { name: string; job: string; script: string }[];
+  blueMagicSpellbook?: BlueMagicSpellSet[];
+  actionChangeSettings?: Record<number, ActionChangeSettings>;
 }
 
 const scriptMergeMode: Option<string>[] = [
   { value: 'Merge', label: 'Keep existing and overwrite if name matches' },
   { value: 'Replace', label: 'Remove existing and only use imported' },
 ];
+
+const checkboxOptions = [
+  { id: 'layout' as const, label: 'Layout' },
+  { id: 'hotbarMapping' as const, label: 'Hotbar skills mapping' },
+  { id: 'keybindings' as const, label: 'Keybindings' },
+  { id: 'scripts' as const, label: 'Scripts' },
+  { id: 'blueMagicSpellbook' as const, label: 'BLU Spellbook' },
+  { id: 'actionChangeSettings' as const, label: 'Action change settings' },
+] as const;
 
 export const ImportExport = () => {
   const hudElement = useAppSelector((state) => selectElement(state, 'ImportExport'));
@@ -41,6 +55,8 @@ export const ImportExport = () => {
     keybindings: true,
     scripts: true,
     scriptMergeMode: 'Merge',
+    blueMagicSpellbook: true,
+    actionChangeSettings: true,
   });
 
   function close() {
@@ -54,7 +70,7 @@ export const ImportExport = () => {
   function importData() {
     const data: ImportExportData = JSON.parse(state.data);
 
-    if (data.layout) {
+    if (data.layout && state.layout) {
       Object.keys(data.layout.elements).forEach((name) => {
         const element = data.layout!.elements[name];
         dispatch(setOffset({ element: name, xOffset: element.xOffset, yOffset: element.yOffset }));
@@ -67,7 +83,7 @@ export const ImportExport = () => {
       });
     }
 
-    if (data.hotbarMapping) {
+    if (data.hotbarMapping && state.hotbarMapping) {
       dispatch(removeAllActions());
       data.hotbarMapping.forEach((h) =>
         h.slots.forEach((s) =>
@@ -78,7 +94,7 @@ export const ImportExport = () => {
       );
     }
 
-    if (data.keybindings) {
+    if (data.keybindings && state.keybindings) {
       dispatch(removeAllKeybinds());
       data.keybindings.forEach((h) =>
         h.keybinds.forEach((k) => {
@@ -87,13 +103,23 @@ export const ImportExport = () => {
       );
     }
 
-    if (data.scripts) {
+    if (data.scripts && state.scripts) {
       if (state.scriptMergeMode === 'Replace') {
         dispatch(deleteAllScripts());
       }
 
       data.scripts.forEach((s) => {
         dispatch(setScript({ name: s.name, job: s.job, script: s.script, active: false }));
+      });
+    }
+
+    if (data.blueMagicSpellbook && state.blueMagicSpellbook) {
+      dispatch(setBlueMagicSpellbook(data.blueMagicSpellbook));
+    }
+
+    if (data.actionChangeSettings && state.actionChangeSettings) {
+      Object.entries(data.actionChangeSettings).forEach(([actionId, settings]) => {
+        dispatch(setActionChangeSettings({ actionId: Number(actionId), ...settings }));
       });
     }
   }
@@ -123,6 +149,14 @@ export const ImportExport = () => {
         .map((s) => ({ name: s.name, job: s.job, script: s.script }));
     }
 
+    if (state.blueMagicSpellbook) {
+      data.blueMagicSpellbook = appState.player.blueMagicSpellbook;
+    }
+
+    if (state.actionChangeSettings) {
+      data.actionChangeSettings = appState.player.actionChangeSettings;
+    }
+
     setState({ data: JSON.stringify(data) });
   }
 
@@ -140,33 +174,21 @@ export const ImportExport = () => {
             className="w-[800px] h-[580px] text-black"
           ></textarea>
 
-          <div className="grid grid-flow-col auto-cols-max justify-items-start gap-8">
-            <div className="grid grid-flow-col auto-cols-max justify-items-start gap-1">
-              <input id="layout" type="checkbox" checked={state.layout} onChange={(e) => setState({ layout: e.target.checked })} />
-              <label htmlFor="layout">Layout</label>
-            </div>
-            <div className="grid grid-flow-col auto-cols-max justify-items-start gap-1">
-              <input
-                id="hotbarMapping"
-                type="checkbox"
-                checked={state.hotbarMapping}
-                onChange={(e) => setState({ hotbarMapping: e.target.checked })}
-              />
-              <label htmlFor="hotbarMapping">Hotbar skills mapping</label>
-            </div>
-            <div className="grid grid-flow-col auto-cols-max justify-items-start gap-1">
-              <input
-                id="keybindings"
-                type="checkbox"
-                checked={state.keybindings}
-                onChange={(e) => setState({ keybindings: e.target.checked })}
-              />
-              <label htmlFor="keybindings">Keybindings</label>
-            </div>
-            <div className="grid grid-flow-col auto-cols-max justify-items-start gap-1">
-              <input id="scripts" type="checkbox" checked={state.scripts} onChange={(e) => setState({ scripts: e.target.checked })} />
-              <label htmlFor="scripts">Scripts</label>
-            </div>
+          <div className="grid grid-cols-3 gap-x-8 gap-y-2 w-[800px]">
+            {checkboxOptions.map(({ id, label }) => (
+              <div key={id} className="grid grid-flow-col auto-cols-max justify-items-start gap-1">
+                <input
+                  id={id}
+                  type="checkbox"
+                  checked={state[id]}
+                  onChange={(e) => {
+                    const update = { [id]: e.target.checked };
+                    setState(update);
+                  }}
+                />
+                <label htmlFor={id}>{label}</label>
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-flow-col auto-cols-max items-center gap-4">

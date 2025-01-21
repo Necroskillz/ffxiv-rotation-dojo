@@ -7,7 +7,7 @@ import { CloseButton } from '@/components/CloseButton';
 import { actions } from '../combat/actions';
 import { HudItem } from '../hud/HudItem';
 import { selectElement, setVisility } from '../hud/hudSlice';
-import { selectJob, selectBlueMagicSpellBook, setBluSpellSet } from '../player/playerSlice';
+import { selectJob, selectBlueMagicSpellBook, setActiveBluSpellSet } from '../player/playerSlice';
 import { Action } from './Action';
 import { getActionsByJob, ActionInfo, getActionById } from './actions';
 import { Option } from '@/types';
@@ -58,7 +58,7 @@ export const ActionList = () => {
   }
 
   function setBlueSpellSet(option: Option<number> | null) {
-    dispatch(setBluSpellSet(option!.value));
+    dispatch(setActiveBluSpellSet(option!.value));
   }
 
   if (!hudElement.isVisible) {

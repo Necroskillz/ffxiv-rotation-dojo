@@ -88,7 +88,7 @@ export const playerSlice = createSlice({
         spellSet.spells = spellSet.spells.filter((spell) => spell !== action.payload);
       }
     },
-    setBluSpellSet: (state, action: PayloadAction<number>) => {
+    setActiveBluSpellSet: (state, action: PayloadAction<number>) => {
       state.blueMagicSpellbook.forEach((set) => (set.active = false));
       state.blueMagicSpellbook.find((set) => set.id === action.payload)!.active = true;
     },
@@ -97,6 +97,9 @@ export const playerSlice = createSlice({
         enabled: action.payload.enabled,
         recast: action.payload.recast,
       };
+    },
+    setBlueMagicSpellbook: (state, action: PayloadAction<BlueMagicSpellSet[]>) => {
+      state.blueMagicSpellbook = action.payload;
     },
   },
 });
@@ -109,8 +112,9 @@ export const {
   setJob,
   addBluSpell,
   removeBluSpell,
-  setBluSpellSet,
+  setActiveBluSpellSet,
   setActionChangeSettings,
+  setBlueMagicSpellbook,
 } = playerSlice.actions;
 
 export const selectJob = (state: RootState) => state.player.job;
