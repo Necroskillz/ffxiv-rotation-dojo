@@ -1,4 +1,4 @@
-import { FC, SetStateAction, useEffect, useRef, useState } from 'react';
+import { FC, SetStateAction, useEffect, useId, useState } from 'react';
 import { CooldownState } from '../combat/combatSlice';
 import { clsx } from 'clsx';
 
@@ -24,7 +24,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
   const [textCooldown, setTextCooldown] = useState<Cooldown | null>(null);
   const [charges, setCharges] = useState<number | null>(maxCharges > 1 ? maxCharges : null);
 
-  const { current: id } = useRef('circleMask' + (Math.random().toString(36) + '00000000000000000').slice(2, 7));
+  const id = useId();
 
   useEffect(() => {
     function set(cd: CooldownState | null, action: (cd: SetStateAction<Cooldown | null>) => void, applyCharges: boolean) {
@@ -112,7 +112,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
         >
           <mask id={id}>
             <g transform="translate(32, 32)">
-              <rect className={style.mask_rect} x="-32" y="-32" width="64" height="64" rx="6" ry="6"></rect>
+              <rect className={style.mask_rect} x="-40" y="-40" width="80" height="80" rx="8%" ry="8%"></rect>
               <circle
                 className={style.mask_circle}
                 style={{
@@ -124,7 +124,7 @@ export const CooldownSwipe: FC<CooldownSwipeProps> = ({ cooldown, globalCooldown
               ></circle>
             </g>
           </mask>
-          <rect x="0" y="0" width="64" height="64" rx="6" ry="6" fill="black" mask={'url(#' + id + ')'}></rect>
+          <rect x="0" y="0" width="64" height="64" rx="8%" ry="8%" fill="black" mask={'url(#' + id + ')'}></rect>
           {secondaryCooldown && (
             <circle
               className={style.secondary_circle}

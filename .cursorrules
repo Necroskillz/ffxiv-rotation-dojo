@@ -22,6 +22,5 @@ Windows
 - always use functional components with hooks
 
 # Typescript rules
-- use @/* for local imports
 - always use named exports
 - always generate types or interfaces for complex types
