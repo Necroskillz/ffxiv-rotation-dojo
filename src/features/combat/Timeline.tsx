@@ -9,6 +9,7 @@ import { actionStream$ } from './general';
 import { getActionById } from '../actions/actions';
 import { XivIcon } from '@/components/XivIcon';
 import styles from './Timeline.module.css';
+import clsx from 'clsx';
 
 interface TimelineAction {
   id: number;
@@ -78,9 +79,13 @@ export const Timeline = () => {
             return (
               <div
                 key={action.timestamp}
-                className={`absolute ${action.isGcd ? 'w-12 h-12' : 'w-8 h-8'} ${!action.isGcd ? 'top-1' : 'top-10'} ${styles.timeline} ${
+                className={clsx(
+                  'absolute',
+                  action.isGcd ? 'w-12 h-12' : 'w-8 h-8',
+                  !action.isGcd ? 'top-1' : 'top-10',
+                  styles.timeline,
                   styles.timelineEnter
-                }`}
+                )}
                 onAnimationEnd={() => removeAction(action.timestamp)}
               >
                 <XivIcon icon={action.icon} alt={action.name} className="w-full h-full" />
