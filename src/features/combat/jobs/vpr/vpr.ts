@@ -158,6 +158,13 @@ const removeHonedEpic: Epic<any, any, RootState> = (action$) =>
     switchMap((a) => of(...honed.filter((v) => v !== a.payload.id).map((v) => removeBuff(v))))
   );
 
+const viceVenoms = [StatusId.FellhuntersVenom, StatusId.FellskinsVenom, StatusId.HuntersVenom, StatusId.SwiftskinsVenom];
+const removeViceVenomsEpic: Epic<any, any, RootState> = (action$) =>
+  action$.pipe(
+    filter((a) => a.type === addBuff.type && viceVenoms.includes(a.payload.id)),
+    switchMap((a) => of(...viceVenoms.filter((v) => v !== a.payload.id).map((v) => removeBuff(v))))
+  );
+
 const swiftscaledStatus: CombatStatus = createCombatStatus({
   id: StatusId.Swiftscaled,
   duration: 40,
@@ -1146,5 +1153,6 @@ export const vprEpics = combineEpics(
   removeReawakenedEpic,
   removePoisedEpic,
   removeVenomsEpic,
-  removeHonedEpic
+  removeHonedEpic,
+  removeViceVenomsEpic
 );

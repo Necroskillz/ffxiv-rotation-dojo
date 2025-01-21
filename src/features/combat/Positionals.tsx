@@ -14,15 +14,15 @@ export const Positionals = () => {
       {hudLock ? (
         <div className="grid grid-cols-[1fr_auto_1fr] w-[150px] h-[150px]">
           <div className="grid items-center justify-center">
-            <FaChevronRight size="lg" color="#CE0010" visibility={position === 'W' ? 'visible' : 'hidden'} />
+            <FaChevronRight size={24} color="#CE0010" visibility={position === 'W' ? 'visible' : 'hidden'} />
           </div>
           <div className="grid grid-rows-[1fr_auto_1fr] items-center place-items-center">
-            <FaChevronDown size="lg" color="#CE0010" visibility={position === 'N' ? 'visible' : 'hidden'} />
+            <FaChevronDown size={24} color="#CE0010" visibility={position === 'N' ? 'visible' : 'hidden'} />
             <img className="rotate-180" src="/img/ff-boss.svg" alt="boss" />
-            <FaChevronUp size="lg" color="#CE0010" visibility={position === 'S' ? 'visible' : 'hidden'} />
+            <FaChevronUp size={24} color="#CE0010" visibility={position === 'S' ? 'visible' : 'hidden'} />
           </div>
           <div className="grid items-center justify-center">
-            <FaChevronLeft size="lg" color="#CE0010" visibility={position === 'E' ? 'visible' : 'hidden'} />
+            <FaChevronLeft size={24} color="#CE0010" visibility={position === 'E' ? 'visible' : 'hidden'} />
           </div>
         </div>
       ) : (

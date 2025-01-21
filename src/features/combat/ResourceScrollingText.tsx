@@ -7,6 +7,7 @@ import { HudItem } from '../hud/HudItem';
 import { selectLock } from '../hud/hudSlice';
 import { addEvent } from './combatSlice';
 import { actionStream$ } from './general';
+import styles from './ScrollingText.module.css';
 
 interface Item {
   id: number;
@@ -90,7 +91,7 @@ export const ResourceScrollingText = () => {
           {items.map((i) => (
             <div 
               key={i.id}
-              className="grid grid-flow-col auto-cols-max items-end absolute text-xiv-heal gap-1 scroll-down-enter"
+              className={`grid grid-flow-col auto-cols-max items-end absolute text-xiv-heal gap-1 ${styles.scrollDown}`}
             >
               <span className="text-lg">{i.abilityName}</span>
               {i.mana > 0 && (

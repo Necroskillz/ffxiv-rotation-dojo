@@ -11,6 +11,7 @@ import { addEvent, DamageType, EventStatus, Position, Positional } from './comba
 import { actionStream$ } from './general';
 import { statusIcon } from './utils';
 import { XivIcon } from '@/components/XivIcon';
+import styles from './ScrollingText.module.css';
 
 interface Item {
   id: number;
@@ -87,7 +88,7 @@ export const DamageScrollingText = () => {
           {items.map((i) => (
             <div
               key={i.id}
-              className="grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg scroll-up-enter"
+              className={`grid grid-flow-col auto-cols-max items-center absolute text-xiv-offensive gap-2 text-lg ${styles.scrollUp}`}
             >
               {i.abilityName}
               {i.type === DamageType.Magical ? (

@@ -8,6 +8,7 @@ import { statusIcon } from './utils';
 import { Action } from 'redux';
 import { StatusInfo } from '../actions/status';
 import { XivIcon } from '@/components/XivIcon';
+import styles from './ScrollingText.module.css';
 
 interface Item {
   id: number;
@@ -115,7 +116,7 @@ export const StatusScrollingText = ({ addType, removeType, multipleText, directi
       {items.map((i) => (
         <div 
           key={i.id}
-          className={`grid grid-flow-col auto-cols-max items-center absolute scroll-${direction}-enter`}
+          className={`grid grid-flow-col auto-cols-max items-center absolute ${direction === 'up' ? styles.scrollUp : styles.scrollDown}`}
         >
           {i.addedIcons.length > 0 && (
             <>

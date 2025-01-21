@@ -93,6 +93,7 @@ const initialState: HudState = {
     CanvasGauge: createDefaultElementPlacement({ isVisible: true, job: ['PCT'] }),
     ActionChangeSettings: createDefaultElementPlacement({ isVisible: false }),
     Positionals: createDefaultElementPlacement({ isVisible: true, job: ['SAM', 'NIN', 'MNK', 'RPR', 'VPR', 'DRG', 'BLU'] }),
+    Timeline: createDefaultElementPlacement({ isVisible: true }),
   },
 };
 

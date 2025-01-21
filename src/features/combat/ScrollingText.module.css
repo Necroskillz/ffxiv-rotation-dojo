@@ -1,0 +1,72 @@
+@keyframes scrollingTextDown {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(300px);
+    opacity: 0;
+  }
+}
+
+@keyframes scrollingTextUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120px);
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  0% {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.scrollDown {
+  animation: scrollingTextDown 5000ms linear;
+  opacity: 0;
+}
+
+.scrollUp {
+  animation: scrollingTextUp 2000ms linear;
+  opacity: 0;
+  bottom: 0;
+}
+
+.dot {
+  display: inline-block;
+}
+
+.dotEnter:not(:first-child) {
+  animation: wave 250ms forwards linear;
+  animation-delay: calc(0.1s * var(--i));
+  opacity: 0;
+}
+
+.dotExit {
+  animation: fadeOut 200ms forwards ease-in;
+} 

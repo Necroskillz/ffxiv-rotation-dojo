@@ -6,6 +6,7 @@ import { HudItem } from '../hud/HudItem';
 import { selectLock } from '../hud/hudSlice';
 import { addEvent } from './combatSlice';
 import { actionStream$ } from './general';
+import styles from './ScrollingText.module.css';
 
 interface Slot {
   id: number;
@@ -80,7 +81,11 @@ export const DotScrollingText = () => {
             <div style={{ top: slot.y, left: slot.x }} className="absolute text-xiv-dot" key={slot.id}>
               {slot.letters &&
                 slot.letters.map((letter, index) => (
-                  <span key={index} style={{ ['--i' as string]: index }} className={`dot ${slot.isExiting ? 'dot-exit' : 'dot-enter'}`}>
+                  <span 
+                    key={index} 
+                    style={{ ['--i' as string]: index }} 
+                    className={`${styles.dot} ${slot.isExiting ? styles.dotExit : styles.dotEnter}`}
+                  >
                     {letter.letter}
                   </span>
                 ))}

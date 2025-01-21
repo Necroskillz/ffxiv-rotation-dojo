@@ -48,6 +48,7 @@ import { PaletteGauge } from '../combat/jobs/pct/PaletteGauge';
 import { CanvasGauge } from '../combat/jobs/pct/CanvasGauge';
 import { ActionChangeSettings } from '../actions/ActionChangeSettings';
 import { Positionals } from '../combat/Positionals';
+import { Timeline } from '../combat/Timeline';
 
 export const Hud = () => {
   return (
@@ -102,6 +103,7 @@ export const Hud = () => {
       <Debuffs />
       <PlayerDebuffs />
       <Positionals />
+      <Timeline />
     </div>
   );
 };
