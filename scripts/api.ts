@@ -42,7 +42,7 @@ export async function getPatch(): Promise<string> {
   return withErrorHandling(async () => {
     const data = await fetchData<DataResponse>(gtApi, '/db/doc/core/en/3/data.json');
     const patchData = await fetchData<PatchResponse>(gtApi, `/db/doc/patch/en/2/${data.patch.current}.json`);
-    return Object.keys(patchData?.patch?.patches ?? {}).pop() ?? '';
+    return Object.keys(patchData?.patch?.patches ?? {}).sort().pop() ?? '';
   }, 'Failed to fetch patch data');
 }
 
