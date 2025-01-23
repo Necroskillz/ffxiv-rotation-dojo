@@ -83,6 +83,17 @@ const captureActionsEpic: Epic<any, any, RootState> = (action$) =>
 
 export const actionStream$ = actions$.asObservable();
 
+const actionsWithState$ = new Subject<[ReducerAction<any>, RootState]>();
+
+const captureActionsWithStateEpic: Epic<any, any, RootState> = (action$, state$) =>
+  action$.pipe(
+    withLatestFrom(state$),
+    tap(([action, state]) => actionsWithState$.next([action, state])),
+    concatMap(() => EMPTY)
+  );
+
+export const actionWithStateStream$ = actionsWithState$.asObservable();
+
 const sprintStatus: CombatStatus = createCombatStatus({
   id: StatusId.Sprint,
   duration: 10,
@@ -230,4 +241,10 @@ export const general: CombatAction[] = [
   moveRight,
 ];
 
-export const generalEpics = combineEpics(combatManaTickEpic, captureActionsEpic, bloodbathEpic, removeSleepEpic);
+export const generalEpics = combineEpics(
+  combatManaTickEpic,
+  captureActionsEpic,
+  bloodbathEpic,
+  removeSleepEpic,
+  captureActionsWithStateEpic
+);
