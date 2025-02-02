@@ -85,6 +85,7 @@ export const Timeline = () => {
         }
       });
 
+
     return () => {
       unsubscribe$.next();
       unsubscribe$.complete();
@@ -114,7 +115,6 @@ export const Timeline = () => {
                   'absolute',
                   action.isGcd ? 'w-12 h-12' : 'w-8 h-8',
                   !action.isGcd ? 'top-1' : 'top-10',
-                  styles.timeline,
                   styles.timelineEnter
                 )}
                 onAnimationEnd={() => removeAction(action.timestamp)}
@@ -131,7 +131,7 @@ export const Timeline = () => {
                     <span className="text-red-500 text-[10px] leading-none">{(action.gcdDrift / 1000).toFixed(2)}s</span>
                   </div>
                 )}
-                <XivIcon icon={action.icon} alt={action.name} className="w-full h-full relative z-10" />
+                <XivIcon icon={action.icon} alt={action.name} className="relative z-10" />
               </div>
             );
           })}

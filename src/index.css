@@ -1,13 +1,34 @@
 @import 'tippy.js/dist/tippy.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@import 'tailwindcss';
+
+@theme {
+  --font-*: initial;
+  --font-ui-light: Miedinger Light W00 Regular;
+  --font-ui-medium: Miedinger Medium W00 Regular;
+
+  --color-xiv-bg: #545561;
+  --color-xiv-gold: #ad925a;
+  --color-xiv-golden-brown: #a49f8c;
+  --color-xiv-orange: #ee7318;
+  --color-xiv-ui: #e8e1ce;
+  --color-xiv-offensive: #f8d5bb;
+  --color-xiv-dot: #cb7870;
+  --color-xiv-heal: #c6d4bb;
+  --color-pull-timer: #d4a900;
+
+  --drop-shadow-blue: 0 0 10px rgba(0, 0, 255, 1);
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+textarea {
+  background-color: #fff;
 }

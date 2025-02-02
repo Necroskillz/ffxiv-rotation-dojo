@@ -1,9 +1,3 @@
-.timeline {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
 .timelineEnter {
   animation: slideIn 12s linear forwards;
 }
