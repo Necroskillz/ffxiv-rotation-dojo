@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { init } from './features/script_engine/scriptEngineSlice';
 import { useAppDispatch } from './app/hooks';
 import { DragDropProvider } from './features/hotbars/DragDropProvider';
+import { Analytics } from "@vercel/analytics/react"
 
 export const App = () => {
   const dispatch = useAppDispatch();
@@ -35,6 +36,7 @@ export const App = () => {
           </div>
         </div>
       </DragDropProvider>
+      <Analytics />
     </div>
   );
 };

@@ -4708,6 +4708,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vercel/analytics@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@vercel/analytics@npm:1.4.1"
+  peerDependencies:
+    "@remix-run/react": ^2
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@remix-run/react":
+      optional: true
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: fb55d59f313d02a28b599794fa6651e51247db5c942a65a3c044f678c89f7f57739ac7d874eb2a060d38f5fa688d26ef309c212cf480c2918e46304de6d3f742
+  languageName: node
+  linkType: hard
+
 "@vitejs/plugin-react@npm:^4.3.4":
   version: 4.3.4
   resolution: "@vitejs/plugin-react@npm:4.3.4"
@@ -8712,6 +8742,7 @@ __metadata:
     "@types/react": ^19.0.7
     "@types/react-dom": ^19.0.3
     "@types/react-modal": ^3.16.3
+    "@vercel/analytics": ^1.4.1
     "@vitejs/plugin-react": ^4.3.4
     autoprefixer: ^10.4.20
     axios: ^1.7.9
