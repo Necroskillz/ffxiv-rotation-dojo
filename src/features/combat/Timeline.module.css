@@ -2,6 +2,15 @@
   animation: slideIn 12s linear forwards;
 }
 
+.cancelled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 45%, rgba(255, 0, 0, 0.5) 45%, rgba(255, 0, 0, 0.5) 55%, transparent 55%),
+              linear-gradient(-45deg, transparent 45%, rgba(255, 0, 0, 0.5) 45%, rgba(255, 0, 0, 0.5) 55%, transparent 55%);
+  z-index: 20;
+}
+
 .timelineContainer {
   background-image: 
     /* 1 second markers */
