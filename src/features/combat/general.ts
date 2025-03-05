@@ -191,7 +191,7 @@ const moveRight: CombatAction = createCombatAction({
 });
 
 const tinctureOfDexterity: CombatAction = createCombatAction({
-  id: ActionId.Grade8TinctureofDexterity,
+  id: ActionId.Grade2GemdraughtofDexterity,
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
@@ -201,7 +201,7 @@ const tinctureOfDexterity: CombatAction = createCombatAction({
 });
 
 const tinctureOfMind: CombatAction = createCombatAction({
-  id: ActionId.Grade8TinctureofMind,
+  id: ActionId.Grade2GemdraughtofMind,
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
@@ -210,7 +210,7 @@ const tinctureOfMind: CombatAction = createCombatAction({
 });
 
 const tinctureOfStrength: CombatAction = createCombatAction({
-  id: ActionId.Grade8TinctureofStrength,
+  id: ActionId.Grade2GemdraughtofStrength,
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));
@@ -219,7 +219,7 @@ const tinctureOfStrength: CombatAction = createCombatAction({
 });
 
 const tinctureOfIntelligence: CombatAction = createCombatAction({
-  id: ActionId.Grade8TinctureofIntelligence,
+  id: ActionId.Grade2GemdraughtofIntelligence,
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Medicated));

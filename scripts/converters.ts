@@ -75,7 +75,7 @@ const converter = {
           { ids: [24398], cost: ['lemure', 1] as [string, number] },
           { ids: [25797], cost: ['mana', 1600] as [string, number] },
           { ids: [16505, 162], cost: ['mana', 10000] as [string, number] },
-        ].flatMap(({ ids, cost }) => ids.map(id => [id, cost]))
+        ].flatMap(({ ids, cost }) => ids.map((id) => [id, cost]))
       );
 
       const costTypeMap = new Map<number, CostHandler>([
@@ -174,8 +174,25 @@ const converter = {
         return ['All'];
       }
     },
+    id(id: number, data: ItemResponse, gtData: GtItemResponse): number {
+      // keep the same id for potions, so we dont have to migrate the hotbar assignments
+      if (data.ItemUICategory.fields.Name === 'Medicine') {
+        if ('Dexterity' in gtData.item.attr_hq.action) {
+          return 39728;
+        } else if ('Strength' in gtData.item.attr_hq.action) {
+          return 39727;
+        } else if ('Intelligence' in gtData.item.attr_hq.action) {
+          return 39730;
+        } else if ('Mind' in gtData.item.attr_hq.action) {
+          return 39731;
+        } else {
+          throw new Error('Unknown medicine type');
+        }
+      } else {
+        return id;
+      }
+    },
   },
 };
 
-// Export the converter object
 export { converter };

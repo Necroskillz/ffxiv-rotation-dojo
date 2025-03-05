@@ -5,7 +5,7 @@ Windows
 - react
 - redux
 - tailwindcss
-- yarn package manager
+- pnpm package manager
 
 # Avalable frontend packages
 - react-dnd

@@ -77,7 +77,7 @@ export const Action: FC<ActionProps> = ({ action }) => {
                 </div>
               </div>
               <div>
-                <div>{action.name}</div>
+                <div className="truncate w-[200px]">{action.name}</div>
                 <div>Lv. {action.level}</div>
               </div>
             </div>

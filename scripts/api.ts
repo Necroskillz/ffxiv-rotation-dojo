@@ -98,7 +98,7 @@ export async function getItem(id: number): Promise<ActionInfo> {
     ]);
 
     return createAction({
-      id: data.row_id,
+      id: converter.item.id(data.row_id, data.fields, gtData),
       type: data.fields.ItemUICategory.fields.Name,
       name: data.fields.Name,
       icon: converter.icon(data.fields.Icon.path_hr1),
