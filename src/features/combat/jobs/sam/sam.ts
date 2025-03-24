@@ -100,35 +100,17 @@ const consumeMeikyoEpic: Epic<any, any, RootState> = (action$) =>
     map(() => removeBuffStack(StatusId.MeikyoShisui))
   );
 
-const removeKaeshiEpic: Epic<any, any, RootState> = (action$, state$) =>
+const kaeshi = [
+  StatusId.KaeshiGokenActive,
+  StatusId.KaeshiSetsugekkaActive,
+  StatusId.KaeshiTendoGokenActive,
+  StatusId.KaeshiTendoSetsugekkaActive,
+];
+
+const removeKaeshiEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
-    filter(
-      (a) =>
-        a.type === executeAction.type &&
-        getActionById(a.payload.id).type === 'Weaponskill' &&
-        ![ActionId.MidareSetsugekka, ActionId.TenkaGoken, ActionId.TendoSetsugekka, ActionId.TendoGoken].includes(a.payload.id)
-    ),
-    withLatestFrom(state$),
-    map(([, state]) => state),
-    switchMap((state) => {
-      if (hasBuff(state, StatusId.KaeshiGokenActive)) {
-        return of(removeBuff(StatusId.KaeshiGokenActive));
-      }
-
-      if (hasBuff(state, StatusId.KaeshiSetsugekkaActive)) {
-        return of(removeBuff(StatusId.KaeshiSetsugekkaActive));
-      }
-
-      if (hasBuff(state, StatusId.KaeshiTendoGokenActive)) {
-        return of(removeBuff(StatusId.KaeshiTendoGokenActive));
-      }
-
-      if (hasBuff(state, StatusId.KaeshiTendoSetsugekkaActive)) {
-        return of(removeBuff(StatusId.KaeshiTendoSetsugekkaActive));
-      }
-
-      return of();
-    })
+    filter((a) => a.type === addBuff.type && kaeshi.includes(a.payload.id)),
+    switchMap((a) => of(...kaeshi.filter((v) => v !== a.payload.id).map((v) => removeBuff(v))))
   );
 
 const removeKaeshiNamikiriEpic: Epic<any, any, RootState> = (action$, state$) =>
