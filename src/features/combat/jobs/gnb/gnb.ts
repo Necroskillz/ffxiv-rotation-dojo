@@ -442,7 +442,7 @@ const wickedTalon: CombatAction = createCombatAction({
 const reignOfBeasts: CombatAction = createCombatAction({
   id: ActionId.ReignofBeasts,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ReignofBeasts, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.ReignofBeasts, context, { potency: 1000 }));
     dispatch(combo(ActionId.ReignofBeasts));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(removeBuff(StatusId.ReadytoReign));
@@ -461,7 +461,7 @@ const reignOfBeasts: CombatAction = createCombatAction({
 const nobleBlood: CombatAction = createCombatAction({
   id: ActionId.NobleBlood,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.NobleBlood, context, { comboPotency: 1000 }));
+    dispatch(dmgEvent(ActionId.NobleBlood, context, { comboPotency: 1100 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.NobleBlood));

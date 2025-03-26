@@ -780,7 +780,7 @@ const enAvant: CombatAction = createCombatAction({
 const windmill: CombatAction = createCombatAction({
   id: ActionId.Windmill,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Windmill, context, { potency: 100 }));
+    dispatch(dmgEvent(ActionId.Windmill, context, { potency: 120 }));
     dispatch(combo(ActionId.Windmill));
 
     if (canGetEspritFromWeaponskills(getState())) {
@@ -799,7 +799,7 @@ const windmill: CombatAction = createCombatAction({
 const bladeshower: CombatAction = createCombatAction({
   id: ActionId.Bladeshower,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Bladeshower, context, { potency: 100, comboPotency: 140 }));
+    dispatch(dmgEvent(ActionId.Bladeshower, context, { potency: 100, comboPotency: 160 }));
 
     if (canGetEspritFromWeaponskills(getState())) {
       dispatch(addEsprit(5));
@@ -817,7 +817,7 @@ const bladeshower: CombatAction = createCombatAction({
 const risingWindmill: CombatAction = createCombatAction({
   id: ActionId.RisingWindmill,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.RisingWindmill, context, { potency: 140 }));
+    dispatch(dmgEvent(ActionId.RisingWindmill, context, { potency: 160 }));
 
     const state = getState();
     const consume = hasBuff(state, StatusId.FlourishingSymmetry) ? StatusId.FlourishingSymmetry : StatusId.SilkenSymmetry;
@@ -839,7 +839,7 @@ const risingWindmill: CombatAction = createCombatAction({
 const bloodshower: CombatAction = createCombatAction({
   id: ActionId.Bloodshower,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Bloodshower, context, { potency: 180 }));
+    dispatch(dmgEvent(ActionId.Bloodshower, context, { potency: 200 }));
 
     const state = getState();
     const consume = hasBuff(state, StatusId.FlourishingFlow) ? StatusId.FlourishingFlow : StatusId.SilkenFlow;

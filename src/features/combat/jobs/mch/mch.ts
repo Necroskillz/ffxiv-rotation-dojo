@@ -547,7 +547,7 @@ const spreadShot: CombatAction = createCombatAction({
 const scattergun: CombatAction = createCombatAction({
   id: ActionId.Scattergun,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.Scattergun, context, { potency: 130 }));
 
     dispatch(addHeat(10));
   },

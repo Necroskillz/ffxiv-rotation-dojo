@@ -497,7 +497,7 @@ const quietus: CombatAction = createCombatAction({
 const impalement: CombatAction = createCombatAction({
   id: ActionId.Impalement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Impalement, context, { potency: 320, mana: 500 }));
+    dispatch(dmgEvent(ActionId.Impalement, context, { potency: 300, mana: 500 }));
     dispatch(removeBuffStack(StatusId.Delirium));
   },
   isGlowing: () => true,

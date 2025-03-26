@@ -183,7 +183,7 @@ const primevalImpulseStatus: CombatStatus = createCombatStatus({
 const heavySwing: CombatAction = createCombatAction({
   id: ActionId.HeavySwing,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HeavySwing, context, { potency: 220 }));
+    dispatch(dmgEvent(ActionId.HeavySwing, context, { potency: 240 }));
     dispatch(combo(ActionId.HeavySwing));
   },
   reducedBySkillSpeed: true,
@@ -206,7 +206,7 @@ const maim: CombatAction = createCombatAction({
 const stormsPath: CombatAction = createCombatAction({
   id: ActionId.StormsPath,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 200, comboPotency: 480, healthPotency: 250 }));
+    dispatch(dmgEvent(ActionId.StormsPath, context, { potency: 220, comboPotency: 500, healthPotency: 250 }));
 
     if (context.comboed) {
       dispatch(addBeast(20));
@@ -219,7 +219,7 @@ const stormsPath: CombatAction = createCombatAction({
 const stormsEye: CombatAction = createCombatAction({
   id: ActionId.StormsEye,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 200, comboPotency: 480 }));
+    dispatch(dmgEvent(ActionId.StormsEye, context, { potency: 220, comboPotency: 500 }));
 
     if (context.comboed) {
       dispatch(addBeast(10));
@@ -382,7 +382,7 @@ const onslaught: CombatAction = createCombatAction({
 const upheaval: CombatAction = createCombatAction({
   id: ActionId.Upheaval,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Upheaval, context, { potency: 400 }));
+    dispatch(dmgEvent(ActionId.Upheaval, context, { potency: 420 }));
     dispatch(ogcdLock());
   },
 });
@@ -441,7 +441,7 @@ const decimate: CombatAction = createCombatAction({
 const chaoticCyclone: CombatAction = createCombatAction({
   id: ActionId.ChaoticCyclone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.ChaoticCyclone, context, { potency: 200 }));
 
     dispatch(removeBuff(StatusId.NascentChaos));
     dispatch(modifyCooldown(getActionById(ActionId.Infuriate).cooldownGroup, -5000));

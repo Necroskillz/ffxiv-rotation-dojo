@@ -575,7 +575,7 @@ const gluttony: CombatAction = createCombatAction({
 const sacrificium: CombatAction = createCombatAction({
   id: ActionId.Sacrificium,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Sacrificium, context, { potency: 530 }));
+    dispatch(dmgEvent(ActionId.Sacrificium, context, { potency: 600 }));
     dispatch(ogcdLock());
     dispatch(removeBuff(StatusId.Oblatio));
   },
@@ -601,8 +601,8 @@ const crossReaping: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.CrossReaping, context, {
-        potency: 500,
-        enhancedPotency: 520,
+        potency: 540,
+        enhancedPotency: 560,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedCrossReaping),
       })
     );
@@ -626,8 +626,8 @@ const voidReaping: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(
       dmgEvent(ActionId.VoidReaping, context, {
-        potency: 500,
-        enhancedPotency: 520,
+        potency: 540,
+        enhancedPotency: 560,
         isEnhanced: hasBuff(getState(), StatusId.EnhancedVoidReaping),
       })
     );
@@ -743,7 +743,7 @@ const whorlOfDeath: CombatAction = createCombatAction({
 const spinningScythe: CombatAction = createCombatAction({
   id: ActionId.SpinningScythe,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SpinningScythe, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.SpinningScythe, context, { potency: 140 }));
 
     dispatch(combo(ActionId.SpinningScythe));
     dispatch(addSoul(10));
@@ -755,7 +755,7 @@ const spinningScythe: CombatAction = createCombatAction({
 const nightmareScythe: CombatAction = createCombatAction({
   id: ActionId.NightmareScythe,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.NightmareScythe, context, { potency: 140, comboPotency: 200 }));
+    dispatch(dmgEvent(ActionId.NightmareScythe, context, { potency: 120, comboPotency: 180 }));
 
     if (context.comboed) {
       dispatch(addSoul(10));
@@ -799,7 +799,7 @@ const guillotine: CombatAction = createCombatAction({
 const executionersGuillotine: CombatAction = createCombatAction({
   id: ActionId.ExecutionersGuillotine,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ExecutionersGuillotine, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.ExecutionersGuillotine, context, { potency: 260 }));
 
     dispatch(removeBuffStack(StatusId.Executioner));
     dispatch(addShroud(10));

@@ -121,12 +121,6 @@ const endArmysPaeonEpic: Epic<any, any, RootState> = (action$, state$) =>
     })
   );
 
-const straightShotReadyStatus: CombatStatus = createCombatStatus({
-  id: StatusId.StraightShotReady,
-  duration: 30,
-  isHarmful: false,
-});
-
 const barrageStatus: CombatStatus = createCombatStatus({
   id: StatusId.Barrage,
   duration: 10,
@@ -332,7 +326,7 @@ const burstShot: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.BurstShot, context, { potency: 220 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady));
+      dispatch(buff(StatusId.HawksEye));
     }
   },
   reducedBySkillSpeed: true,
@@ -343,11 +337,11 @@ const refulgentArrow: CombatAction = createCombatAction({
   execute: (dispatch, _, context) => {
     dispatch(dmgEvent(ActionId.RefulgentArrow, context, { potency: 280 }));
 
-    dispatch(removeBuff(StatusId.StraightShotReady));
+    dispatch(removeBuff(StatusId.HawksEye));
   },
   reducedBySkillSpeed: true,
-  isUsable: (state) => hasBuff(state, StatusId.StraightShotReady),
-  isGlowing: (state) => hasBuff(state, StatusId.StraightShotReady),
+  isUsable: (state) => hasBuff(state, StatusId.HawksEye),
+  isGlowing: (state) => hasBuff(state, StatusId.HawksEye),
 });
 
 const windbite: CombatAction = createCombatAction({
@@ -363,7 +357,7 @@ const stormbite: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.Stormbite, context, { potency: 100 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady));
+      dispatch(buff(StatusId.HawksEye));
     }
 
     dispatch(debuff(StatusId.Stormbite));
@@ -384,7 +378,7 @@ const causticBite: CombatAction = createCombatAction({
     dispatch(dmgEvent(ActionId.CausticBite, context, { potency: 150 }));
 
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady));
+      dispatch(buff(StatusId.HawksEye));
     }
 
     dispatch(debuff(StatusId.CausticBite));
@@ -415,7 +409,7 @@ const barrage: CombatAction = createCombatAction({
   execute: (dispatch) => {
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Barrage));
-    dispatch(buff(StatusId.StraightShotReady));
+    dispatch(buff(StatusId.HawksEye));
     dispatch(buff(StatusId.ResonantArrowReady));
   },
   entersCombat: false,
@@ -563,7 +557,7 @@ const ironJaws: CombatAction = createCombatAction({
   execute: (dispatch, getState, context) => {
     dispatch(dmgEvent(ActionId.IronJaws, context, { potency: 100 }));
     if (rng(35)) {
-      dispatch(buff(StatusId.StraightShotReady));
+      dispatch(buff(StatusId.HawksEye));
     }
 
     if (hasDebuff(getState(), StatusId.Stormbite)) {
@@ -680,7 +674,7 @@ const quickNock: CombatAction = createCombatAction({
 const ladonsbite: CombatAction = createCombatAction({
   id: ActionId.Ladonsbite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Ladonsbite, context, { potency: 130 }));
+    dispatch(dmgEvent(ActionId.Ladonsbite, context, { potency: 140 }));
     if (rng(35)) {
       dispatch(buff(StatusId.HawksEye));
     }
@@ -697,8 +691,14 @@ const wideVolley: CombatAction = createCombatAction({
 
 const shadowbite: CombatAction = createCombatAction({
   id: ActionId.Shadowbite,
-  execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Shadowbite, context, { potency: 170 }));
+  execute: (dispatch, getState, context) => {
+    dispatch(
+      dmgEvent(ActionId.Shadowbite, context, {
+        potency: 180,
+        enhancedPotency: 280,
+        isEnhanced: hasBuff(getState(), StatusId.Barrage),
+      })
+    );
     dispatch(removeBuff(StatusId.HawksEye));
   },
   reducedBySkillSpeed: true,
@@ -724,7 +724,6 @@ const raidOfDeath: CombatAction = createCombatAction({
 });
 
 export const brdStatuses = [
-  straightShotReadyStatus,
   causticBiteStatus,
   stormbiteStatus,
   barrageStatus,

@@ -220,7 +220,7 @@ const fangAndClaw: CombatAction = createCombatAction({
 const drakesbane: CombatAction = createCombatAction({
   id: ActionId.Drakesbane,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Drakesbane, context, { potency: 440 }));
+    dispatch(dmgEvent(ActionId.Drakesbane, context, { potency: 460 }));
     dispatch(buff(StatusId.DraconianFire));
   },
   isGlowing: () => true,
@@ -269,7 +269,7 @@ const fullThrust: CombatAction = createCombatAction({
 const heavensThrust: CombatAction = createCombatAction({
   id: ActionId.HeavensThrust,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HeavensThrust, context, { potency: 140, comboPotency: 440 }));
+    dispatch(dmgEvent(ActionId.HeavensThrust, context, { potency: 160, comboPotency: 460 }));
 
     if (context.comboed) {
       dispatch(combo(ActionId.FullThrust));
@@ -363,7 +363,7 @@ const stardiver: CombatAction = createCombatAction({
   id: ActionId.Stardiver,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 820 }));
+    dispatch(dmgEvent(ActionId.Stardiver, context, { potency: 840 }));
     dispatch(buff(StatusId.StarcrossReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.LifeoftheDragonActive),

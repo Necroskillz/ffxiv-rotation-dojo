@@ -5,17 +5,15 @@ import { HudItem } from '../../../hud/HudItem';
 import { selectBuff, selectParadox, selectPolyglot, selectUmbralHeart } from '../../combatSlice';
 import { GaugeBar } from '../../GaugeBar';
 import { GaugeDiamond } from '../../GaugeDiamond';
-import { GaugeNumber } from '../../GaugeNumber';
 import { useBuffTimer } from '../../hooks';
 
 export const ElementalGauge = () => {
   const [, { timeMS: enochianTimeMS }] = useBuffTimer(StatusId.EnochianActive);
-  const [{ remainingTime: iceRemainingTime }, , { status: ice }] = useBuffTimer(StatusId.UmbralIceActive);
-  const [{ remainingTime: fireRemainingTime }, , { status: fire }] = useBuffTimer(StatusId.AstralFireActive);
+  const ice = useAppSelector((state) => selectBuff(state, StatusId.UmbralIceActive));
+  const fire = useAppSelector((state) => selectBuff(state, StatusId.AstralFireActive));
   const polyglot = useAppSelector(selectPolyglot);
   const paradox = useAppSelector(selectParadox);
   const umbralHeart = useAppSelector(selectUmbralHeart);
-  const umbralSoul = useAppSelector((state) => selectBuff(state, StatusId.UmbralSoulActive));
 
   const iceFillColor = '#7EB4FF';
   const fireFillColor = '#FF8F8E';
@@ -38,15 +36,6 @@ export const ElementalGauge = () => {
             texture="linear-gradient(45deg, rgba(76,24,93, 1) 0%, rgba(124,61,144, 1) 50%, rgba(224,157,243, 1) 100%)"
           />
           <div className="grid grid-flow-col auto-cols-max gap-1">
-            <div className="-ml-4 -mt-[7px] w-8">
-              {(iceRemainingTime != null || fireRemainingTime != null) && (
-                <GaugeNumber
-                  shadow={false}
-                  className={umbralSoul ? 'drop-shadow-blue' : 'drop-shadow-[0_0_10px_rgba(0,0,0,1)]'}
-                  number={iceRemainingTime ? iceRemainingTime : fireRemainingTime!}
-                />
-              )}
-            </div>
             {ice && (
               <div className="w-12 grid grid-flow-col auto-cols-max gap-1.5 ml-1.5">
                 <GaugeDiamond fill={ice.stacks! > 0} fillColor={iceFillColor} />

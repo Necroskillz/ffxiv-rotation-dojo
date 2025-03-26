@@ -514,7 +514,7 @@ const shieldBash: CombatAction = createCombatAction({
 const totalEclipse: CombatAction = createCombatAction({
   id: ActionId.TotalEclipse,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.TotalEclipse, context, { potency: 100 }));
+    dispatch(dmgEvent(ActionId.TotalEclipse, context, { potency: 120 }));
     dispatch(combo(ActionId.TotalEclipse));
   },
   reducedBySkillSpeed: true,
@@ -523,7 +523,7 @@ const totalEclipse: CombatAction = createCombatAction({
 const prominence: CombatAction = createCombatAction({
   id: ActionId.Prominence,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Prominence, context, { potency: 100, comboPotency: 170, comboMana: 1000 }));
+    dispatch(dmgEvent(ActionId.Prominence, context, { potency: 100, comboPotency: 220, comboMana: 1000 }));
 
     if (context.comboed) {
       dispatch(buff(StatusId.DivineMight));
@@ -537,9 +537,9 @@ const holyCircle: CombatAction = createCombatAction({
   id: ActionId.HolyCircle,
   execute: (dispatch, getState, context) => {
     if (hasBuff(getState(), StatusId.DivineMight)) {
-      dispatch(dmgEvent(ActionId.HolyCircle, context, { potency: 200, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolyCircle, context, { potency: 250, healthPotency: 400, type: DamageType.Magical }));
     } else if (hasBuff(getState(), StatusId.Requiescat)) {
-      dispatch(dmgEvent(ActionId.HolyCircle, context, { potency: 300, healthPotency: 400, type: DamageType.Magical }));
+      dispatch(dmgEvent(ActionId.HolyCircle, context, { potency: 350, healthPotency: 400, type: DamageType.Magical }));
     } else {
       dispatch(dmgEvent(ActionId.HolyCircle, context, { potency: 100, healthPotency: 400, type: DamageType.Magical }));
     }

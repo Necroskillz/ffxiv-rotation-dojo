@@ -191,7 +191,7 @@ const temperaGrassaStatus: CombatStatus = createCombatStatus({
 const fireInRed: CombatAction = createCombatAction({
   id: ActionId.FireinRed,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FireinRed, context, { potency: 440 }));
+    dispatch(dmgEvent(ActionId.FireinRed, context, { potency: 520 }));
     dispatch(buff(StatusId.Aetherhues));
   },
   reducedBySpellSpeed: true,
@@ -206,7 +206,7 @@ const fireInRed: CombatAction = createCombatAction({
 const aeroInGreen: CombatAction = createCombatAction({
   id: ActionId.AeroinGreen,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.AeroinGreen, context, { potency: 480 }));
+    dispatch(dmgEvent(ActionId.AeroinGreen, context, { potency: 560 }));
     dispatch(removeBuff(StatusId.Aetherhues));
     dispatch(buff(StatusId.AetherhuesII));
   },
@@ -217,7 +217,7 @@ const aeroInGreen: CombatAction = createCombatAction({
 const waterInBlue: CombatAction = createCombatAction({
   id: ActionId.WaterinBlue,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.WaterinBlue, context, { potency: 520 }));
+    dispatch(dmgEvent(ActionId.WaterinBlue, context, { potency: 600 }));
     dispatch(removeBuff(StatusId.AetherhuesII));
     dispatch(addPalette(25));
     dispatch(addWhitePaint(1));
@@ -325,7 +325,7 @@ const pomMuse: CombatAction = createCombatAction({
   id: ActionId.PomMuse,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.PomMuse, context, { potency: 1100 }));
+    dispatch(dmgEvent(ActionId.PomMuse, context, { potency: 800 }));
     dispatch(setCreatureCanvas(0));
     dispatch(setCreaturePortraitCanvas(1));
   },
@@ -341,7 +341,7 @@ const wingedMuse: CombatAction = createCombatAction({
   id: ActionId.WingedMuse,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.WingedMuse, context, { potency: 1100 }));
+    dispatch(dmgEvent(ActionId.WingedMuse, context, { potency: 800 }));
     dispatch(setCreatureCanvas(0));
     dispatch(setCreaturePortraitCanvas(2));
     dispatch(setCreaturePortrait(1));
@@ -358,7 +358,7 @@ const clawedMuse: CombatAction = createCombatAction({
   id: ActionId.ClawedMuse,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ClawedMuse, context, { potency: 1100 }));
+    dispatch(dmgEvent(ActionId.ClawedMuse, context, { potency: 800 }));
     dispatch(setCreatureCanvas(0));
     dispatch(setCreaturePortraitCanvas(3));
   },
@@ -374,7 +374,7 @@ const fangedMuse: CombatAction = createCombatAction({
   id: ActionId.FangedMuse,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FangedMuse, context, { potency: 1100 }));
+    dispatch(dmgEvent(ActionId.FangedMuse, context, { potency: 800 }));
     dispatch(setCreatureCanvas(0));
     dispatch(setCreaturePortraitCanvas(0));
     dispatch(setCreaturePortrait(2));
@@ -391,7 +391,7 @@ const mogOfTheAges: CombatAction = createCombatAction({
   id: ActionId.MogoftheAges,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.MogoftheAges, context, { potency: 1300 }));
+    dispatch(dmgEvent(ActionId.MogoftheAges, context, { potency: 1000 }));
     dispatch(setCreaturePortrait(0));
   },
   isUsable: (state) => creaturePortrait(state) === 1,
@@ -403,7 +403,7 @@ const retributionOfTheMadeen: CombatAction = createCombatAction({
   id: ActionId.RetributionoftheMadeen,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.RetributionoftheMadeen, context, { potency: 1400 }));
+    dispatch(dmgEvent(ActionId.RetributionoftheMadeen, context, { potency: 1100 }));
     dispatch(setCreaturePortrait(0));
   },
   isGlowing: () => true,
@@ -458,7 +458,7 @@ const strikingMuse: CombatAction = createCombatAction({
 const hammerStamp: CombatAction = createCombatAction({
   id: ActionId.HammerStamp,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HammerStamp, context, { potency: 560 }));
+    dispatch(dmgEvent(ActionId.HammerStamp, context, { potency: 480 }));
     dispatch(combo(ActionId.HammerStamp));
     dispatch(removeBuffStack(StatusId.HammerTime));
   },
@@ -476,7 +476,7 @@ const hammerStamp: CombatAction = createCombatAction({
 const hammerBrush: CombatAction = createCombatAction({
   id: ActionId.HammerBrush,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HammerStamp, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.HammerStamp, context, { potency: 520 }));
     dispatch(combo(ActionId.HammerBrush));
     dispatch(removeBuffStack(StatusId.HammerTime));
   },
@@ -487,7 +487,7 @@ const hammerBrush: CombatAction = createCombatAction({
 const polishingHammer: CombatAction = createCombatAction({
   id: ActionId.PolishingHammer,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PolishingHammer, context, { potency: 680 }));
+    dispatch(dmgEvent(ActionId.PolishingHammer, context, { potency: 560 }));
     dispatch(removeBuffStack(StatusId.HammerTime));
   },
   reducedBySpellSpeed: true,
@@ -497,7 +497,7 @@ const polishingHammer: CombatAction = createCombatAction({
 const blizzardInCyan: CombatAction = createCombatAction({
   id: ActionId.BlizzardinCyan,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.BlizzardinCyan, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.BlizzardinCyan, context, { potency: 900 }));
     dispatch(buff(StatusId.Aetherhues));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
   },
@@ -515,7 +515,7 @@ const blizzardInCyan: CombatAction = createCombatAction({
 const stoneInYellow: CombatAction = createCombatAction({
   id: ActionId.StoneinYellow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StoneinYellow, context, { potency: 840 }));
+    dispatch(dmgEvent(ActionId.StoneinYellow, context, { potency: 940 }));
     dispatch(removeBuff(StatusId.Aetherhues));
     dispatch(buff(StatusId.AetherhuesII));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
@@ -528,7 +528,7 @@ const stoneInYellow: CombatAction = createCombatAction({
 const thunderInMagenta: CombatAction = createCombatAction({
   id: ActionId.ThunderinMagenta,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ThunderinMagenta, context, { potency: 880 }));
+    dispatch(dmgEvent(ActionId.ThunderinMagenta, context, { potency: 980 }));
     dispatch(removeBuff(StatusId.AetherhuesII));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
     dispatch(addWhitePaint(1));
@@ -553,7 +553,7 @@ const subtractivePalette: CombatAction = createCombatAction({
 const holyInWhite: CombatAction = createCombatAction({
   id: ActionId.HolyinWhite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HolyinWhite, context, { potency: 520 }));
+    dispatch(dmgEvent(ActionId.HolyinWhite, context, { potency: 600 }));
   },
   reducedBySpellSpeed: true,
   isUsable: (state) => !hasBuff(state, StatusId.MonochromeTones),
@@ -563,7 +563,7 @@ const holyInWhite: CombatAction = createCombatAction({
 const cometInBlack: CombatAction = createCombatAction({
   id: ActionId.CometinBlack,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CometinBlack, context, { potency: 880 }));
+    dispatch(dmgEvent(ActionId.CometinBlack, context, { potency: 980 }));
     dispatch(removeBuff(StatusId.MonochromeTones));
   },
   reducedBySpellSpeed: true,
@@ -614,7 +614,7 @@ const starryMuse: CombatAction = createCombatAction({
 const starPrism: CombatAction = createCombatAction({
   id: ActionId.StarPrism,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StarPrism, context, { potency: 1400, healthPotency: 400 }));
+    dispatch(dmgEvent(ActionId.StarPrism, context, { potency: 1100, healthPotency: 400 }));
     dispatch(removeBuff(StatusId.Starstruck));
   },
   reducedBySpellSpeed: true,
@@ -638,7 +638,7 @@ const rainbowDrip: CombatAction = createCombatAction({
 const fire2InRed: CombatAction = createCombatAction({
   id: ActionId.FireIIinRed,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FireIIinRed, context, { potency: 120 }));
+    dispatch(dmgEvent(ActionId.FireIIinRed, context, { potency: 180 }));
     dispatch(buff(StatusId.Aetherhues));
   },
   reducedBySpellSpeed: true,
@@ -653,7 +653,7 @@ const fire2InRed: CombatAction = createCombatAction({
 const aero2InGreen: CombatAction = createCombatAction({
   id: ActionId.AeroIIinGreen,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.AeroIIinGreen, context, { potency: 140 }));
+    dispatch(dmgEvent(ActionId.AeroIIinGreen, context, { potency: 200 }));
     dispatch(removeBuff(StatusId.Aetherhues));
     dispatch(buff(StatusId.AetherhuesII));
   },
@@ -664,7 +664,7 @@ const aero2InGreen: CombatAction = createCombatAction({
 const water2InBlue: CombatAction = createCombatAction({
   id: ActionId.WaterIIinBlue,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.WaterIIinBlue, context, { potency: 160 }));
+    dispatch(dmgEvent(ActionId.WaterIIinBlue, context, { potency: 220 }));
     dispatch(removeBuff(StatusId.AetherhuesII));
     dispatch(addPalette(25));
     dispatch(addWhitePaint(1));
@@ -676,7 +676,7 @@ const water2InBlue: CombatAction = createCombatAction({
 const blizzard2InCyan: CombatAction = createCombatAction({
   id: ActionId.BlizzardIIinCyan,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.BlizzardIIinCyan, context, { potency: 240 }));
+    dispatch(dmgEvent(ActionId.BlizzardIIinCyan, context, { potency: 360 }));
     dispatch(buff(StatusId.Aetherhues));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
   },
@@ -694,7 +694,7 @@ const blizzard2InCyan: CombatAction = createCombatAction({
 const stone2InYellow: CombatAction = createCombatAction({
   id: ActionId.StoneIIinYellow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.StoneIIinYellow, context, { potency: 260 }));
+    dispatch(dmgEvent(ActionId.StoneIIinYellow, context, { potency: 380 }));
     dispatch(removeBuff(StatusId.Aetherhues));
     dispatch(buff(StatusId.AetherhuesII));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
@@ -707,7 +707,7 @@ const stone2InYellow: CombatAction = createCombatAction({
 const thunder2InMagenta: CombatAction = createCombatAction({
   id: ActionId.ThunderIIinMagenta,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ThunderIIinMagenta, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.ThunderIIinMagenta, context, { potency: 400 }));
     dispatch(removeBuff(StatusId.AetherhuesII));
     dispatch(removeBuffStack(StatusId.SubtractivePalette));
     dispatch(addWhitePaint(1));

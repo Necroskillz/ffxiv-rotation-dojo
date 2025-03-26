@@ -719,7 +719,7 @@ const enkidleSolarBahamut: CombatAction = createCombatAction({
   id: ActionId.EnkindleSolarBahamut,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Exodus, context, { potency: 1400 }));
+    dispatch(dmgEvent(ActionId.Exodus, context, { potency: 1500 }));
   },
 });
 
@@ -762,7 +762,7 @@ const necrotize: CombatAction = createCombatAction({
   id: ActionId.Necrotize,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Necrotize, context, { potency: 440 }));
+    dispatch(dmgEvent(ActionId.Necrotize, context, { potency: 460 }));
     dispatch(removeBuffStack(StatusId.Aetherflow));
   },
   isUsable: (state) => hasBuff(state, StatusId.Aetherflow),

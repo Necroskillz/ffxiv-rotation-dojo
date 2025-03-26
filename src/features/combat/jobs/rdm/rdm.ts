@@ -406,7 +406,7 @@ const prefulgence: CombatAction = createCombatAction({
   id: ActionId.Prefulgence,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 900 }));
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 1000 }));
     dispatch(removeBuff(StatusId.PrefulgenceReady));
   },
   isGlowing: () => true,
@@ -504,7 +504,7 @@ const viceOfThorns: CombatAction = createCombatAction({
   id: ActionId.ViceofThorns,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 700 }));
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 800 }));
     dispatch(removeBuff(StatusId.ThornedFlourish));
   },
   isUsable: (state) => hasBuff(state, StatusId.ThornedFlourish),

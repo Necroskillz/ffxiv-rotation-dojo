@@ -115,7 +115,6 @@ export enum StatusId {
   MagesBallad = 2217,
   ArmysPaeon = 2218,
   Barrage = 128,
-  StraightShotReady = 122,
   NaturesMinne = 1202,
   ArmysEthos = 1933,
   Troubadour = 1934,

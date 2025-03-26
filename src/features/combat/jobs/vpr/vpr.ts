@@ -1031,7 +1031,7 @@ const firstLegacy: CombatAction = createCombatAction({
   id: ActionId.FirstLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FirstLegacy, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.FirstLegacy, context, { potency: 320 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1041,7 +1041,7 @@ const secondLegacy: CombatAction = createCombatAction({
   id: ActionId.SecondLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.SecondLegacy, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.SecondLegacy, context, { potency: 320 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1051,7 +1051,7 @@ const thirdLegacy: CombatAction = createCombatAction({
   id: ActionId.ThirdLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ThirdLegacy, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.ThirdLegacy, context, { potency: 320 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,
@@ -1061,7 +1061,7 @@ const fourthLegacy: CombatAction = createCombatAction({
   id: ActionId.FourthLegacy,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FourthLegacy, context, { potency: 280 }));
+    dispatch(dmgEvent(ActionId.FourthLegacy, context, { potency: 320 }));
     dispatch(removeBuff(StatusId.ReadytoLegacy));
   },
   isGlowing: () => true,

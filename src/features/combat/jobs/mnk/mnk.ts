@@ -450,7 +450,7 @@ const howlingFist: CombatAction = createCombatAction({
 const enlightenment: CombatAction = createCombatAction({
   id: ActionId.Enlightenment,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Enlightenment, context, { potency: 200 }));
+    dispatch(dmgEvent(ActionId.Enlightenment, context, { potency: 160 }));
     dispatch(ogcdLock());
   },
   isUsable: (state) => inCombat(state) && chakra(state) === 5,
@@ -613,7 +613,7 @@ const riddleOfFire: CombatAction = createCombatAction({
 const firesReply: CombatAction = createCombatAction({
   id: ActionId.FiresReply,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.FiresReply, context, { potency: 1200 }));
+    dispatch(dmgEvent(ActionId.FiresReply, context, { potency: 1400 }));
     dispatch(removeBuff(StatusId.FiresRumination));
   },
   isUsable: (state) => hasBuff(state, StatusId.FiresRumination),
@@ -636,7 +636,7 @@ const riddleOfWind: CombatAction = createCombatAction({
 const windsReply: CombatAction = createCombatAction({
   id: ActionId.WindsReply,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.WindsReply, context, { potency: 900 }));
+    dispatch(dmgEvent(ActionId.WindsReply, context, { potency: 1040 }));
     dispatch(removeBuff(StatusId.WindsRumination));
   },
   isUsable: (state) => hasBuff(state, StatusId.WindsRumination),

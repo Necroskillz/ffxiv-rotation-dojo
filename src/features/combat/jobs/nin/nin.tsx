@@ -395,10 +395,10 @@ const aeolianEdge: CombatAction = createCombatAction({
 
     dispatch(
       dmgEvent(ActionId.AeolianEdge, context, {
-        potency: 200 + bonus,
-        rearPotency: 260 + bonus,
-        comboPotency: 380 + bonus,
-        rearComboPotency: 440 + bonus,
+        potency: 220 + bonus,
+        rearPotency: 280 + bonus,
+        comboPotency: 400 + bonus,
+        rearComboPotency: 460 + bonus,
       })
     );
 
@@ -414,7 +414,7 @@ const aeolianEdge: CombatAction = createCombatAction({
 const armorCrush: CombatAction = createCombatAction({
   id: ActionId.ArmorCrush,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 220, comboPotency: 280, flankPotency: 420, flankComboPotency: 480 }));
+    dispatch(dmgEvent(ActionId.ArmorCrush, context, { potency: 240, comboPotency: 300, flankPotency: 440, flankComboPotency: 500 }));
 
     if (context.comboed) {
       dispatch(addNinki(15));
@@ -915,8 +915,8 @@ const bhavacakra: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.Bhavacakra, context, {
-        potency: 380,
-        enhancedPotency: 530,
+        potency: 400,
+        enhancedPotency: 550,
         isEnhanced: hasBuff(getState(), StatusId.Meisui),
         type: DamageType.Magical,
       })
@@ -1009,7 +1009,7 @@ const deathBlossom: CombatAction = createCombatAction({
 const hakkeMujinsatsu: CombatAction = createCombatAction({
   id: ActionId.HakkeMujinsatsu,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HakkeMujinsatsu, context, { potency: 100, comboPotency: 130 }));
+    dispatch(dmgEvent(ActionId.HakkeMujinsatsu, context, { potency: 100, comboPotency: 120 }));
 
     if (context.comboed) {
       dispatch(addNinki(5));
@@ -1037,7 +1037,7 @@ const deathfrogMedium: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.ZeshoMeppo, context, {
-        potency: 300,
+        potency: 260,
         type: DamageType.Magical,
       })
     );
