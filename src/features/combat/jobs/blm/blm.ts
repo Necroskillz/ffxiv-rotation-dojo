@@ -342,17 +342,12 @@ const paradox1: CombatAction = createCombatAction({
     dispatch(setParadox(0));
 
     const fire = astralFire(getState());
-    const ice = umbralIce(getState());
 
     if (fire) {
-      dispatch(setFireIce(fire + 1, 0));
       dispatch(buff(StatusId.Firestarter));
-    } else if (ice) {
-      dispatch(setFireIce(0, ice + 1));
     }
   },
   cost: (state, baseCost) => (umbralIce(state) ? 0 : baseCost),
-  castTime: (state, baseCastTime) => (umbralIce(state) ? 0 : baseCastTime),
   isGlowing: () => true,
   reducedBySpellSpeed: true,
 });
