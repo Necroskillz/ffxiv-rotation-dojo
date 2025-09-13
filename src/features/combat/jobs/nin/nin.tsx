@@ -436,7 +436,7 @@ const dokumori: CombatAction = createCombatAction({
   id: ActionId.Dokumori,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.Dokumori, context, { potency: 300 }));
+    dispatch(dmgEvent(ActionId.Dokumori, context, { potency: 400 }));
     dispatch(debuff(StatusId.Dokumori));
     dispatch(buff(StatusId.Higi));
     dispatch(addNinki(40));
@@ -471,7 +471,7 @@ const bunshin: CombatAction = createCombatAction({
 const phantomKamaitachi: CombatAction = createCombatAction({
   id: ActionId.PhantomKamaitachi,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.PhantomKamaitachi, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.PhantomKamaitachi, context, { potency: 700 }));
     dispatch(removeBuff(StatusId.PhantomKamaitachiReady));
     dispatch(addNinki(10));
   },
@@ -861,7 +861,7 @@ const kunaisBane: CombatAction = createCombatAction({
   id: ActionId.KunaisBane,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.KunaisBane, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.KunaisBane, context, { potency: 700 }));
     dispatch(debuff(StatusId.KunaisBane));
     dispatch(removeBuff(StatusId.ShadowWalker));
   },
@@ -1023,7 +1023,7 @@ const hakkeMujinsatsu: CombatAction = createCombatAction({
 const hellfrogMedium: CombatAction = createCombatAction({
   id: ActionId.HellfrogMedium,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.HellfrogMedium, context, { potency: 160, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.HellfrogMedium, context, { potency: 250, type: DamageType.Magical }));
     dispatch(ogcdLock());
   },
   isUsable: (state) => !hasBuff(state, StatusId.TenChiJin),
@@ -1037,7 +1037,7 @@ const deathfrogMedium: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(
       dmgEvent(ActionId.ZeshoMeppo, context, {
-        potency: 260,
+        potency: 400,
         type: DamageType.Magical,
       })
     );

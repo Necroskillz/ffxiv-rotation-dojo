@@ -322,7 +322,7 @@ const riposte: CombatAction = createCombatAction({
 const enchantedRiposte: CombatAction = createCombatAction({
   id: ActionId.EnchantedRiposte,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedRiposte, context, { potency: 300, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedRiposte, context, { potency: 340, type: DamageType.Magical }));
     dispatch(combo(ActionId.Riposte));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
     dispatch(addManaStack(1));
@@ -350,7 +350,7 @@ const zwerchhau: CombatAction = createCombatAction({
 const enchantedZwerchhau: CombatAction = createCombatAction({
   id: ActionId.EnchantedZwerchhau,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedZwerchhau, context, { potency: 170, comboPotency: 360, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedZwerchhau, context, { potency: 190, comboPotency: 380, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
@@ -378,7 +378,7 @@ const redoublement: CombatAction = createCombatAction({
 const enchantedRedoublement: CombatAction = createCombatAction({
   id: ActionId.EnchantedRedoublement,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EnchantedRedoublement, context, { potency: 170, comboPotency: 540, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.EnchantedRedoublement, context, { potency: 190, comboPotency: 560, type: DamageType.Magical }));
     dispatch(removeBuffStack(StatusId.MagickedSwordplay));
 
     if (context.comboed) {
@@ -406,7 +406,7 @@ const prefulgence: CombatAction = createCombatAction({
   id: ActionId.Prefulgence,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 1000 }));
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 1200 }));
     dispatch(removeBuff(StatusId.PrefulgenceReady));
   },
   isGlowing: () => true,
@@ -504,7 +504,7 @@ const viceOfThorns: CombatAction = createCombatAction({
   id: ActionId.ViceofThorns,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 800 }));
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 900 }));
     dispatch(removeBuff(StatusId.ThornedFlourish));
   },
   isUsable: (state) => hasBuff(state, StatusId.ThornedFlourish),

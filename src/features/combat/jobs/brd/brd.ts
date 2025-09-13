@@ -420,7 +420,7 @@ const barrage: CombatAction = createCombatAction({
 const resonantArrow: CombatAction = createCombatAction({
   id: ActionId.ResonantArrow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ResonantArrow, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.ResonantArrow, context, { potency: 640 }));
     dispatch(removeBuff(StatusId.ResonantArrowReady));
   },
   isUsable: (state) => hasBuff(state, StatusId.ResonantArrowReady),
@@ -619,9 +619,9 @@ const radiantFinale: CombatAction = createCombatAction({
 });
 
 const radiantEncoreDmgMap: Record<number, number> = {
-  1: 500,
-  2: 600,
-  3: 900,
+  1: 600,
+  2: 700,
+  3: 1000,
 };
 
 const radiantEncore: CombatAction = createCombatAction({

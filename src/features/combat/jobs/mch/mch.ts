@@ -221,7 +221,7 @@ const flamethrowerStatus: CombatStatus = createCombatStatus({
   id: StatusId.Flamethrower,
   duration: 10,
   isHarmful: false,
-  tick: (dispatch) => dispatch(event(0, { potency: 100 })),
+  tick: (dispatch) => dispatch(event(0, { potency: 120 })),
   ticksImmediately: true,
   initialDelay: 900,
   interval: 1000,
@@ -316,7 +316,7 @@ const heatedCleanShot: CombatAction = createCombatAction({
 const drill: CombatAction = createCombatAction({
   id: ActionId.Drill,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 600) }));
+    dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 620) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   maxCharges: () => 2,
@@ -332,7 +332,7 @@ const hotShot: CombatAction = createCombatAction({
 const airAnchor: CombatAction = createCombatAction({
   id: ActionId.AirAnchor,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 600) }));
+    dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 620) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
   },
@@ -342,7 +342,7 @@ const airAnchor: CombatAction = createCombatAction({
 const chainsaw: CombatAction = createCombatAction({
   id: ActionId.ChainSaw,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: 620 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(buff(StatusId.ExcavatorReady));
@@ -354,7 +354,7 @@ const chainsaw: CombatAction = createCombatAction({
 const excavator: CombatAction = createCombatAction({
   id: ActionId.Excavator,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Excavator, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.Excavator, context, { potency: 620 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(removeBuff(StatusId.ExcavatorReady));
@@ -392,7 +392,7 @@ const gaussRound: CombatAction = createCombatAction({
 const doubleCheck: CombatAction = createCombatAction({
   id: ActionId.DoubleCheck,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.DoubleCheck, context, { potency: 170 }));
+    dispatch(dmgEvent(ActionId.DoubleCheck, context, { potency: 180 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -405,7 +405,7 @@ const doubleCheck: CombatAction = createCombatAction({
 const checkmate: CombatAction = createCombatAction({
   id: ActionId.Checkmate,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Checkmate, context, { potency: 170 }));
+    dispatch(dmgEvent(ActionId.Checkmate, context, { potency: 180 }));
     dispatch(ogcdLock());
   },
   maxCharges: () => 3,
@@ -576,7 +576,7 @@ const flamethrower: CombatAction = createCombatAction({
 const autoCrossbow: CombatAction = createCombatAction({
   id: ActionId.AutoCrossbow,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.AutoCrossbow, context, { potency: adjustedPotency(getState(), 140) }));
+    dispatch(dmgEvent(ActionId.AutoCrossbow, context, { potency: adjustedPotency(getState(), 180) }));
     dispatch(removeBuffStack(StatusId.Overheated));
   },
   isUsable: (state) => hasBuff(state, StatusId.Overheated),

@@ -447,7 +447,7 @@ const ruin2: CombatAction = createCombatAction({
 const ruin3: CombatAction = createCombatAction({
   id: ActionId.RuinIII,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RuinIII, context, { potency: 360 }));
+    dispatch(dmgEvent(ActionId.RuinIII, context, { potency: 400 }));
   },
   redirect: ruinRedirect,
   reducedBySpellSpeed: true,
@@ -574,7 +574,7 @@ const topazRite: CombatAction = createCombatAction({
 const emeraldRite: CombatAction = createCombatAction({
   id: ActionId.EmeraldRite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.EmeraldRite, context, { potency: 240 }));
+    dispatch(dmgEvent(ActionId.EmeraldRite, context, { potency: 280 }));
 
     dispatch(removeGaruda(1));
   },
@@ -584,7 +584,7 @@ const emeraldRite: CombatAction = createCombatAction({
 const rubyRite: CombatAction = createCombatAction({
   id: ActionId.RubyRite,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RubyRite, context, { potency: 540 }));
+    dispatch(dmgEvent(ActionId.RubyRite, context, { potency: 580 }));
 
     dispatch(removeIfrit(1));
   },
@@ -594,7 +594,7 @@ const rubyRite: CombatAction = createCombatAction({
 const slipstream: CombatAction = createCombatAction({
   id: ActionId.Slipstream,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 490 }));
+    dispatch(dmgEvent(ActionId.Slipstream, context, { potency: 520 }));
     dispatch(debuff(StatusId.SlipstreamActive));
 
     dispatch(removeBuff(StatusId.GarudasFavor));
@@ -606,7 +606,7 @@ const slipstream: CombatAction = createCombatAction({
 const crimsonCyclone: CombatAction = createCombatAction({
   id: ActionId.CrimsonCyclone,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CrimsonCyclone, context, { potency: 490 }));
+    dispatch(dmgEvent(ActionId.CrimsonCyclone, context, { potency: 520 }));
     dispatch(removeBuff(StatusId.IfritsFavor));
     dispatch(buff(StatusId.CrimsonStrikeReady));
   },
@@ -617,7 +617,7 @@ const crimsonCyclone: CombatAction = createCombatAction({
 const crimsonStrike: CombatAction = createCombatAction({
   id: ActionId.CrimsonStrike,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.CrimsonStrike, context, { potency: 490 }));
+    dispatch(dmgEvent(ActionId.CrimsonStrike, context, { potency: 520 }));
     dispatch(removeBuff(StatusId.CrimsonStrikeReady));
   },
   isGlowing: () => true,
@@ -744,7 +744,7 @@ const energyDrain: CombatAction = createCombatAction({
 const ruin4: CombatAction = createCombatAction({
   id: ActionId.RuinIV,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.RuinIV, context, { potency: 490 }));
+    dispatch(dmgEvent(ActionId.RuinIV, context, { potency: 520 }));
     dispatch(removeBuff(StatusId.FurtherRuin));
   },
   isUsable: (state) => hasBuff(state, StatusId.FurtherRuin),
