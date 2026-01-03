@@ -75,11 +75,11 @@ function mudraMatches(state: RootState, expectedMudras: number[]) {
 
 export const addMudra =
   (actionId: number): AppThunk =>
-  (dispatch, getState) => {
-    const value = mudra(getState());
+    (dispatch, getState) => {
+      const value = mudra(getState());
 
-    dispatch(setMudra(value * 10 + mudraMap[actionId]));
-  };
+      dispatch(setMudra(value * 10 + mudraMap[actionId]));
+    };
 
 const consumeBunshinEpic: Epic<any, any, RootState> = (action$, state$) =>
   action$.pipe(
@@ -428,7 +428,7 @@ const armorCrush: CombatAction = createCombatAction({
 
 const mug: CombatAction = createCombatAction({
   id: ActionId.Mug,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Dokumori,
 });
 
@@ -586,7 +586,7 @@ const jin: CombatAction = createCombatAction({
 
 const ninjutsu: CombatAction = createCombatAction({
   id: ActionId.Ninjutsu,
-  execute: () => {},
+  execute: () => { },
   redirect: (state) => {
     if (!hasBuff(state, StatusId.Mudra) || mudraMatches(state, [])) {
       return ActionId.Ninjutsu;
@@ -820,7 +820,7 @@ const suiton: CombatAction = createCombatAction({
 const gokaMekkyaku: CombatAction = createCombatAction({
   id: ActionId.GokaMekkyaku,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.GokaMekkyaku, context, { potency: 600, type: DamageType.Magical }));
+    dispatch(dmgEvent(ActionId.GokaMekkyaku, context, { potency: 850, type: DamageType.Magical }));
     dispatch(removeBuff(StatusId.Mudra));
     dispatch(setMudra(0));
     dispatch(gcd({ time: 1500 }));
@@ -853,7 +853,7 @@ const hide: CombatAction = createCombatAction({
 
 const trickAttack: CombatAction = createCombatAction({
   id: ActionId.TrickAttack,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.KunaisBane,
 });
 
@@ -949,7 +949,7 @@ const zeshoMeppo: CombatAction = createCombatAction({
 
 const assassinate: CombatAction = createCombatAction({
   id: ActionId.Assassinate,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.DreamWithinaDream,
 });
 
@@ -1049,7 +1049,7 @@ const deathfrogMedium: CombatAction = createCombatAction({
 
 const hollowNozuchi: CombatAction = createCombatAction({
   id: ActionId.HollowNozuchi,
-  execute: () => {},
+  execute: () => { },
 });
 
 export const ninStatuses: CombatStatus[] = [

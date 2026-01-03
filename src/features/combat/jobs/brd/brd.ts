@@ -308,14 +308,14 @@ const radiantEncoreCodaStatus: CombatStatus = createCombatStatus({
 
 const straightShot: CombatAction = createCombatAction({
   id: ActionId.StraightShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.RefulgentArrow,
   reducedBySkillSpeed: true,
 });
 
 const heavyShot: CombatAction = createCombatAction({
   id: ActionId.HeavyShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.BurstShot,
   reducedBySkillSpeed: true,
 });
@@ -346,7 +346,7 @@ const refulgentArrow: CombatAction = createCombatAction({
 
 const windbite: CombatAction = createCombatAction({
   id: ActionId.Windbite,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Stormbite,
   reducedBySkillSpeed: true,
 });
@@ -367,7 +367,7 @@ const stormbite: CombatAction = createCombatAction({
 
 const venomousBite: CombatAction = createCombatAction({
   id: ActionId.VenomousBite,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.CausticBite,
   reducedBySkillSpeed: true,
 });
@@ -509,7 +509,7 @@ const pitchPerfect: CombatAction = createCombatAction({
 
 const bloodletter: CombatAction = createCombatAction({
   id: ActionId.Bloodletter,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.HeartbreakShot,
 });
 
@@ -574,7 +574,7 @@ const ironJaws: CombatAction = createCombatAction({
 const apexArrow: CombatAction = createCombatAction({
   id: ActionId.ApexArrow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 480 + 120 }));
+    dispatch(dmgEvent(ActionId.ApexArrow, context, { potency: 0.0125 * (context.cost - 20) * 560 + 140 }));
     if (context.cost >= 80) {
       dispatch(buff(StatusId.BlastArrowReady));
     }
@@ -589,7 +589,7 @@ const apexArrow: CombatAction = createCombatAction({
 const blastArrow: CombatAction = createCombatAction({
   id: ActionId.BlastArrow,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.BlastArrow, context, { potency: 600 }));
+    dispatch(dmgEvent(ActionId.BlastArrow, context, { potency: 700 }));
     dispatch(removeBuff(StatusId.BlastArrowReady));
   },
   isGlowing: () => true,
@@ -619,9 +619,9 @@ const radiantFinale: CombatAction = createCombatAction({
 });
 
 const radiantEncoreDmgMap: Record<number, number> = {
-  1: 600,
-  2: 700,
-  3: 1000,
+  1: 700,
+  2: 800,
+  3: 1100,
 };
 
 const radiantEncore: CombatAction = createCombatAction({
@@ -666,7 +666,7 @@ const naturesMinne: CombatAction = createCombatAction({
 
 const quickNock: CombatAction = createCombatAction({
   id: ActionId.QuickNock,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Ladonsbite,
   reducedBySkillSpeed: true,
 });
@@ -684,7 +684,7 @@ const ladonsbite: CombatAction = createCombatAction({
 
 const wideVolley: CombatAction = createCombatAction({
   id: ActionId.WideVolley,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Shadowbite,
   reducedBySkillSpeed: true,
 });

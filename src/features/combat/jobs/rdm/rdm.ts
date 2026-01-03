@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { filter, switchMap, takeUntil, first, map, of, withLatestFrom } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { AppThunk, RootState } from '../../../../app/store';
 import { getActionById } from '../../../actions/actions';
 import { ActionId } from '../../../actions/action_enums';
@@ -18,15 +18,12 @@ import {
   selectResources,
   inCombat,
   ogcdLock,
-  addBuff,
   executeAction,
   setManaStack,
   removeBuffStack,
   event,
-  removeBuffAction,
   dmgEvent,
   DamageType,
-  buffStacks,
 } from '../../combatSlice';
 import { rng } from '../../utils';
 
@@ -44,75 +41,41 @@ function manaStack(state: RootState) {
 
 export const addWhiteMana =
   (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
-    if (resources.blackMana - resources.whiteMana >= 30) {
-      amount = Math.floor(amount / 2);
-    }
-    const value = Math.min(resources.whiteMana + amount, 100);
+    (dispatch, getState) => {
+      const resources = selectResources(getState());
+      if (resources.blackMana - resources.whiteMana >= 30) {
+        amount = Math.floor(amount / 2);
+      }
+      const value = Math.min(resources.whiteMana + amount, 100);
 
-    dispatch(setResource({ resourceType: 'whiteMana', amount: value }));
-  };
+      dispatch(setResource({ resourceType: 'whiteMana', amount: value }));
+    };
 
 export const addBlackMana =
   (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
-    if (resources.whiteMana - resources.blackMana >= 30) {
-      amount = Math.floor(amount / 2);
-    }
-    const value = Math.min(resources.blackMana + amount, 100);
+    (dispatch, getState) => {
+      const resources = selectResources(getState());
+      if (resources.whiteMana - resources.blackMana >= 30) {
+        amount = Math.floor(amount / 2);
+      }
+      const value = Math.min(resources.blackMana + amount, 100);
 
-    dispatch(setResource({ resourceType: 'blackMana', amount: value }));
-  };
+      dispatch(setResource({ resourceType: 'blackMana', amount: value }));
+    };
 
 export const addBlackAndWhiteMana =
   (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
-    const whiteAmount = resources.blackMana - resources.whiteMana >= 30 ? Math.floor(amount / 2) : amount;
-    const blackAmount = resources.whiteMana - resources.blackMana >= 30 ? Math.floor(amount / 2) : amount;
+    (dispatch, getState) => {
+      const resources = selectResources(getState());
+      const whiteAmount = resources.blackMana - resources.whiteMana >= 30 ? Math.floor(amount / 2) : amount;
+      const blackAmount = resources.whiteMana - resources.blackMana >= 30 ? Math.floor(amount / 2) : amount;
 
-    const whiteValue = Math.min(resources.whiteMana + whiteAmount, 100);
-    const blackValue = Math.min(resources.blackMana + blackAmount, 100);
+      const whiteValue = Math.min(resources.whiteMana + whiteAmount, 100);
+      const blackValue = Math.min(resources.blackMana + blackAmount, 100);
 
-    dispatch(setResource({ resourceType: 'blackMana', amount: blackValue }));
-    dispatch(setResource({ resourceType: 'whiteMana', amount: whiteValue }));
-  };
-
-const consumeManaficationEpic: Epic<any, any, RootState> = (action$, state$) =>
-  action$.pipe(
-    filter((a) => a.type === addBuff.type && a.payload.id === StatusId.Manafication),
-    switchMap(() =>
-      action$.pipe(
-        filter(
-          (aa) =>
-            aa.type === executeAction.type &&
-            (getActionById(aa.payload.id).type === 'Spell' ||
-              [
-                ActionId.EnchantedRiposte,
-                ActionId.EnchantedZwerchhau,
-                ActionId.EnchantedRedoublement,
-                ActionId.EnchantedMoulinet,
-                ActionId.EnchantedMoulinetDeux,
-                ActionId.EnchantedMoulinetTrois,
-                ActionId.EnchantedReprise,
-              ].includes(aa.payload.id))
-        ),
-        takeUntil(action$.pipe(first((a) => a.type === removeBuffAction.type && a.payload === a.payload.id)))
-      )
-    ),
-    withLatestFrom(state$),
-    switchMap(([, state]) => {
-      const actions = [removeBuffStack(StatusId.Manafication)];
-
-      if (buffStacks(state, StatusId.Manafication) === 1) {
-        actions.push(buff(StatusId.PrefulgenceReady));
-      }
-
-      return of(...actions);
-    })
-  );
+      dispatch(setResource({ resourceType: 'blackMana', amount: blackValue }));
+      dispatch(setResource({ resourceType: 'whiteMana', amount: whiteValue }));
+    };
 
 const removeManaStackEpic: Epic<any, any, RootState> = (action$) =>
   action$.pipe(
@@ -130,10 +93,10 @@ function joltRedirect(state: RootState) {
   return hasCombo(state, ActionId.Resolution)
     ? ActionId.Resolution
     : hasCombo(state, ActionId.Scorch)
-    ? ActionId.Scorch
-    : hasBuff(state, StatusId.GrandImpactReady)
-    ? ActionId.GrandImpact
-    : ActionId.JoltIII;
+      ? ActionId.Scorch
+      : hasBuff(state, StatusId.GrandImpactReady)
+        ? ActionId.GrandImpact
+        : ActionId.JoltIII;
 }
 
 const dualcastStatus: CombatStatus = createCombatStatus({
@@ -206,14 +169,14 @@ const grandImpactReadyStatus: CombatStatus = createCombatStatus({
 
 const jolt: CombatAction = createCombatAction({
   id: ActionId.Jolt,
-  execute: () => {},
+  execute: () => { },
   redirect: joltRedirect,
   reducedBySpellSpeed: true,
 });
 
 const jolt2: CombatAction = createCombatAction({
   id: ActionId.JoltII,
-  execute: () => {},
+  execute: () => { },
   redirect: joltRedirect,
   reducedBySpellSpeed: true,
 });
@@ -234,7 +197,7 @@ function verthuderRedirect(state: RootState) {
 
 const verthuder: CombatAction = createCombatAction({
   id: ActionId.Verthunder,
-  execute: () => {},
+  execute: () => { },
   redirect: verthuderRedirect,
   reducedBySpellSpeed: true,
 });
@@ -261,7 +224,7 @@ function veraeroRedirect(state: RootState) {
 
 const veraero: CombatAction = createCombatAction({
   id: ActionId.Veraero,
-  execute: () => {},
+  execute: () => { },
   redirect: veraeroRedirect,
   reducedBySpellSpeed: true,
 });
@@ -396,10 +359,12 @@ const manafication: CombatAction = createCombatAction({
     dispatch(ogcdLock());
     dispatch(buff(StatusId.Manafication));
     dispatch(buff(StatusId.MagickedSwordplay));
+    dispatch(buff(StatusId.PrefulgenceReady));
   },
   cooldown: () => 110,
   isUsable: (state) => inCombat(state),
   redirect: (state) => (hasBuff(state, StatusId.PrefulgenceReady) ? ActionId.Prefulgence : ActionId.Manafication),
+  actionChangeTo: ActionId.Prefulgence
 });
 
 const prefulgence: CombatAction = createCombatAction({
@@ -504,7 +469,7 @@ const viceOfThorns: CombatAction = createCombatAction({
   id: ActionId.ViceofThorns,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 900 }));
+    dispatch(dmgEvent(ActionId.ViceofThorns, context, { potency: 950 }));
     dispatch(removeBuff(StatusId.ThornedFlourish));
   },
   isUsable: (state) => hasBuff(state, StatusId.ThornedFlourish),
@@ -576,7 +541,7 @@ const vercure: CombatAction = createCombatAction({
 
 const verraise: CombatAction = createCombatAction({
   id: ActionId.Verraise,
-  execute: () => {},
+  execute: () => { },
   reducedBySpellSpeed: true,
 });
 
@@ -629,15 +594,15 @@ function impactRedirect(state: RootState) {
   return hasBuff(state, StatusId.GrandImpactReady)
     ? ActionId.GrandImpact
     : hasCombo(state, ActionId.Resolution)
-    ? ActionId.Resolution
-    : hasCombo(state, ActionId.Scorch)
-    ? ActionId.Scorch
-    : ActionId.Impact;
+      ? ActionId.Resolution
+      : hasCombo(state, ActionId.Scorch)
+        ? ActionId.Scorch
+        : ActionId.Impact;
 }
 
 const scatter: CombatAction = createCombatAction({
   id: ActionId.Scatter,
-  execute: () => {},
+  execute: () => { },
   redirect: impactRedirect,
   reducedBySpellSpeed: true,
 });
@@ -669,8 +634,8 @@ const moulinet: CombatAction = createCombatAction({
       ? hasCombo(state, ActionId.EnchantedMoulinetDeux)
         ? ActionId.EnchantedMoulinetDeux
         : hasCombo(state, ActionId.EnchantedMoulinetTrois)
-        ? ActionId.EnchantedMoulinetTrois
-        : ActionId.EnchantedMoulinet
+          ? ActionId.EnchantedMoulinetTrois
+          : ActionId.EnchantedMoulinet
       : ActionId.Moulinet,
   reducedBySkillSpeed: true,
 });
@@ -767,4 +732,4 @@ export const rdm: CombatAction[] = [
   grandImpact,
 ];
 
-export const rdmEpics = combineEpics(consumeManaficationEpic, removeManaStackEpic, removeDualcastWithPotionOrSprintEpic);
+export const rdmEpics = combineEpics(removeManaStackEpic, removeDualcastWithPotionOrSprintEpic);

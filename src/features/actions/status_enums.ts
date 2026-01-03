@@ -199,6 +199,7 @@ export enum StatusId {
   ReadytoRaze = 3839,
   ReadytoReign = 3840,
   ReadytoBreak = 3886,
+  Bloodfest = 5051,
   RaptorForm = 108,
   CoeurlForm = 109,
   OpoopoForm = 107,

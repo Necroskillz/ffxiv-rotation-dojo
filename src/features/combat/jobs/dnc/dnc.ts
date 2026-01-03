@@ -80,30 +80,30 @@ function canGetEspritFromWeaponskills(state: RootState) {
 
 const dance =
   (stepCount: number): AppThunk =>
-  (dispatch) => {
-    dispatch(setResource({ resourceType: 'steps', amount: stepCount }));
-    dispatch(setResource({ resourceType: 'step', amount: 0 }));
+    (dispatch) => {
+      dispatch(setResource({ resourceType: 'steps', amount: stepCount }));
+      dispatch(setResource({ resourceType: 'step', amount: 0 }));
 
-    const steps = shuffleArray([ActionId.Emboite, ActionId.Entrechat, ActionId.Jete, ActionId.Pirouette]);
+      const steps = shuffleArray([ActionId.Emboite, ActionId.Entrechat, ActionId.Jete, ActionId.Pirouette]);
 
-    for (let i = 1; i <= 4; i++) {
-      dispatch(setResource({ resourceType: `step${i}`, amount: i > stepCount ? 0 : steps[i - 1] }));
-    }
-  };
+      for (let i = 1; i <= 4; i++) {
+        dispatch(setResource({ resourceType: `step${i}`, amount: i > stepCount ? 0 : steps[i - 1] }));
+      }
+    };
 
 const step =
   (action: ActionId): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
+    (dispatch, getState) => {
+      const resources = selectResources(getState());
 
-    if (resources.step === resources.steps) {
-      return;
-    }
+      if (resources.step === resources.steps) {
+        return;
+      }
 
-    if (resources[`step${resources.step + 1}`] === action) {
-      dispatch(setResource({ resourceType: 'step', amount: resources.step + 1 }));
-    }
-  };
+      if (resources[`step${resources.step + 1}`] === action) {
+        dispatch(setResource({ resourceType: 'step', amount: resources.step + 1 }));
+      }
+    };
 
 const resetDanceEpic: Epic<ReducerAction<StatusId>, any, RootState> = (action$) =>
   action$.pipe(
@@ -433,8 +433,8 @@ const standardStep: CombatAction = createCombatAction({
     hasBuff(state, StatusId.FinishingMoveReady)
       ? ActionId.FinishingMove
       : hasBuff(state, StatusId.StandardStep)
-      ? ActionId.StandardFinish
-      : ActionId.StandardStep,
+        ? ActionId.StandardFinish
+        : ActionId.StandardStep,
   entersCombat: false,
 });
 
@@ -574,7 +574,7 @@ const fanDanceIV: CombatAction = createCombatAction({
   id: ActionId.FanDanceIV,
   execute: (dispatch, _, context) => {
     dispatch(ogcdLock());
-    dispatch(dmgEvent(ActionId.FanDanceIV, context, { potency: 420 }));
+    dispatch(dmgEvent(ActionId.FanDanceIV, context, { potency: 460 }));
     dispatch(removeBuff(StatusId.FourfoldFanDance));
   },
   isUsable: (state) => !isDancing(state) && hasBuff(state, StatusId.FourfoldFanDance),
@@ -689,7 +689,7 @@ const starfallDance: CombatAction = createCombatAction({
 const saberDance: CombatAction = createCombatAction({
   id: ActionId.SaberDance,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.SaberDance, context, { potency: 520 }));
+    dispatch(dmgEvent(ActionId.SaberDance, context, { potency: 540 }));
   },
   isUsable: (state) => !isDancing(state) && esprit(state) >= 50,
   redirect: (state) => (hasBuff(state, StatusId.DanceoftheDawnReady) ? ActionId.DanceoftheDawn : ActionId.SaberDance),
@@ -861,7 +861,7 @@ const bloodshower: CombatAction = createCombatAction({
 const lastDance: CombatAction = createCombatAction({
   id: ActionId.LastDance,
   execute: (dispatch, _, contenxt) => {
-    dispatch(dmgEvent(ActionId.LastDance, contenxt, { potency: 520 }));
+    dispatch(dmgEvent(ActionId.LastDance, contenxt, { potency: 540 }));
     dispatch(removeBuff(StatusId.LastDanceReady));
   },
   reducedBySkillSpeed: true,

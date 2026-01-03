@@ -374,7 +374,7 @@ export const combatSlice = createSlice({
     setCombat: (state, action: PayloadAction<boolean>) => {
       state.inCombat = action.payload;
     },
-    executeAction: (_state, _action: PayloadAction<{ id: ActionId }>) => {},
+    executeAction: (_state, _action: PayloadAction<{ id: ActionId }>) => { },
     clear: (state) => {
       state.resources = initialState.resources;
       state.pullTimer = null;
@@ -401,7 +401,7 @@ export const combatSlice = createSlice({
     setPosition: (state, action: PayloadAction<Position>) => {
       state.position = action.payload;
     },
-    addEvent: (_state, _action: PayloadAction<EventPayload>) => {},
+    addEvent: (_state, _action: PayloadAction<EventPayload>) => { },
   },
 });
 
@@ -558,140 +558,140 @@ export const selectAction = createSelector(
 
 export const reset =
   (full: boolean): AppThunk =>
-  (dispatch, getState) => {
-    const state = getState().combat;
-    const preservedBuffs = [
-      StatusId.ClosedPosition,
-      StatusId.Defiance,
-      StatusId.RoyalGuard,
-      StatusId.Grit,
-      StatusId.MightyGuard,
-      StatusId.AethericMimicryDPS,
-      StatusId.AethericMimicryHealer,
-      StatusId.AethericMimicryTank,
-    ];
-    const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
+    (dispatch, getState) => {
+      const state = getState().combat;
+      const preservedBuffs = [
+        StatusId.ClosedPosition,
+        StatusId.Defiance,
+        StatusId.RoyalGuard,
+        StatusId.Grit,
+        StatusId.MightyGuard,
+        StatusId.AethericMimicryDPS,
+        StatusId.AethericMimicryHealer,
+        StatusId.AethericMimicryTank,
+      ];
+      const buffs = full ? state.buffs : state.buffs.filter((b) => !preservedBuffs.includes(b.id));
 
-    dispatch(setCombat(false));
-    dispatch(clear());
-    buffs.forEach((b) => dispatch(removeBuff(b.id)));
-    state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
-    Object.keys(state.cooldowns).forEach((k) => dispatch(removeCooldown(k as any)));
-    dispatch(breakCombo());
-    dispatch(removeQueuedAction());
-    dispatch(removeOgcdLock());
-    dispatch(setCast(null));
+      dispatch(setCombat(false));
+      dispatch(clear());
+      buffs.forEach((b) => dispatch(removeBuff(b.id)));
+      state.debuffs.forEach((b) => dispatch(removeDebuff(b.id)));
+      Object.keys(state.cooldowns).forEach((k) => dispatch(removeCooldown(k as any)));
+      dispatch(breakCombo());
+      dispatch(removeQueuedAction());
+      dispatch(removeOgcdLock());
+      dispatch(setCast(null));
 
-    if (!full) {
-      dispatch(stateInitializer.initialize);
-    }
-  };
+      if (!full) {
+        dispatch(stateInitializer.initialize);
+      }
+    };
 
 export const combo =
   (actionId: ActionId): AppThunk =>
-  (dispatch) => {
-    dispatch(
-      addCombo({
-        actionId,
-        timeoutId: setTimeout(() => dispatch(removeCombo(actionId)), 30000),
-      })
-    );
-  };
+    (dispatch) => {
+      dispatch(
+        addCombo({
+          actionId,
+          timeoutId: setTimeout(() => dispatch(removeCombo(actionId)), 30000),
+        })
+      );
+    };
 
 export const buff =
   (id: StatusId, options?: { stacks?: number; duration?: number }): AppThunk =>
-  (dispatch, getState) => {
-    statuses[id].apply(dispatch as any, getState, options || {});
-  };
+    (dispatch, getState) => {
+      statuses[id].apply(dispatch as any, getState, options || {});
+    };
 
 export const debuff = buff;
 
 export const removeBuff =
   (id: StatusId): AppThunk =>
-  (dispatch, getState) => {
-    if (hasBuff(getState(), id)) {
-      dispatch(statuses[id].remove as any);
-    }
-  };
+    (dispatch, getState) => {
+      if (hasBuff(getState(), id)) {
+        dispatch(statuses[id].remove as any);
+      }
+    };
 
 export const removeDebuff =
   (id: StatusId): AppThunk =>
-  (dispatch, getState) => {
-    if (hasDebuff(getState(), id)) {
-      dispatch(statuses[id].remove as any);
-    }
-  };
+    (dispatch, getState) => {
+      if (hasDebuff(getState(), id)) {
+        dispatch(statuses[id].remove as any);
+      }
+    };
 
 export const extendableBuff =
   (id: StatusId, duration?: number): AppThunk =>
-  (dispatch, getState) => {
-    statuses[id].extend(dispatch as any, getState, { duration });
-  };
+    (dispatch, getState) => {
+      statuses[id].extend(dispatch as any, getState, { duration });
+    };
 
 export const extendableDebuff = extendableBuff;
 
 export const removeBuffStack =
   (id: StatusId): AppThunk =>
-  (dispatch) => {
-    dispatch(statuses[id].removeStack as any);
-  };
+    (dispatch) => {
+      dispatch(statuses[id].removeStack as any);
+    };
 
 export const addBuffStack =
   (id: StatusId, options?: { keepDuration?: boolean }): AppThunk =>
-  (dispatch, getState) => {
-    statuses[id].addStack(dispatch as any, getState, options || {});
-  };
+    (dispatch, getState) => {
+      statuses[id].addStack(dispatch as any, getState, options || {});
+    };
 
 export const cooldown =
   (cooldownGroup: number, duration: number, timestamp?: number): AppThunk =>
-  (dispatch) => {
-    const now = Date.now();
-    timestamp = timestamp ?? now;
-    const remaining = timestamp + duration - now;
+    (dispatch) => {
+      const now = Date.now();
+      timestamp = timestamp ?? now;
+      const remaining = timestamp + duration - now;
 
-    dispatch(
-      addCooldown({
-        cooldownGroup,
-        timeoutId: setTimeout(() => {
-          dispatch(removeCooldown(cooldownGroup));
+      dispatch(
+        addCooldown({
+          cooldownGroup,
+          timeoutId: setTimeout(() => {
+            dispatch(removeCooldown(cooldownGroup));
 
-          if (cooldownGroup === 58 || cooldownGroup >= 1000) {
-            dispatch(drainQueue());
-          }
-        }, remaining),
-        duration,
-        timestamp,
-      })
-    );
-  };
+            if (cooldownGroup === 58 || cooldownGroup >= 1000) {
+              dispatch(drainQueue());
+            }
+          }, remaining),
+          duration,
+          timestamp,
+        })
+      );
+    };
 
 export const modifyCooldown =
   (cooldownGroup: number, duration: number): AppThunk =>
-  (dispatch, getState) => {
-    const cooldowns = selectCooldowns(getState());
-    const cooldown = cooldowns[cooldownGroup];
+    (dispatch, getState) => {
+      const cooldowns = selectCooldowns(getState());
+      const cooldown = cooldowns[cooldownGroup];
 
-    if (!cooldown) {
-      return;
-    }
+      if (!cooldown) {
+        return;
+      }
 
-    const remaining = cooldown.timestamp + cooldown.duration - Date.now();
+      const remaining = cooldown.timestamp + cooldown.duration - Date.now();
 
-    dispatch(
-      setCooldown({
-        cooldownGroup,
-        timeoutId: setTimeout(() => {
-          dispatch(removeCooldown(cooldownGroup));
+      dispatch(
+        setCooldown({
+          cooldownGroup,
+          timeoutId: setTimeout(() => {
+            dispatch(removeCooldown(cooldownGroup));
 
-          if (cooldownGroup === 58) {
-            dispatch(drainQueue());
-          }
-        }, remaining + duration),
-        duration: cooldown.duration,
-        timestamp: cooldown.timestamp + duration,
-      })
-    );
-  };
+            if (cooldownGroup === 58) {
+              dispatch(drainQueue());
+            }
+          }, remaining + duration),
+          duration: cooldown.duration,
+          timestamp: cooldown.timestamp + duration,
+        })
+      );
+    };
 
 function isExecutable(state: RootState, combatAction: CombatAction) {
   const combat = selectCombat(state);
@@ -713,30 +713,30 @@ function isExecutable(state: RootState, combatAction: CombatAction) {
 
 export const queue =
   (actionId: ActionId): AppThunk =>
-  (dispatch, getState) => {
-    const combatAction = actions[actionId];
+    (dispatch, getState) => {
+      const combatAction = actions[actionId];
 
-    if (isExecutable(getState(), combatAction)) {
-      dispatch(combatAction.execute());
-    } else {
-      dispatch(removeQueuedAction());
-      dispatch(
-        queueAction({
-          actionId,
-          timeoutId: setTimeout(() => dispatch(removeQueuedAction()), 600),
-        })
-      );
+      if (isExecutable(getState(), combatAction)) {
+        dispatch(combatAction.execute());
+      } else {
+        dispatch(removeQueuedAction());
+        dispatch(
+          queueAction({
+            actionId,
+            timeoutId: setTimeout(() => dispatch(removeQueuedAction()), 600),
+          })
+        );
 
-      const cooldown = selectCooldowns(getState())[getActionById(actionId).cooldownGroup];
+        const cooldown = selectCooldowns(getState())[getActionById(actionId).cooldownGroup];
 
-      if (cooldown) {
-        const remaining = cooldown.timestamp + cooldown.duration - Date.now();
-        if (remaining < 600) {
-          setTimeout(() => dispatch(drainQueue()), remaining + 5);
+        if (cooldown) {
+          const remaining = cooldown.timestamp + cooldown.duration - Date.now();
+          if (remaining < 600) {
+            setTimeout(() => dispatch(drainQueue()), remaining + 5);
+          }
         }
       }
-    }
-  };
+    };
 
 export const drainQueue = (): AppThunk => (dispatch, getState) => {
   const combat = selectCombat(getState());
@@ -754,52 +754,52 @@ export const drainQueue = (): AppThunk => (dispatch, getState) => {
 
 export const ogcdLock =
   (duration?: number): AppThunk =>
-  (dispatch) => {
-    dispatch(
-      addOgcdLock(
-        setTimeout(() => {
-          dispatch(removeOgcdLock());
-          dispatch(drainQueue());
-        }, duration || OGCDLockDuration.Default)
-      )
-    );
-  };
+    (dispatch) => {
+      dispatch(
+        addOgcdLock(
+          setTimeout(() => {
+            dispatch(removeOgcdLock());
+            dispatch(drainQueue());
+          }, duration || OGCDLockDuration.Default)
+        )
+      );
+    };
 
 export const gcd =
   (options?: { time?: number; reducedBySkillSpeed?: boolean; reducedBySpellSpeed?: boolean }): AppThunk =>
-  (dispatch, getState) => {
-    const time = options?.time || 2500;
-    const type = options?.reducedBySpellSpeed ? 'Spell' : options?.reducedBySkillSpeed ? 'Weaponskill' : null;
-    dispatch(cooldown(58, type ? recastTime(getState(), time, type) : time));
-  };
+    (dispatch, getState) => {
+      const time = options?.time || 2500;
+      const type = options?.reducedBySpellSpeed ? 'Spell' : options?.reducedBySkillSpeed ? 'Weaponskill' : null;
+      dispatch(cooldown(58, type ? recastTime(getState(), time, type) : time));
+    };
 
-interface EventOptions extends Partial<Omit<EventPayload, 'actionId'>> {}
+interface EventOptions extends Partial<Omit<EventPayload, 'actionId'>> { }
 
 export const event =
   (actionId: number, options: EventOptions): AppThunk =>
-  (dispatch, getState) => {
-    if (options.mana) {
-      dispatch(addMana(options.mana));
-    }
+    (dispatch, getState) => {
+      if (options.mana) {
+        dispatch(addMana(options.mana));
+      }
 
-    dispatch(
-      addEvent({
-        actionId,
-        healthPotency: options.healthPotency || 0,
-        healthPercent: options.healthPercent || 0,
-        damage: options.damage || 0,
-        damagePercent: options.damagePercent || 0,
-        health: options.health || 0,
-        mana: options.mana || 0,
-        potency: options.potency || 0,
-        type: options.type || DamageType.None,
-        statuses: options.statuses || [],
-        comboed: !!options.comboed,
-        positional: options.positional || 'none',
-        position: selectPosition(getState()),
-      })
-    );
-  };
+      dispatch(
+        addEvent({
+          actionId,
+          healthPotency: options.healthPotency || 0,
+          healthPercent: options.healthPercent || 0,
+          damage: options.damage || 0,
+          damagePercent: options.damagePercent || 0,
+          health: options.health || 0,
+          mana: options.mana || 0,
+          potency: options.potency || 0,
+          type: options.type || DamageType.None,
+          statuses: options.statuses || [],
+          comboed: !!options.comboed,
+          positional: options.positional || 'none',
+          position: selectPosition(getState()),
+        })
+      );
+    };
 
 export interface DmgEventOptions extends EventOptions {
   comboPotency?: number;
@@ -836,97 +836,97 @@ function selectPotency(position: Position, base?: number, back?: number, flank?:
 
 export const dmgEvent =
   (actionId: ActionId, context: CombatActionExecuteContext, options: DmgEventOptions): AppThunk =>
-  (dispatch, getState) => {
-    let { mana, healthPotency, type } = options;
-    const position = selectPosition(getState());
+    (dispatch, getState) => {
+      let { mana, healthPotency, type } = options;
+      const position = selectPosition(getState());
 
-    let [potency, positional] = selectPotency(position, options.potency, options.rearPotency, options.flankPotency, options.frontPotency);
+      let [potency, positional] = selectPotency(position, options.potency, options.rearPotency, options.flankPotency, options.frontPotency);
 
-    if (options.isEnhanced) {
-      [potency, positional] = selectPotency(
-        position,
-        options.enhancedPotency,
-        options.rearEnhancedPotency,
-        options.flankEnhancedPotency,
-        options.frontEnhancedPotency
-      );
-    } else {
-      const [comboPotency, comboPositional] = selectPotency(
-        position,
-        options.comboPotency,
-        options.rearComboPotency,
-        options.flankComboPotency,
-        options.frontComboPotency
-      );
-
-      if (context.comboed) {
-        if (comboPotency) {
-          potency = comboPotency;
-          positional = comboPositional;
-        }
-        mana = options.comboMana;
-        healthPotency = options.comboHealthPotency;
-      }
-    }
-
-    if (!type && actionId) {
-      const action = getActionById(actionId);
-      if (action.type === 'Weaponskill') {
-        type = DamageType.Physical;
-      } else if (action.type === 'Spell') {
-        type = DamageType.Magical;
+      if (options.isEnhanced) {
+        [potency, positional] = selectPotency(
+          position,
+          options.enhancedPotency,
+          options.rearEnhancedPotency,
+          options.flankEnhancedPotency,
+          options.frontEnhancedPotency
+        );
       } else {
-        if (['RDM', 'SMN', 'BLM', 'BLU'].includes(selectJob(getState()))) {
+        const [comboPotency, comboPositional] = selectPotency(
+          position,
+          options.comboPotency,
+          options.rearComboPotency,
+          options.flankComboPotency,
+          options.frontComboPotency
+        );
+
+        if (context.comboed) {
+          if (comboPotency) {
+            potency = comboPotency;
+            positional = comboPositional;
+          }
+          mana = options.comboMana;
+          healthPotency = options.comboHealthPotency;
+        }
+      }
+
+      if (!type && actionId) {
+        const action = getActionById(actionId);
+        if (action.type === 'Weaponskill') {
+          type = DamageType.Physical;
+        } else if (action.type === 'Spell') {
           type = DamageType.Magical;
         } else {
-          type = DamageType.Physical;
+          if (['RDM', 'SMN', 'BLM', 'BLU'].includes(selectJob(getState()))) {
+            type = DamageType.Magical;
+          } else {
+            type = DamageType.Physical;
+          }
         }
       }
-    }
 
-    dispatch(
-      event(actionId, {
-        potency,
-        mana,
-        healthPotency,
-        type,
-        comboed: context.comboed,
-        statuses: [
-          ...collectStatuses(actionId, getState()),
-          ...context.consumedStatuses.map((s) => ({ id: s, stacks: buffStacks(getState(), s) + 1 })),
-        ],
-        healthPercent: options.healthPercent,
-        positional,
-      })
-    );
-  };
+      dispatch(
+        event(actionId, {
+          potency,
+          mana,
+          healthPotency,
+          type,
+          comboed: context.comboed,
+          statuses: [
+            ...collectStatuses(actionId, getState()),
+            ...context.consumedStatuses.map((s) => ({ id: s, stacks: buffStacks(getState(), s) + 1 })),
+          ],
+          healthPercent: options.healthPercent,
+          positional,
+        })
+      );
+    };
 
 export const addResourceFactory =
   (resourceType: string, max: number) =>
-  (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
-    const value = Math.min(resources[resourceType] + amount, max);
+    (amount: number): AppThunk =>
+      (dispatch, getState) => {
+        const resources = selectResources(getState());
+        const value = Math.min(resources[resourceType] + amount, max);
 
-    dispatch(setResource({ resourceType, amount: value }));
-  };
+        dispatch(setResource({ resourceType, amount: value }));
+      };
 
 export const setResourceFactory =
   (resourceType: string) =>
-  (amount: number): AppThunk =>
-  (dispatch) => {
-    dispatch(setResource({ resourceType, amount: amount }));
-  };
+    (amount: number): AppThunk =>
+      (dispatch) => {
+        dispatch(setResource({ resourceType, amount: amount }));
+      };
 
 export const removeResourceFactory =
   (resourceType: string) =>
-  (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const resources = selectResources(getState());
-    const value = Math.max(resources[resourceType] - amount, 0);
+    (amount: number): AppThunk =>
+      (dispatch, getState) => {
+        const resources = selectResources(getState());
+        const value = Math.max(resources[resourceType] - amount, 0);
 
-    dispatch(setResource({ resourceType, amount: value }));
-  };
+        dispatch(setResource({ resourceType, amount: value }));
+      };
 
 export const addMana = addResourceFactory('mana', 10000);
 export const addHp = addResourceFactory('hp', 10000);
@@ -973,7 +973,7 @@ export const setSen = setResourceFactory('sen');
 export const addKenki = addResourceFactory('kenki', 100);
 export const addMeditation = addResourceFactory('meditation', 3);
 export const setMeditation = setResourceFactory('meditation');
-export const addCartridge = addResourceFactory('cartridge', 3);
+export const setCartridge = setResourceFactory('cartridge');
 export const setChakra = setResourceFactory('chakra');
 export const setBeastChakra = setResourceFactory('beastChakra');
 export const setLunarNadi = setResourceFactory('lunarNadi');

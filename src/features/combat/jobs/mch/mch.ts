@@ -247,7 +247,7 @@ const excavatorReadyStatus: CombatStatus = createCombatStatus({
 
 const splitShot: CombatAction = createCombatAction({
   id: ActionId.SplitShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.HeatedSplitShot,
   reducedBySkillSpeed: true,
 });
@@ -264,7 +264,7 @@ const heatedSplitShot: CombatAction = createCombatAction({
 
 const slugShot: CombatAction = createCombatAction({
   id: ActionId.SlugShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.HeatedSlugShot,
   reducedBySkillSpeed: true,
 });
@@ -289,7 +289,7 @@ const heatedSlugShot: CombatAction = createCombatAction({
 
 const cleanShot: CombatAction = createCombatAction({
   id: ActionId.CleanShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.HeatedCleanShot,
   reducedBySkillSpeed: true,
 });
@@ -316,7 +316,7 @@ const heatedCleanShot: CombatAction = createCombatAction({
 const drill: CombatAction = createCombatAction({
   id: ActionId.Drill,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 620) }));
+    dispatch(dmgEvent(ActionId.Drill, context, { potency: adjustedPotency(getState(), 660) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
   },
   maxCharges: () => 2,
@@ -324,7 +324,7 @@ const drill: CombatAction = createCombatAction({
 
 const hotShot: CombatAction = createCombatAction({
   id: ActionId.HotShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.AirAnchor,
   reducedBySkillSpeed: true,
 });
@@ -332,7 +332,7 @@ const hotShot: CombatAction = createCombatAction({
 const airAnchor: CombatAction = createCombatAction({
   id: ActionId.AirAnchor,
   execute: (dispatch, getState, context) => {
-    dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 620) }));
+    dispatch(dmgEvent(ActionId.AirAnchor, context, { potency: adjustedPotency(getState(), 660) }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
   },
@@ -342,7 +342,7 @@ const airAnchor: CombatAction = createCombatAction({
 const chainsaw: CombatAction = createCombatAction({
   id: ActionId.ChainSaw,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.ChainSaw, context, { potency: 660 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(buff(StatusId.ExcavatorReady));
@@ -354,7 +354,7 @@ const chainsaw: CombatAction = createCombatAction({
 const excavator: CombatAction = createCombatAction({
   id: ActionId.Excavator,
   execute: (dispatch, _, context) => {
-    dispatch(dmgEvent(ActionId.Excavator, context, { potency: 620 }));
+    dispatch(dmgEvent(ActionId.Excavator, context, { potency: 660 }));
     dispatch(gcd({ reducedBySkillSpeed: true }));
     dispatch(addBattery(20));
     dispatch(removeBuff(StatusId.ExcavatorReady));
@@ -379,13 +379,13 @@ const reassemble: CombatAction = createCombatAction({
 
 const ricochet: CombatAction = createCombatAction({
   id: ActionId.Ricochet,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.DoubleCheck,
 });
 
 const gaussRound: CombatAction = createCombatAction({
   id: ActionId.GaussRound,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Checkmate,
 });
 
@@ -474,7 +474,7 @@ const hypercharge: CombatAction = createCombatAction({
 
 const heatBlast: CombatAction = createCombatAction({
   id: ActionId.HeatBlast,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.BlazingShot,
 });
 
@@ -491,7 +491,7 @@ const blazingShot: CombatAction = createCombatAction({
 
 const rookAutoturret: CombatAction = createCombatAction({
   id: ActionId.RookAutoturret,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.AutomatonQueen,
 });
 
@@ -508,7 +508,7 @@ const automatonQueen: CombatAction = createCombatAction({
 
 const rookOverdrive: CombatAction = createCombatAction({
   id: ActionId.RookOverdrive,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.QueenOverdrive,
 });
 
@@ -539,7 +539,7 @@ const dismantle: CombatAction = createCombatAction({
 
 const spreadShot: CombatAction = createCombatAction({
   id: ActionId.SpreadShot,
-  execute: () => {},
+  execute: () => { },
   redirect: () => ActionId.Scattergun,
   reducedBySkillSpeed: true,
 });
@@ -584,27 +584,27 @@ const autoCrossbow: CombatAction = createCombatAction({
 
 const rookOverload: CombatAction = createCombatAction({
   id: ActionId.RookOverload,
-  execute: () => {},
+  execute: () => { },
 });
 
 const armPunch: CombatAction = createCombatAction({
   id: ActionId.ArmPunch,
-  execute: () => {},
+  execute: () => { },
 });
 
 const rollerDash: CombatAction = createCombatAction({
   id: ActionId.RollerDash,
-  execute: () => {},
+  execute: () => { },
 });
 
 const pileBunker: CombatAction = createCombatAction({
   id: ActionId.PileBunker,
-  execute: () => {},
+  execute: () => { },
 });
 
 const crownedCollider: CombatAction = createCombatAction({
   id: ActionId.CrownedCollider,
-  execute: () => {},
+  execute: () => { },
 });
 
 export const mchStatuses: CombatStatus[] = [
